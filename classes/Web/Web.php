@@ -9,6 +9,7 @@ if (!file_exists("../engulfing/")) {
 
 include_once ($desc . "../engulfing/engulfing-generated/classes/things/Things_Generated.php");
 include_once ($desc . "../engulfing/engulfing-generated/classes/web/Web_Generated.php");
+include_once ($desc . "../engulfing/engulfing-core/classes/Core/FileIO.php");
 include_once ($desc . "../engulfing/engulfing-core/classes/Core/Helper.php");
 include_once ($desc . "../engulfing/engulfing-core/classes/Core/ORM/ORM.php");
 

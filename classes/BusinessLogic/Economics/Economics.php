@@ -8,7 +8,7 @@ if (!file_exists("../engulfing/")) {
 }
 
 include_once ($desc . "../engulfing/engulfing-core/classes/BusinessLogic/GEO/GEO.php");
-//include_once ($desc . "../engulfing/engulfing-extensions/classes/Cybernetics/Cybernetics.php");
+include_once ($desc . "../engulfing/engulfing-core/classes/BusinessLogic/Cybernetics/Cybernetics.php");
 include_once ($desc . "../engulfing/engulfing-core/classes/Core/GSystem.php");
 
 include_once ($desc . "../engulfing/engulfing-generated/classes/things/Things_Generated.php");

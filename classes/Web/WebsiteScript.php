@@ -32,7 +32,7 @@ trait WebsiteScript {
 		
 		if ($scope === "engulfing") {
 			$scriptPath = str_ireplace("../engulfing/engulfing-core/", "", $scriptPath);
-		} else if ($targetDirectory) {
+		} else if ($targetDirectory && $scope) {
 			$scope = "engulfing";
 			//echo $scriptPath . "\n";
 			//$scriptPath = str_ireplace("../engulfing/", "", $scriptPath);
@@ -675,19 +675,20 @@ trait WebsiteScript {
 	function renderHTMLScripts_ModelsAndViews() {
 		$html = "";
 		
-		/*$html .= $this->renderHTMLScriptByDirectory(
+		$html .= $this->renderHTMLScriptByDirectory(
 				null,
 				"js",
 				"app.min.js",
 				null,
-				array("app.min.js", "main", "config")
-		);*/
+				array("app.min.js", "main", "config"),
+				"js"
+		);
 		
 		
 		
-		$html .= '
+		/*$html .= '
 		<script src="' . $this->getScriptSource(null, 'js/app.min.js') . '"></script>
-    	';
+    	';*/
 		
 	
 		return $html;
