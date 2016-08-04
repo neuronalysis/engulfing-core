@@ -1,0 +1,27 @@
+<div class="form-group" style="height: 25px;">
+	<label class="col-md-3 control-label"><%= getWordLike(field_name) %></label>
+	<div class="col-md-5">
+	
+<% if (accessMode === "read") { %>
+	<% if (field_name === "password") { %>
+		<span style="position: relative; top: 7px; left: 13px;">------</span>
+	<% } else { %>
+		<span style="position: relative; top: 7px; left: 13px;"><%= field_value %></span>
+	<% } %>
+<% } else if (accessMode === "edit") { %>
+	<% if (field_name === "password") { %>
+		<input type="text" style="display: none;" class="form-control" value="" id="antiPopulatorText">
+		<input type="password" style="display: none;"  class="form-control" value="" id="antiPopulatorPassword">
+		
+		<input type="password" class="form-control" value="<%= field_value %>" id="<%= field_name %>"
+			autofocus>
+	<% } else { %>
+		<input type="text" class="form-control" value="<%= field_value %>" id="<%= field_name %>"
+			autofocus>
+	<% } %>
+<% } else if (accessMode === "new") { %>
+	Relation Type
+<% } %>
+
+	</div>
+</div>

@@ -1,0 +1,12 @@
+<% if (withCell) { %><div class="col-md-1"><% } %>
+<div class="form-group" style="height: <%= chart_height %>;">
+<% if (withLabel) { %>
+	<label class="control-label col-sm-3"><%= getWordLike(label) %></label>
+<% } %>
+	<div class="col-md-12">
+
+		<div id="<%= field_name %>" style="position: relative; top: 3px; left: 4px;"></div>
+
+	</div>
+</div>
+<% if (withCell) { %></div><% } %>

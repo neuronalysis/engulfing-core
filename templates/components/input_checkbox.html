@@ -1,0 +1,18 @@
+<div class="form-group">
+	<label class="col-md-3 control-label"><%= getWordLike(object_name + "_" + field_name) %></label>
+	<div class="col-md-3">
+	
+<% if (accessMode === "read") { %>
+	<% if (field_value) { %>
+		<span class="glyphicon glyphicon-ok" aria-hidden="true" style="position: relative; top: 6px; left: 10px; font-size: 0.7em;"></span>
+	<% } else if (accessMode === "new") { %>
+		<span class="glyphicon glyphicon-remove" aria-hidden="true" style="position: relative; top: 6px; left: 9px;"></span>
+	<% } %>
+<% } else if (accessMode === "edit") { %>
+		<input type="checkbox" id="<%= field_name %>" style="position: relative; top: 6px; left: 9px;" <% if(field_value) { %> checked <% } %> />
+<% } else if ("new") { %>
+	Relation Type
+<% } %>
+
+	</div>
+</div>

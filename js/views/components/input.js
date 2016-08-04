@@ -1,0 +1,3 @@
+var InputView = BaseView.extend({
+});
+		

@@ -1,0 +1,23 @@
+<% if (withCell) { %><div class="col-md-12"><% } %>
+<div class="form-group">
+<% if (withLabel) { %>
+	<label class="col-md-3 control-label"><%= getWordLike(labelName) %></label>
+<% } %>
+
+<% if (withCell) { %>
+	<div class="col-md-12">
+<% } else { %>
+	<div class="col-md-5">
+<% } %>
+
+<% if (accessMode === "read") { %>
+		<span style="position: relative; top: 7px; left: 13px; height: 20px;"><%= field_value %></span>
+<% } else if (accessMode === "edit") { %>
+		<div id="<%= field_name %>" style="position: relative; top: 3px; left: 4px; height: 20px;"></div>
+<% } else if (accessMode === "new") { %>
+	Relation Type
+<% } %>
+
+	</div>
+</div>
+<% if (withCell) { %></div><% } %>

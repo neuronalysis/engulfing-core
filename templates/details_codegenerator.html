@@ -1,0 +1,56 @@
+<form class="form-horizontal">
+	<h2>Ontology</h2>
+
+	<div class="form-group">
+		<label class="control-label col-sm-2"><%= getWordLike('name')  %></label>
+		<div class="col-md-5">
+			<input type="text" class="form-control"
+				value="<%= data.name %>" id="name" readonly >
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="control-label col-sm-2"></label>
+		<div class="col-md-5">
+			<button id="btn_generate" name="singlebutton" class="btn btn-primary"
+				autofocus>Generate</button>
+
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="control-label col-sm-2"></label>
+		<div class="col-md-5">
+			<div class="controls" id="process_progress"></div>
+		</div>
+	</div>
+
+	<h2>Code</h2>
+
+	<div class="form-group">
+		<label class="control-label col-sm-2">DataBase</label>
+		<div class="col-md-8">
+			<div id="container_code_database"></div>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label col-sm-2">API</label>
+		<div class="col-md-8">
+			<div id="container_code_api"></div>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label col-sm-2">Logic</label>
+		<div class="col-md-8">
+			<div id="container_code_logic"></div>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label col-sm-2">FrontEnd</label>
+		<div class="col-md-8">
+			<div id="container_code_frontend"></div>
+		</div>
+	</div>
+</form>
+
+

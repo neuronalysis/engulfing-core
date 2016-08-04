@@ -1,0 +1,26 @@
+<div id="object" class="col-lg-10">
+
+<% if (hasFieldGroups) { %>
+	<ul id="object-tag-navigation" class="nav nav-tabs" role="tablist">
+		<!-- <li role="presentation" class="active"><a href="#dashboard" id="dashboard-tab" role="tab" data-toggle="tab" aria-controls="dashboard" aria-expanded="true">DASHBOARD</a></li>
+		<li role="presentation" class=""><a href="#financials" role="tab" id="financials-tab" data-toggle="tab" aria-controls="profile" aria-expanded="false">FINANCIALS</a></li>
+		<li role="presentation" class=""><a href="#quotes" role="tab" id="quotes-tab" data-toggle="tab" aria-controls="quotes" aria-expanded="false">QUOTES</a></li>
+		 -->
+	</ul>
+<% } %>
+
+	<form class="form-horizontal" id="field-container">
+	
+<% if (hasFieldGroups) { %>
+		<div class="tab-content" id="tab-container">
+		
+		    <!--<div role="tabpanel" class="tab-pane active" id="dashboard"></div>
+		    <div role="tabpanel" class="tab-pane" id="financials"></div>
+		    <div role="tabpanel" class="tab-pane" id="quotes"></div>
+		    -->
+		</div>
+<% } %>
+
+	</form>
+</div>
+<div id="sidebar" class="col-lg-2"></div>
