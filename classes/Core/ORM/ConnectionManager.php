@@ -1,8 +1,6 @@
 <?php
 trait ConnectionManager {
 	protected $connectionHost = "127.0.0.1";
-	//protected $connectionUsername = "engulfin_od";
-	//protected $connectionPassword = "hom3stak378";
 	protected $connectionUsername = "root";
 	protected $connectionPassword = "";
 	
