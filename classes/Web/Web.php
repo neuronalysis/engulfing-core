@@ -7,17 +7,17 @@ if (!file_exists("../engulfing/")) {
 	}
 }
 
-include_once ($desc . "../engulfing/engulfing-core/classes/Core/things/Things_Generated.php");
-include_once ($desc . "../engulfing/engulfing-extensions/generated/web/Web_Generated.php");
+include_once ($desc . "../engulfing/engulfing-generated/classes/things/Things_Generated.php");
+include_once ($desc . "../engulfing/engulfing-generated/classes/web/Web_Generated.php");
 include_once ($desc . "../engulfing/engulfing-core/classes/Core/Helper.php");
 include_once ($desc . "../engulfing/engulfing-core/classes/Core/ORM/ORM.php");
-include_once ($desc . "../engulfing/engulfing-extensions/classes/Extraction/Extraction.php");
-include_once ($desc . "../engulfing/engulfing-extensions/classes/DM/DM.php");
 
 //include_once ("Html/Html.php");
 
-include_once ('Website.php');
+include_once ("WebsiteScript.php");
+include_once ("WebsiteNavigation.php");
 include_once ('Webpage.php');
+include_once ("Website.php");
 include_once ('Websites/Website_Grid.php');
 include_once ("Websites/Website_ConvertedPDF.php");
 

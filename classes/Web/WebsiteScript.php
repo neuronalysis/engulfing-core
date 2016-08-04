@@ -673,8 +673,6 @@ trait WebsiteScript {
 		return $html;
 	}
 	function renderHTMLScripts_ModelsAndViews() {
-		$km = new KM();
-	
 		$html = "";
 		
 		/*$html .= $this->renderHTMLScriptByDirectory(

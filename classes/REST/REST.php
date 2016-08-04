@@ -429,11 +429,11 @@ class REST {
 		//echo $scopeName . "\n";
 		
 		if ($scopeName !== "") {
-			if (file_exists($desc . '../engulfing/engulfing-extensions/classes/' . $classScopeName . '/')) {
-				require_once $desc . '../engulfing/engulfing-extensions/classes/' . $classScopeName . '/' . $classScopeName . '.php';
+			if (file_exists($desc . '../engulfing/engulfing-core/classes/' . $classScopeName . '/')) {
+				require_once $desc . '../engulfing/engulfing-core/classes/' . $classScopeName . '/' . $classScopeName . '.php';
 			} else {
-				if (file_exists($desc . '../engulfing/engulfing-extensions/classes/BusinessLogic/' . $classScopeName . '/')) {
-					require_once $desc . '../engulfing/engulfing-extensions/classes/BusinessLogic/' . $classScopeName . '/' . $classScopeName . '.php';
+				if (file_exists($desc . '../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/')) {
+					require_once $desc . '../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/' . $classScopeName . '.php';
 				}
 			}
 			

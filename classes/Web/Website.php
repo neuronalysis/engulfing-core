@@ -7,11 +7,6 @@ if (!file_exists("../engulfing/")) {
 	}
 }
 
-include_once ($desc . "../engulfing/engulfing-core/generated/website/Website_Generated.php");
-
-
-include_once ("WebsiteScript.php");
-include_once ("WebsiteNavigation.php");
 //include_once ("../../engulfing/engulfing-extensions/classes/JShrink/Minifier.php");
 
 //XXX define sitemap schema (sample: http://docs.mixture.io/sitemap)
