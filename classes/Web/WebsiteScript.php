@@ -25,18 +25,48 @@ trait WebsiteScript {
 	
 		return $html;
 	}
-	function getScriptSource($scope, $scriptPath, $targetDirectory = null) {
-		//echo $scope . "; " . $scriptPath . "\n";
-		
-		//echo $targetDirectory . "\n";
+	function getScriptPathByScopeAndDirectory($scope, $directory) {
+		//echo "scope: " . $scope . "; directory: " . $directory . "\n";
 		
 		if ($scope === "engulfing") {
-			$scriptPath = str_ireplace("../engulfing/engulfing-core/", "", $scriptPath);
-		} else if ($targetDirectory && $scope) {
-			$scope = "engulfing";
-			//echo $scriptPath . "\n";
-			//$scriptPath = str_ireplace("../engulfing/", "", $scriptPath);
+			$scriptPath = str_ireplace("../engulfing/engulfing-core/", "", $directory);
+		} else {
+			$scriptPath = $directory;
 		}
+		
+		$scriptPath = $directory;
+		
+		return $scriptPath;
+	}
+	function getRefererScopeName($scope) {
+		if (strpos(getcwd(), "\\") !== false) {
+			$explodes = explode("\\", getcwd());
+		} else {
+			$explodes = explode("/", getcwd());
+		}
+		
+		if ($scope === null) {
+			$scopeDepth = $this->getScopeDepth();
+				
+			if ($scopeDepth === 0) {
+				$refererScopeName = end($explodes);
+			} else {
+				$refererScopeName = $explodes[count($explodes) - $scopeDepth];
+			}
+		} else {
+			$refererScopeName = end($explodes);
+		}
+		
+		$refererScopeName = str_ireplace(".com", "", $refererScopeName);
+		
+		return $refererScopeName;
+	}
+	function getScriptSource($scope, $scriptPath, $targetDirectory = null) {
+		$scriptPath = $this->getScriptPathByScopeAndDirectory($scope, $scriptPath);
+		
+		
+		$refererScopeName = $this->getRefererScopeName($scope);
+		
 		
 		$desc = "";
 		
@@ -46,46 +76,28 @@ trait WebsiteScript {
 			$explodes = explode("/", getcwd());
 		}
 		
-		if ($scope === null) {
-			$scopeDepth = $this->getScopeDepth();
-			
-			if ($scopeDepth === 0) {
-				$refererScopeName = end($explodes);
-			} else {
-				$refererScopeName = $explodes[count($explodes) - $scopeDepth];
-			}
-			if ($scopeDepth === 2) {
-				$desc .= "../";
-			}
-			
-			$scope = $refererScopeName;
-		} else {
-			$refererScopeName = end($explodes);
-		}
-		
-		$refererScopeName = str_ireplace(".com", "", $refererScopeName);
 		$scope = str_ireplace(".com", "", $scope);
-		
-		if ($scope == "favicon") {
-			if ($this->isLocalRequest()) {
-				$source = $desc . "/" . $scriptPath;
-			} else {
-				$source = $desc . "/" . $scriptPath;
-			}
-			
-			return $source;
+		if (!$scope) {
+			echo $scriptPath . "; referer: " . $refererScopeName . "\n";
 		}
-		
-		//echo "generated: " . $this->generated . "\n";
-		
-		//echo "scope: " . $scope . "; " . "refererScope: " . $refererScopeName . "\n";
-			
 		if ($scope !== $refererScopeName) {
 			if ($this->isLocalRequest()) {
 				
 				if ($this->generated) {
 					if ($scope !== "engulfing" && $scope !== "ontologydriven") {
-						$source = "http://localhost.ontologydriven/" . $scope . "/" . $scriptPath;
+						if (!$scope) {
+							if (file_exists($scope)) {
+								$source = $scriptPath;
+							} else {
+								if (file_exists("../" . $scope)) {
+									$source = "../" . $scriptPath;
+								}
+							}
+									
+							//$source = $scriptPath;
+						} else {
+							$source = "http://localhost.ontologydriven/" . $scope . "/" . $scriptPath;
+						}
 					} else {
 						if ($scope === "engulfing") {
 							$source = "http://localhost.engulfing/" . $scriptPath;
@@ -161,19 +173,11 @@ trait WebsiteScript {
 				
 				$source = $desc . $scriptPath;
 			} else if (in_array($scope, array("wiki"))) {
-				//$desc .= "../";
-				
 				$source = $desc . $scriptPath;
 			} else {
-				//echo "asdf";
 				$source = $desc . $scriptPath;
-				
-				//echo "source: " . $source . "\n";
 			}
-
-			
 		}
-		
 		
 		return $source;
 	}
@@ -266,65 +270,58 @@ trait WebsiteScript {
 		
 		$html .= $this->renderHTMLScriptByDirectory(
 				"engulfing",
-				"../engulfing/engulfing-core/js",
+				"engulfing-core/js",
 				"engulfing.min.js",
-				array("core/utils.js", "core/config.js", "models/model_master.js", "models/model_user.js", "models/model_content.js", "main.js", "views/base.js", "views/singleobject.js", "views/components/input.js", "views/components/button.js"), 
-				array("ontologydriven.admin.min.js", "ontologydriven.wiki.min.js", "ontologydriven.edi.min.js", "ontologydriven.codegeneration.min.js", "ontologydriven.nlp.min.js", "ontologydriven.km.min.js", "engulfing.min.js"),
-				"../engulfing-core/js"
-			);
+				array("core/utils.js", "core/config.js", "models/model_master.js", "models/model_user.js", "models/model_content.js", "main.js", "views/base.js", "views/singleobject.js", "views/components/input.js", "views/components/button.js"),
+				array("app.min.js", "ontologydriven.admin.min.js", "ontologydriven.wiki.min.js", "ontologydriven.edi.min.js", "ontologydriven.codegeneration.min.js", "ontologydriven.nlp.min.js", "ontologydriven.km.min.js", "engulfing.min.js")
+				);
 		
 		$html .= $this->renderHTMLScriptByDirectory(
 				"km",
-				"../km/js",
+				"js",
 				"ontologydriven.km.min.js",
 				null,
-				array("ontologydriven.km.min.js","main", "config", "utils"),
-				"../engulfing-core/js"
+				array("app.min.js", "ontologydriven.km.min.js","main", "config", "utils")
 		);
 		
 		$html .= $this->renderHTMLScriptByDirectory(
 				"nlp",
-				"../nlp/js",
+				"js",
 				"ontologydriven.nlp.min.js",
 				null,
-				array("ontologydriven.nlp.min.js","main", "config", "utils"),
-				"../engulfing-core/js"
+				array("app.min.js", "ontologydriven.nlp.min.js","main", "config", "utils")
 		);
 		
 		$html .= $this->renderHTMLScriptByDirectory(
 				"codegeneration",
-				"../codegeneration/js",
+				"js",
 				"ontologydriven.codegeneration.min.js",
 				null,
-				array("ontologydriven.codegeneration.min.js","main", "config", "utils"),
-				"../engulfing-core/js"
+				array("app.min.js", "ontologydriven.codegeneration.min.js","main", "config", "utils")
 		);
 		
 		$html .= $this->renderHTMLScriptByDirectory(
 				"edi",
-				"../edi/js",
+				"js",
 				"ontologydriven.edi.min.js",
 				array("models/model_dataservice.js"),
-				array("ontologydriven.edi.min.js","main", "config", "utils"),
-				"../engulfing-core/js"
+				array("app.min.js", "ontologydriven.edi.min.js","main", "config", "utils")
 		);
 		
 		$html .= $this->renderHTMLScriptByDirectory(
 				"wiki",
-				"../wiki/js",
+				"js",
 				"ontologydriven.wiki.min.js",
 				null,
-				array("ontologydriven.wiki.min.js","main", "config", "utils"),
-				"../engulfing-core/js"
+				array("app.min.js", "ontologydriven.wiki.min.js","main", "config", "utils")
 		);
 		
 		$html .= $this->renderHTMLScriptByDirectory(
 				"admin",
-				"../admin/js",
+				"js",
 				"ontologydriven.admin.min.js",
 				null,
-				array("ontologydriven.admin.min.js","main", "config", "utils"),
-				"../engulfing-core/js"
+				array("app.min.js", "ontologydriven.admin.min.js","main", "config", "utils")
 		);
 		
 		return $html;
@@ -395,10 +392,9 @@ trait WebsiteScript {
 		$html = "";
 		$this->compileHTMLScriptsIfNecessary($directory, $target, $ordering, $exclusions, $targetDirectory);
 		
-		//echo "scope: " . $scope . "; target: " . $target . "\n";
 		if ($this->isLocalRequest()) {
 			if ($this->debug) {
-				$html .= $this->listJSFromDirectory($scope, $directory, $ordering, $exclusions);
+				$html .= $this->listJSFromDirectory($scope, $directory, $ordering, $exclusions, $targetDirectory);
 			} else {
 				$html .= '
 		<script src="' . $this->getScriptSource($scope, $targetDirectory . "/" . $target, $targetDirectory) . '"></script>';
@@ -410,68 +406,68 @@ trait WebsiteScript {
 		
 		return $html;
 	}
-	function listJSFromDirectory($scope, $directory, $ordering = null, $exclusions = null) {
+	function getPathForRecursiveDirectoryIterator($scope, $scriptSource) {
+		if ($scope === "engulfing") {
+			if (file_exists ( "../../../engulfing/" . $scriptSource )) {
+				$path = "../../../engulfing/" . $scriptSource;
+			} else {
+				if (file_exists ( "../../engulfing/" . $scriptSource )) {
+					$path = "../../engulfing/" . $scriptSource;
+				} else {
+				
+				}
+			}
+			
+		} else {
+			if ($scope) {
+				if (file_exists ( "../../../" . $scope . "/" . $scriptSource )) {
+					$path = "../../../" . $scope . "/" . $scriptSource;
+				} else {
+					if (file_exists ( "../../" . $scope . "/" . $scriptSource )) {
+						$path = "../../" . $scope . "/" . $scriptSource;
+					} else {
+							
+					}
+				}
+				
+			} else {
+				if (file_exists ( "../" . $scriptSource )) {
+					$path = "../" . $scriptSource;
+				} else {
+					
+				}
+				
+				
+			}
+		}
+		
+		return $path;
+	}
+	function listJSFromDirectory($scope, $directory, $ordering = null, $exclusions = null, $targetDirectory = null) {
 		$html = "";
 		
 		if ($ordering !== null) {
 			foreach($ordering as $orderedfile) {
-				if (file_exists("../../" . $directory . "/" . $orderedfile)) {
-					$exploded = explode($scope . "/", $orderedfile);
-					$orderedfile = end($exploded);
-					
-					$html .= '
+				$html .= '
 		<script src="' . $this->getScriptSource($scope, $directory . "/" . $orderedfile) . '"></script>';
-				} else if (file_exists("../" . $directory . "/" . $orderedfile)) {
-					$exploded = explode($scope . "/", $orderedfile);
-					$orderedfile = end($exploded);
-					
-					$html .= '
-		<script src="' . $this->getScriptSource($scope, $directory . "/" . $orderedfile) . '"></script>';
-				} else if (file_exists($directory . "/" . $orderedfile)) {
-					$exploded = explode($scope . "/", $orderedfile);
-					$orderedfile = end($exploded);
-					
-					$html .= '
-		<script src="' . $this->getScriptSource($scope, $directory . "/" . $orderedfile) . '"></script>';
-				}
 			}
 		}
 		
 		if ($ordering !== null) $exclusions = array_merge($exclusions, $ordering);
 		
-		//print_r($exclusions);
-		if (file_exists("../../" . $directory)) {
-			$directory_iterator = new RecursiveIteratorIterator ( new RecursiveDirectoryIterator ( "../../" . $directory ) );
-			foreach ( $directory_iterator as $filename => $path_object ) {
-				if(is_file($filename) && stripos($filename, ".json") === false && !$this->arrayContains($exclusions, $filename)) {
-					$exploded = explode($scope . "/", $filename);
-					$filename = end($exploded);
-					
-					$html .= '
-		<script src="' . $this->getScriptSource($scope, $filename) . '"></script>';
-				}
-			}
-		} else if (file_exists("../" . $directory)) {
-			$directory_iterator = new RecursiveIteratorIterator ( new RecursiveDirectoryIterator ( "../" . $directory ) );
-			foreach ( $directory_iterator as $filename => $path_object ) {
-				if(is_file($filename) && stripos($filename, ".json") === false && !$this->arrayContains($exclusions, $filename)) {
-					$exploded = explode($scope . "/", $filename);
-					$filename = end($exploded);
-					
-					$html .= '
-		<script src="' . $this->getScriptSource($scope, $filename) . '"></script>';
-				}
-			}
-		} else if (file_exists($directory)) {
-			$directory_iterator = new RecursiveIteratorIterator ( new RecursiveDirectoryIterator ( $directory ) );
-			foreach ( $directory_iterator as $filename => $path_object ) {
-				if(is_file($filename) && stripos($filename, ".json") === false && !$this->arrayContains($exclusions, $filename)) {
-					$exploded = explode($scope . "/", $filename);
-					$filename = end($exploded);
-					
-					$html .= '
-		<script src="' . $this->getScriptSource($scope, $filename) . '"></script>';
-				}
+		$scriptSource = $this->getScriptPathByScopeAndDirectory($scope, $directory);
+	
+		$pathForIterator = $this->getPathForRecursiveDirectoryIterator($scope, $scriptSource);
+		echo "scriptSource: " . $scriptSource . "; pathForIterator: " . $pathForIterator . "\n";
+		
+		$directory_iterator = new RecursiveIteratorIterator ( new RecursiveDirectoryIterator ( $pathForIterator ) );
+		foreach ( $directory_iterator as $filename => $path_object ) {
+			if(is_file($filename) && stripos($filename, ".json") === false && !$this->arrayContains($exclusions, $filename)) {
+				$exploded = explode($scope . "/", $filename);
+				$filename = end($exploded);
+				
+				$html .= '
+	<script src="' . $this->getScriptSource($scope, $filename) . '"></script>';
 			}
 		}
 		
@@ -483,7 +479,6 @@ trait WebsiteScript {
 		
 		if ($ordering !== null) {
 			foreach($ordering as $orderedfile) {
-				//echo "ordered: " . $orderedfile . "\n";
 				if (file_exists($directory . "/" . $orderedfile)) {
 					$js .= "\n" . file_get_contents ( $directory . "/" . $orderedfile );
 				}
@@ -492,19 +487,14 @@ trait WebsiteScript {
 		
 		if ($ordering !== null) $exclusions = array_merge($exclusions, $ordering);
 		
-		//print_r($exclusions);
-		
-		
 		if (file_exists($directory)) {
 			$directory_iterator = new RecursiveIteratorIterator ( new RecursiveDirectoryIterator ( $directory ) );
 			foreach ( $directory_iterator as $filename => $path_object ) {
 				if(is_file($filename) && stripos($filename, ".json") === false && !$this->arrayContains($exclusions, $filename)) {
-					//echo "after exclusion: " . $filename . "\n";
 					$js .= "\n" . file_get_contents ( $filename );
 				}
 			}
 		}
-		
 		
 		return $js;
 	}
@@ -635,8 +625,6 @@ trait WebsiteScript {
 				
 		} else {
 			if ($this->siteMapDefinition) {
-				//echo "arsch\n";
-				
 				$onPage = false;
 				
 				$sitemap = json_decode($this->siteMapDefinition);

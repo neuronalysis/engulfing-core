@@ -45,7 +45,7 @@ class Website extends Website_Generated {
 	
 	var $levels = array ();
 	
-	var $debug = false;
+	var $debug = true;
 	
 	var $accessRestrictions;
 	
@@ -553,8 +553,8 @@ class Website extends Website_Generated {
     	$html .= '
 		<meta name="viewport" content="width=device-width, initial-scale=1">';
     	$html .= '
-		<link rel="shortcut icon" href="' . $this->getScriptSource('favicon', 'engulfing-core/images/favicon.ico') . '" type="image/x-icon">
-		<link rel="icon" sizes="192x192" href="' . $this->getScriptSource('favicon', 'engulfing-core/images/favicon192.png') . '">';
+		<link href="' . $this->getScriptSource('engulfing', 'engulfing-core/images/favicon.ico') . '" rel="shortcut icon" type="image/x-icon">
+		<link href="' . $this->getScriptSource('engulfing', 'engulfing-core/images/favicon192.png') . '" rel="icon" sizes="192x192">';
     	
     	$html .= '
 		<link href="' . $this->getScriptSource('engulfing', 'engulfing-core/vendor/engulfing.vendor.min.css') . '" rel="stylesheet">

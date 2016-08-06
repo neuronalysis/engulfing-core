@@ -117,8 +117,6 @@ class REST {
 		} else {
 			
 			if ($id) {
-				//echo $ontologyClassName . ": " . $id . "\n";
-				
 				$obj = new $ontologyClassName();
 				
 				if ($ontologyClassName === "indicator") {

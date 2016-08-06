@@ -582,9 +582,10 @@ trait ORM {
 										
 											if (isset($nestedobjects)) {
 												foreach($nestedobjects as $object_item) {
-													//echo $nesting . "\n";
-													$object_item = $this->getById($nesting, $object_item->id, false, $object_item->getCascades());
-													array_push($nestedobjects_populated, $object_item);
+													if (get_class($object_item) !== "stdClass") {
+														$object_item = $this->getById($nesting, $object_item->id, false, $object_item->getCascades());
+														array_push($nestedobjects_populated, $object_item);
+													}
 												}
 										
 												if (in_array($key, array("Financials", "Quotes"))) {
