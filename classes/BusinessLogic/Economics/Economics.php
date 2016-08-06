@@ -19,9 +19,11 @@ include_once ('Release.php');
 include_once ('ReleasePublication.php');
 include_once ('Instrument.php');
 include_once ('Indicator.php');
+include_once ('ImpactFunction.php');
+include_once ('RelationIndicatorImpactFunction.php');
 
 class Economics extends Economics_Generated {
-	var $classes = array("Release", "ReleasePublication", "Indicator", "Instrument");
+	var $classes = array("Release", "ReleasePublication", "Indicator", "Instrument", "ImpactFunction", "RelationIndicatorImpactFunction");
 	
 	var $entities = '{}';
 	

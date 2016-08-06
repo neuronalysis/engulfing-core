@@ -613,12 +613,14 @@ trait ORM {
 							
 						} else {
 							if ($nesting = $this->isNestedObjectsKey($key)) {
+								//echo "nesting: " . $nesting . "\n";
 								if ($nesting === "one" && substr($key, 0, 8) !== "Outgoing" && $key !== "OntologyClass" && $key !== "Entity") {
 									$nestedobjectid_name = lcfirst($key) . "ID";
 										
 									if (property_exists($key, "createdAt")) {
 										if (!isset($object->loadingMode[$key])) {
 											//echo $key . "\n";
+											//print_r($object);
 											$object->$key = $this->getById($key, $object->$nestedobjectid_name, false);
 										}
 									} else {
