@@ -117,34 +117,34 @@ class REST {
 		} else {
 			
 			if ($id) {
-				if (trait_exists($ontologyClassName . "_ORM")) {
-					$result = $ocObject->getById($id);
+				//echo $ontologyClassName . ": " . $id . "\n";
+				
+				$obj = new $ontologyClassName();
+				
+				if ($ontologyClassName === "indicator") {
+					$result = $obj->getById($ontologyClassName, $id);
+						
+					unset($result->Release->Indicators);
+					unset($result->Release->ReleasePublications);
+				} else if ($ontologyClassName === "instrument") {
+					$result = $obj->getById("Instrument", $id);
 				} else {
-					//echo $ontologyClassName . ": " . $id . "\n";
-					if ($ontologyClassName === "release") {
-						$result = $this->getById($ontologyClassName, $id);
-						
-						if (isset($result)) {
-							foreach($result->Indicators as $res_indicator) {
-								unset($res_indicator->Release);
-							}
-							foreach($result->ReleasePublications as $res_publication) {
-								unset($res_publication->Release);
-							}
-						}
-					} else if ($ontologyClassName === "indicator") {
-						$result = $this->getById($ontologyClassName, $id);
-						
-						unset($result->Release->Indicators);
-						unset($result->Release->ReleasePublications);
-					} else if ($ontologyClassName === "instrument") {
-						$result = $this->getById("Instrument", $id);
-					} else {
-						$result = $this->getById($ontologyClassName, $id);
-					}
-					
-					
+					$result = $obj->getById($ontologyClassName, $id);
 				}
+				/*if ($ontologyClassName === "release") {
+					$result = $this->getById($ontologyClassName, $id);
+					
+					if (isset($result)) {
+						foreach($result->Indicators as $res_indicator) {
+							unset($res_indicator->Release);
+						}
+						foreach($result->ReleasePublications as $res_publication) {
+							unset($res_publication->Release);
+						}
+					}
+				} else */
+				
+				
 			} else if (count($_GET) > 0) {
 				$result = $this->getByNamedFieldValues($ontologyClassName, array_keys($_GET), array_values($_GET));
 			} else {
