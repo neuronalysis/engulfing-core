@@ -88,7 +88,7 @@ trait ObjectHelper {
 	function isNestedObjectsKey($key) {
 		//echo "key: " . $key . "\n";
 		if (class_exists($key) && substr($key, -11, 11) !== "Observation") {
-			if (substr($key, 0, 1) == strtoupper(substr($key, 0, 1)) && !in_array($key, array("Financials", "Quotes"))) return "one";
+			if (substr($key, 0, 1) == strtoupper(substr($key, 0, 1)) && !in_array($key, array("Financials", "Quotes", "RelationIndicatorImpactFunction"))) return "one";
 		}
 		$key_singularized = $this->singularize(strtolower($key));
 		//echo "key: " . $key . " key singularized: " . $key_singularized . "\n";

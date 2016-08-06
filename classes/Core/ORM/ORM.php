@@ -486,6 +486,8 @@ trait ORM {
 			
 			if (!$object) return null;
 			
+			//print_r($classvars);
+			
 			if (class_exists($object_name) || class_exists ($object_name . "_Generated")) {
 				$objectvars = get_object_vars ( $object );
 				
@@ -617,6 +619,7 @@ trait ORM {
 								if ($nesting === "one" && substr($key, 0, 8) !== "Outgoing" && $key !== "OntologyClass" && $key !== "Entity") {
 									$nestedobjectid_name = lcfirst($key) . "ID";
 										
+									//echo $nestedobjectid_name. "\n";
 									if (property_exists($key, "createdAt")) {
 										if (!isset($object->loadingMode[$key])) {
 											//echo $key . "\n";
