@@ -391,86 +391,6 @@ class Website extends Website_Generated {
 		
 		return $html;
     }
-    function getScopeName() {
-    	$rest = new REST();
-    
-    	$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
-    	$levels = explode ( "/", $url_parsed ['path'] );
-    
-    	if (strpos($url_parsed ['path'], "localhost") !== false) {
-    		$scopename = $levels[1];
-    	} else if (strpos($url_parsed ['path'], "/api/") !== false) {
-    		$scopename = $rest->singularize($levels[4]);
-    	} else {
-    		$scopename = $levels[1];
-    	}
-    
-    	return $scopename;
-    }
-    function getScopeObjectName() {
-    	$rest = new REST();
-    	
-    	$scopename = "";
-    	
-    	$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
-    	$levels = explode ( "/", $url_parsed ['path'] );
-    
-    	if (strpos($url_parsed ['path'], "localhost") !== false) {
-    		$scopename = $levels[2];
-    	} else if (strpos($url_parsed ['path'], "/api/") !== false) {
-    		$scopename = $rest->singularize($levels[4]);
-    	} else {
-    		if (isset($levels[2])) {
-    			$scopename = $levels[2];
-    		}
-    	}
-    
-    	return $scopename;
-    }
-    function getScopeDepth() {
-    	$rest = new REST();
-    
-    	$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
-    	$levels = explode ( "/", $url_parsed ['path'] );
-    
-    	if (strpos($url_parsed ['path'], "localhost") !== false) {
-    		$depth = count($levels) - 2;
-    	} else if (strpos($url_parsed ['path'], "/api/") !== false) {
-    		$depth = null;
-    		//$scopename = $rest->singularize($levels[4]);
-    	} else {
-    		$depth = count($levels) - 2;
-    		//$scopename = $levels[1];
-    	}
-    
-    	return $depth;
-    }
-    function getTopDomain() {
-    	if (isset($this->activescope_Ontology)) {
-    		if ($this->generated) {
-    			$topdomain = "generated/" . strtolower($this->title);
-    		} else {
-	    		$ontology = new $this->activescope_Ontology->name;
-	    		if (isset($ontology->topdomain)) {
-	    			$topdomain = $ontology->topdomain;
-	    		} else {
-	    			$topdomain = "ontologydriven";
-	    		}
-    		}
-    	} else {
-    		if ($this->generated) {
-    			if ($this->isLocalRequest()) {
-    				$topdomain = "generated/" . strtolower($this->title);
-    			} else {
-    				$topdomain = strtolower($this->title);
-    			}
-    		} else {
-    			$topdomain = "ontologydriven";
-    		}
-    	}
-    	
-    	return $topdomain;
-    }
     function renderHTML_Head_Description() {
     	$desc = $this->getDescription();
     	
@@ -553,8 +473,8 @@ class Website extends Website_Generated {
     	$html .= '
 		<meta name="viewport" content="width=device-width, initial-scale=1">';
     	$html .= '
-		<link rel="shortcut icon" href="' . $this->getScriptSource('favicon', 'engulfing-core/images/favicon.ico') . '" type="image/x-icon">
-		<link rel="icon" sizes="192x192" href="' . $this->getScriptSource('favicon', 'engulfing-core/images/favicon192.png') . '">';
+		<link href="' . $this->getScriptSource('engulfing', 'engulfing-core/images/favicon.ico') . '" rel="shortcut icon" type="image/x-icon">
+		<link href="' . $this->getScriptSource('engulfing', 'engulfing-core/images/favicon192.png') . '" rel="icon" sizes="192x192">';
     	
     	$html .= '
 		<link href="' . $this->getScriptSource('engulfing', 'engulfing-core/vendor/engulfing.vendor.min.css') . '" rel="stylesheet">

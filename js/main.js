@@ -321,29 +321,3 @@ var BaseRouter = Backbone.Router.extend({
 		intro_view.render();
 	}
 });
-tpl.loadTemplates([ 
-	   '../../layouts/objectlist', 
-	   '../../layouts/entitylist', 
-	   '../../layouts/singleobject', 
-	   '../../layouts/ontologyinformation', 
-	   '../../layouts/concreteinformation', 
-	   
-	   '../../components/accordiongroup', 
-	   '../../components/accordionitem', 
-	   '../../components/backgrid', 
-	   '../../components/backgrid_actions', 
-	   
-	   '../../components/input_datepicker',
-	   '../../components/input_textarea',
-	   '../../components/input_text',
-	   '../../components/input_tags',
-	   '../../components/input_highcharts',
-	   '../../components/input_select',
-	   '../../components/input_locationmap',
-	   '../../components/input_datepicker',
-	   '../../components/input_checkbox'
-   ], true,
-function() {
-	app = new AppRouter();
-	Backbone.history.start();
-});
