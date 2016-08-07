@@ -8,19 +8,22 @@ trait WebsiteScript {
 	function renderHTMLScripts($auth) {
 		$topdomain = $this->getTopDomain();
 		
+		$scope = $this->getScopeName();
+		
+		
 		$html = '';
 
 		$this->combineUnderscoreTemplates();
 		
-		$html .= $this->renderHTMLScripts_Base();
-		$html .= $this->renderHTMLScripts_AppBase();
+		$html .= $this->renderHTMLScripts_Base($scope);
+		$html .= $this->renderHTMLScripts_AppBase($scope);
 		$html .= $this->renderHTMLScripts_UserManagement();
 		$html .= $this->renderHTMLScripts_Administration();
 		
-		$html .= $this->renderHTMLScripts_ModelsAndViews();
+		$html .= $this->renderHTMLScripts_ModelsAndViews($scope);
 		
 		
-		$html .= $this->renderHTMLScripts_Controller();
+		$html .= $this->renderHTMLScripts_Controller($scope);
 		
 	
 		return $html;
@@ -64,9 +67,9 @@ trait WebsiteScript {
 	function getScriptSource($scope, $scriptPath, $targetDirectory = null) {
 		$scriptPath = $this->getScriptPathByScopeAndDirectory($scope, $scriptPath);
 		
+		$scopeDebth = $this->getScopeDepth();
 		
 		$refererScopeName = $this->getRefererScopeName($scope);
-		
 		
 		$desc = "";
 		
@@ -77,24 +80,23 @@ trait WebsiteScript {
 		}
 		
 		$scope = str_ireplace(".com", "", $scope);
-		if (!$scope) {
-			echo $scriptPath . "; referer: " . $refererScopeName . "\n";
-		}
+		
 		if ($scope !== $refererScopeName) {
 			if ($this->isLocalRequest()) {
-				
 				if ($this->generated) {
 					if ($scope !== "engulfing" && $scope !== "ontologydriven") {
 						if (!$scope) {
-							if (file_exists($scope)) {
+							if ($scopeDebth == 1) {
 								$source = $scriptPath;
 							} else {
-								if (file_exists("../" . $scope)) {
-									$source = "../" . $scriptPath;
+								if (file_exists($scope)) {
+									$source = $scriptPath;
+								} else {
+									if (file_exists("../" . $scope)) {
+										$source = "../" . $scriptPath;
+									}
 								}
 							}
-									
-							//$source = $scriptPath;
 						} else {
 							$source = "http://localhost.ontologydriven/" . $scope . "/" . $scriptPath;
 						}
@@ -102,7 +104,6 @@ trait WebsiteScript {
 						if ($scope === "engulfing") {
 							$source = "http://localhost.engulfing/" . $scriptPath;
 						}
-					
 					}
 				} else {
 					if (file_exists($scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
@@ -227,7 +228,7 @@ trait WebsiteScript {
 		}
 
 	}
-	function renderHTMLScripts_Base() {
+	function renderHTMLScripts_Base($scope) {
 		$html = "";
 		
 		/*$files = array();
@@ -273,56 +274,20 @@ trait WebsiteScript {
 				"engulfing-core/js",
 				"engulfing.min.js",
 				array("core/utils.js", "core/config.js", "models/model_master.js", "models/model_user.js", "models/model_content.js", "main.js", "views/base.js", "views/singleobject.js", "views/components/input.js", "views/components/button.js"),
-				array("app.min.js", "ontologydriven.admin.min.js", "ontologydriven.wiki.min.js", "ontologydriven.edi.min.js", "ontologydriven.codegeneration.min.js", "ontologydriven.nlp.min.js", "ontologydriven.km.min.js", "engulfing.min.js")
-				);
+				array("app.min.js", "ontologydriven.admin.min.js", "ontologydriven.wiki.min.js", "ontologydriven.edi.min.js", "ontologydriven.codegeneration.min.js", "ontologydriven.nlp.min.js", "ontologydriven.km.min.js", "engulfing.min.js"),
+				null)
+		;
 		
-		$html .= $this->renderHTMLScriptByDirectory(
-				"km",
-				"js",
-				"ontologydriven.km.min.js",
-				null,
-				array("app.min.js", "ontologydriven.km.min.js","main", "config", "utils")
-		);
-		
-		$html .= $this->renderHTMLScriptByDirectory(
-				"nlp",
-				"js",
-				"ontologydriven.nlp.min.js",
-				null,
-				array("app.min.js", "ontologydriven.nlp.min.js","main", "config", "utils")
-		);
-		
-		$html .= $this->renderHTMLScriptByDirectory(
-				"codegeneration",
-				"js",
-				"ontologydriven.codegeneration.min.js",
-				null,
-				array("app.min.js", "ontologydriven.codegeneration.min.js","main", "config", "utils")
-		);
-		
-		$html .= $this->renderHTMLScriptByDirectory(
-				"edi",
-				"js",
-				"ontologydriven.edi.min.js",
-				array("models/model_dataservice.js"),
-				array("app.min.js", "ontologydriven.edi.min.js","main", "config", "utils")
-		);
-		
-		$html .= $this->renderHTMLScriptByDirectory(
-				"wiki",
-				"js",
-				"ontologydriven.wiki.min.js",
-				null,
-				array("app.min.js", "ontologydriven.wiki.min.js","main", "config", "utils")
-		);
-		
-		$html .= $this->renderHTMLScriptByDirectory(
-				"admin",
-				"js",
-				"ontologydriven.admin.min.js",
-				null,
-				array("app.min.js", "ontologydriven.admin.min.js","main", "config", "utils")
-		);
+		foreach (array('km', 'nlp', 'codegeneration', 'edi', 'wiki', 'admin') as $scopeItem) {
+			$html .= $this->renderHTMLScriptByDirectory(
+					$scopeItem,
+					"js",
+					"ontologydriven." . $scopeItem . ".min.js",
+					null,
+					array("app.min.js", "ontologydriven." . $scopeItem . ".min.js","main", "config", "utils")
+					);
+		}
+
 		
 		return $html;
 	}
@@ -347,17 +312,23 @@ trait WebsiteScript {
 		
 		return false;
 	}
-	function compileHTMLScriptsIfNecessary($directory, $target, $ordering = null, $exclusions = null, $targetDirectory = null) {
+	function compileHTMLScriptsIfNecessary($scope, $directory, $target, $ordering = null, $exclusions = null, $targetDirectory = null) {
 		if (!$targetDirectory) $targetDirectory = $directory;
 		
-		if (!file_exists($targetDirectory . "/" . $target)) {
-			$js = $this->combineJSFromDirectory($directory, $ordering, $exclusions);
+		//echo $targetDirectory . "/" . $target . "\n";
+		
+		$path = $this->getPathForRecursiveDirectoryIterator($scope, $targetDirectory);
+		
+		//echo $path . "\n";
+		
+		if (!file_exists($path . "/" . $target)) {
+			$js = $this->combineJSFromDirectory($path, $ordering, $exclusions);
 			
-			if (file_exists($targetDirectory)) {
+			if (file_exists($path)) {
 				$fio = new FileIO();
-				$fio->saveStringToFile($js, $targetDirectory . "/" . $target );
+				$fio->saveStringToFile($js, $path . "/" . $target );
 			}
-		} else {
+		/*} else {
 			$maxFiletime = $this->getDirectoryMaxFileTime($directory, $exclusions);
 			
 			$compiledFileTime = filemtime ($targetDirectory . "/" . $target);
@@ -369,7 +340,7 @@ trait WebsiteScript {
 					$fio = new FileIO();
 					$fio->saveStringToFile($js, $targetDirectory . "/" . $target );
 				}
-			}
+			}*/
 		}
 	}
 	function getDirectoryMaxFileTime($directory, $exclusions) {
@@ -390,18 +361,18 @@ trait WebsiteScript {
 	}
 	function renderHTMLScriptByDirectory($scope, $directory, $target, $ordering = null, $exclusions = null, $targetDirectory = null) {
 		$html = "";
-		$this->compileHTMLScriptsIfNecessary($directory, $target, $ordering, $exclusions, $targetDirectory);
+		$this->compileHTMLScriptsIfNecessary($scope, $directory, $target, $ordering, $exclusions, $targetDirectory);
 		
 		if ($this->isLocalRequest()) {
 			if ($this->debug) {
 				$html .= $this->listJSFromDirectory($scope, $directory, $ordering, $exclusions, $targetDirectory);
 			} else {
 				$html .= '
-		<script src="' . $this->getScriptSource($scope, $targetDirectory . "/" . $target, $targetDirectory) . '"></script>';
+		<script src="' . $this->getScriptSource($scope, $directory . "/" . $target, $targetDirectory) . '"></script>';
 			}
 		} else {
 			$html .= '
-		<script src="' . $this->getScriptSource($scope, $targetDirectory . "/" . $target, $targetDirectory) . '"></script>';
+		<script src="' . $this->getScriptSource($scope, $directory . "/" . $target, $targetDirectory) . '"></script>';
 		}
 		
 		return $html;
@@ -414,7 +385,11 @@ trait WebsiteScript {
 				if (file_exists ( "../../engulfing/" . $scriptSource )) {
 					$path = "../../engulfing/" . $scriptSource;
 				} else {
-				
+					if (file_exists ( "../engulfing/" . $scriptSource )) {
+						$path = "../engulfing/" . $scriptSource;
+					} else {
+					
+					}
 				}
 			}
 			
@@ -426,7 +401,11 @@ trait WebsiteScript {
 					if (file_exists ( "../../" . $scope . "/" . $scriptSource )) {
 						$path = "../../" . $scope . "/" . $scriptSource;
 					} else {
-							
+						if (file_exists ( "../" . $scope . "/" . $scriptSource )) {
+							$path = "../" . $scope . "/" . $scriptSource;
+						} else {
+								
+						}	
 					}
 				}
 				
@@ -434,7 +413,9 @@ trait WebsiteScript {
 				if (file_exists ( "../" . $scriptSource )) {
 					$path = "../" . $scriptSource;
 				} else {
-					
+					if (file_exists ( $scriptSource )) {
+						$path = $scriptSource;
+					}
 				}
 				
 				
@@ -457,8 +438,9 @@ trait WebsiteScript {
 		
 		$scriptSource = $this->getScriptPathByScopeAndDirectory($scope, $directory);
 	
+		//echo "scope: " . $scope . "; scriptSource: " . $scriptSource . "\n";
 		$pathForIterator = $this->getPathForRecursiveDirectoryIterator($scope, $scriptSource);
-		echo "scriptSource: " . $scriptSource . "; pathForIterator: " . $pathForIterator . "\n";
+		//echo "pathForIterator: " . $pathForIterator . "\n";
 		
 		$directory_iterator = new RecursiveIteratorIterator ( new RecursiveDirectoryIterator ( $pathForIterator ) );
 		foreach ( $directory_iterator as $filename => $path_object ) {
@@ -467,7 +449,7 @@ trait WebsiteScript {
 				$filename = end($exploded);
 				
 				$html .= '
-	<script src="' . $this->getScriptSource($scope, $filename) . '"></script>';
+		<script src="' . $this->getScriptSource($scope, $filename) . '"></script>';
 			}
 		}
 		
@@ -535,11 +517,11 @@ trait WebsiteScript {
 	
 		return $js;
 	}
-	function renderHTMLScripts_AppBase() {
+	function renderHTMLScripts_AppBase($scope) {
 		$html = "";
 		
 		$html .= '
-    		<script src="' . $this->getScriptSource(null, 'js/config.js') . '"></script>';
+    	<script src="' . $this->getScriptSource($scope, 'js/config.js') . '"></script>';
 		
 		return $html;
 	}
@@ -610,16 +592,16 @@ trait WebsiteScript {
 		
 		return $html;
 	}
-	function renderHTMLScripts_Controller() {
+	function renderHTMLScripts_Controller($scope) {
 		$html = "";
 		if (isset($this->activescope_OntologyClass)) {
 			if (isset($this->activescope_OntologyClass->name)) {
 				$html .= '
-		<script src="' . $this->getScriptSource(null, 'js/main_' . strtolower($this->activescope_OntologyClass->name) . '.js') . '"></script>
+		<script src="' . $this->getScriptSource($scope, 'js/main_' . strtolower($this->activescope_OntologyClass->name) . '.js') . '"></script>
     					';
 			} else {
 				$html .= '
-		<script src="' . $this->getScriptSource(null, 'js/main_' . strtolower($this->activescope_OntologyClass) . '.js') . '"></script>
+		<script src="' . $this->getScriptSource($scope, 'js/main_' . strtolower($this->activescope_OntologyClass) . '.js') . '"></script>
     					';
 			}
 				
@@ -650,7 +632,7 @@ trait WebsiteScript {
 				} else {
 					if (!$this->activescope_usermanagement) {
 						$html .= '
-		<script src="' . $this->getScriptSource(null, 'js/main_intro.js') . '"></script>
+		<script src="' . $this->getScriptSource($scope, 'js/main_intro.js') . '"></script>
 			 		';
 					}
 				}
@@ -660,16 +642,15 @@ trait WebsiteScript {
 		
 		return $html;
 	}
-	function renderHTMLScripts_ModelsAndViews() {
+	function renderHTMLScripts_ModelsAndViews($scope) {
 		$html = "";
 		
 		$html .= $this->renderHTMLScriptByDirectory(
-				null,
+				$scope,
 				"js",
 				"app.min.js",
 				null,
-				array("app.min.js", "main", "config"),
-				"js"
+				array("app.min.js", "main", "config", "ontologydriven.nlp.min.js", "ontologydriven.wiki.min.js", "ontologydriven.admin.min.js", "ontologydriven.codegeneration.min.js", "ontologydriven.km.min.js", "ontologydriven.edi.min.js")
 		);
 		
 		

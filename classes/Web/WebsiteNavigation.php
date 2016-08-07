@@ -138,19 +138,23 @@ trait WebsiteNavigation {
 	function renderHTMLNavigation_Menu_Classes() {
 		$html = "";
 		
+		$scope = $this->getScopeName();
+		
 		if ($this->siteMapDefinition) {
 		} else {
 			if (isset($this->activescope_Ontology)) {
+				echo $this->activescope_Ontology->name . "\n";
+				
 				//if($this->auth->isLogged()) {
 					foreach($this->activescope_Ontology->OntologyClasses as $OntologyClass_item) {
 						if (property_exists($OntologyClass_item->name, "id")) {
 							if (file_exists(strtolower("../" . $this->activescope_Ontology->name) . '/' . $this->pluralize(strtolower($OntologyClass_item->name)))) {
 									$html .= '
-						<li><a href="' . $this->getScriptSource(null, $this->pluralize(strtolower($OntologyClass_item->name)) . '') . '">' . $this->pluralize($OntologyClass_item->name) . '</a></li>';
+						<li><a href="' . $this->getScriptSource($scope, $this->pluralize(strtolower($OntologyClass_item->name)) . '') . '">' . $this->pluralize($OntologyClass_item->name) . '</a></li>';
 							} else {
 								if (file_exists(strtolower("../../" . $this->activescope_Ontology->name) . '/' . $this->pluralize(strtolower($OntologyClass_item->name)))) {
 									$html .= '
-						<li><a href="' . $this->getScriptSource(null, $this->pluralize(strtolower($OntologyClass_item->name)) . '') . '">' . $this->pluralize($OntologyClass_item->name) . '</a></li>';
+						<li><a href="' . $this->getScriptSource($scope, $this->pluralize(strtolower($OntologyClass_item->name)) . '') . '">' . $this->pluralize($OntologyClass_item->name) . '</a></li>';
 								} else {
 									//echo "asedrf\n";
 								}
@@ -158,11 +162,11 @@ trait WebsiteNavigation {
 						} else {
 							if (file_exists(strtolower("../" . $this->activescope_Ontology->name) . '/' . strtolower($OntologyClass_item->name))) {
 								$html .= '
-						<li><a href="' . $this->getScriptSource(null, $this->pluralize(strtolower($OntologyClass_item->name)) . '') . '">' . $this->pluralize($OntologyClass_item->name) . '</a></li>';
+						<li><a href="' . $this->getScriptSource($scope, $this->pluralize(strtolower($OntologyClass_item->name)) . '') . '">' . $this->pluralize($OntologyClass_item->name) . '</a></li>';
 							} else {
 								if (file_exists(strtolower("../../" . $this->activescope_Ontology->name) . '/' . strtolower($OntologyClass_item->name))) {
 									$html .= '
-						<li><a href="' . $this->getScriptSource(null, $this->pluralize(strtolower($OntologyClass_item->name)) . '') . '">' . $this->pluralize($OntologyClass_item->name) . '</a></li>';
+						<li><a href="' . $this->getScriptSource($scope, $this->pluralize(strtolower($OntologyClass_item->name)) . '') . '">' . $this->pluralize($OntologyClass_item->name) . '</a></li>';
 								}
 							}
 						}
@@ -170,7 +174,7 @@ trait WebsiteNavigation {
 					
 					foreach($this->usedOntologyClasses as $ocName) {
 						$html .= '
-						<li><a href="' . $this->getScriptSource(null, $this->pluralize(strtolower($ocName)) . '') . '">' . $ocName . '</a></li>';
+						<li><a href="' . $this->getScriptSource($scope, $this->pluralize(strtolower($ocName)) . '') . '">' . $ocName . '</a></li>';
 						
 					} 
 				
@@ -233,7 +237,6 @@ trait WebsiteNavigation {
 		} else {
 			if (isset($this->activescope_Ontology)) {
 				if($this->auth->isLogged()) {
-					
 					$html .= '
 						<li class="dropdown active">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">' . $this->activescope_Ontology->name . '<span class="caret"></span></a>
@@ -242,7 +245,9 @@ trait WebsiteNavigation {
 					foreach($this->Ontologies as $Ontology_item) {
 						if ($this->isAllowed($Ontology_item)) {
 							if (isset($Ontology_item) && $Ontology_item->isFinal) {
-								if ($Ontology_item->name != $this->activescope_Ontology->name) {
+								if ($Ontology_item->name !== $this->activescope_Ontology->name) {
+									//echo $home_url . strtolower($Ontology_item->name) . "\n";
+									
 									$html .= '
 									<li><a href="' . $home_url . strtolower($Ontology_item->name) . '/">' . $Ontology_item->name . '</a></li>';
 								}
@@ -262,7 +267,7 @@ trait WebsiteNavigation {
 					foreach($this->Ontologies as $Ontology_item) {
 						if ($this->isAllowed($Ontology_item)) {
 							if (isset($Ontology_item) && $Ontology_item->isFinal) {
-								if ($Ontology_item->name != $this->activescope_Ontology->name) {
+								if ($Ontology_item->name !== $this->activescope_Ontology->name) {
 									$html .= '
 									<li><a href="' . $home_url . strtolower($Ontology_item->name) . '/">' . $Ontology_item->name . '</a></li>';
 								}
