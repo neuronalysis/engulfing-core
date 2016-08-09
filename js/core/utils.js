@@ -424,6 +424,12 @@ function getSubDomain() {
 	//window.location.href.indexOf("localhost");
 	subdomain = window.location.href;
 	
+	if (subdomain.indexOf("codegeneration") > -1) {
+		var checkSplit = subdomain.split("codegeneration/");
+		if (checkSplit[1].length > 0) {
+			subdomain += "../";
+		}
+	}
 	return subdomain;
 }
 function getBaseTemplatesRoot() {
