@@ -1,0 +1,195 @@
+{
+    "name": "Release",
+    "Lexemes": [],
+    "Ontology": {
+        "name": "Economics",
+        "isPrivate": false,
+        "isFinal": false,
+        "Owner": {
+            "name": "macroChief",
+            "eMail": "sam.tremonti@yahoo.com",
+            "birthDate": null,
+            "Language": {
+                "id": "0",
+                "isoCode": "en",
+                "name": "English"
+            },
+            "Role": {
+                "name": "Guest",
+                "id": 2
+            },
+            "id": 13
+        },
+        "id": 1
+    },
+    "Ressource": null,
+    "RelationOntologyClassOntologyClasses": [
+        {
+            "OutgoingOntologyClass": null,
+            "OntologyRelationType": {
+                "name": "hasMany",
+                "Ontology": null,
+                "id": "29"
+            },
+            "IncomingOntologyClass": {
+                "name": "ReleasePublication",
+                "Lexemes": null,
+                "Ontology": {
+                    "name": "Economics",
+                    "isPrivate": "0",
+                    "isFinal": "0",
+                    "Owner": {
+                        "name": "macroChief",
+                        "eMail": "sam.tremonti@yahoo.com",
+                        "birthDate": null,
+                        "Language": {
+                            "id": "0",
+                            "isoCode": "en",
+                            "name": "English"
+                        },
+                        "Role": {
+                            "name": "Guest",
+                            "id": "2"
+                        },
+                        "id": "13"
+                    },
+                    "id": "1"
+                },
+                "Ressource": null,
+                "RelationOntologyClassOntologyClasses": [],
+                "RelationOntologyClassOntologyProperties": [],
+                "isPersistedConcrete": "1",
+                "id": "256"
+            },
+            "id": "62"
+        },
+        {
+            "OutgoingOntologyClass": null,
+            "OntologyRelationType": {
+                "name": "hasOne",
+                "Ontology": null,
+                "id": "31"
+            },
+            "IncomingOntologyClass": {
+                "name": "Country",
+                "Lexemes": null,
+                "Ontology": {
+                    "name": "GEO",
+                    "isPrivate": "0",
+                    "isFinal": "0",
+                    "Owner": {
+                        "name": "engulfing",
+                        "eMail": "fuerscht@gmail.com",
+                        "birthDate": null,
+                        "Language": {
+                            "id": "0",
+                            "isoCode": "en",
+                            "name": "English"
+                        },
+                        "Role": {
+                            "name": "Administrator",
+                            "id": "1"
+                        },
+                        "id": "8"
+                    },
+                    "id": "24"
+                },
+                "Ressource": null,
+                "RelationOntologyClassOntologyClasses": [],
+                "RelationOntologyClassOntologyProperties": [],
+                "isPersistedConcrete": "1",
+                "id": "195"
+            },
+            "id": "75"
+        },
+        {
+            "OutgoingOntologyClass": null,
+            "OntologyRelationType": {
+                "name": "hasMany",
+                "Ontology": null,
+                "id": "29"
+            },
+            "IncomingOntologyClass": {
+                "name": "Indicator",
+                "Lexemes": null,
+                "Ontology": {
+                    "name": "Economics",
+                    "isPrivate": "0",
+                    "isFinal": "0",
+                    "Owner": {
+                        "name": "macroChief",
+                        "eMail": "sam.tremonti@yahoo.com",
+                        "birthDate": null,
+                        "Language": {
+                            "id": "0",
+                            "isoCode": "en",
+                            "name": "English"
+                        },
+                        "Role": {
+                            "name": "Guest",
+                            "id": "2"
+                        },
+                        "id": "13"
+                    },
+                    "id": "1"
+                },
+                "Ressource": null,
+                "RelationOntologyClassOntologyClasses": [],
+                "RelationOntologyClassOntologyProperties": [],
+                "isPersistedConcrete": "1",
+                "id": "160"
+            },
+            "id": "76"
+        }
+    ],
+    "RelationOntologyClassOntologyProperties": [
+        {
+            "OntologyClass": null,
+            "OntologyProperty": {
+                "name": "name",
+                "isIdentifier": "0",
+                "isMandatory": "0",
+                "Type": null,
+                "length": null,
+                "Ontology": null,
+                "id": "18"
+            },
+            "id": "24"
+        },
+        {
+            "OntologyClass": null,
+            "OntologyProperty": {
+                "name": "externalKey",
+                "isIdentifier": null,
+                "isMandatory": null,
+                "Type": null,
+                "length": null,
+                "Ontology": {
+                    "name": "Economics",
+                    "isPrivate": "0",
+                    "isFinal": "0",
+                    "Owner": {
+                        "name": "macroChief",
+                        "eMail": "sam.tremonti@yahoo.com",
+                        "birthDate": null,
+                        "Language": {
+                            "id": "0",
+                            "isoCode": "en",
+                            "name": "English"
+                        },
+                        "Role": {
+                            "name": "Guest",
+                            "id": "2"
+                        },
+                        "id": "13"
+                    },
+                    "id": "1"
+                },
+                "id": "24565"
+            },
+            "id": "155"
+        }
+    ],
+    "isPersistedConcrete": true,
+    "id": 148
+}
