@@ -1,0 +1,26 @@
+{
+	"name": "TestIndicator",
+	"unit": "Bil. of $",
+	"isSeasonallyAdjusted": "0",
+	"isHeadlineNumber": null,
+	"popularity": "0",
+	"externalKey": "ADJBORNS",
+	"Frequency": {
+		"code": "M",
+		"name": "Monthly",
+		"id": "0"
+	},
+	"Release": {
+		"name": "H.3 Aggregate Reserves of Depository Institutions and the Monetary Base",
+		"Indicators": null,
+		"ReleasePublications": null,
+		"externalKey": "19",
+		"id": "34959"
+	},
+	"Country": {
+		"code": "US",
+		"name": "United States",
+		"id": "233"
+	},
+	"IndicatorObservations": null
+}

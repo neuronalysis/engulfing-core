@@ -1,0 +1,37 @@
+{
+    "name": "Spread",
+    "Lexemes": [],
+    "Ontology": {
+        "name": "KM",
+        "isPrivate": false,
+        "isFinal": true,
+        "Owner": {
+            "name": "engulfing",
+            "eMail": "fuerscht@gmail.com",
+            "birthDate": null,
+            "Language": {
+                "id": "0",
+                "isoCode": "en",
+                "name": "English"
+            },
+            "Role": {
+                "name": "Administrator",
+                "id": 1
+            },
+            "id": 8
+        },
+        "id": 2
+    },
+    "Ressource": null,
+    "RelationOntologyClassOntologyClasses": [
+        {
+            "OutgoingOntologyClass": null,
+            "OntologyRelationType": null,
+            "IncomingOntologyClass": null,
+            "id": "16"
+        }
+    ],
+    "RelationOntologyClassOntologyProperties": [],
+    "isPersistedConcrete": false,
+    "id": 149
+}

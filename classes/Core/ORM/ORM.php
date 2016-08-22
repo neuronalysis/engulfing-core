@@ -20,7 +20,7 @@ trait ORM {
 	
 	protected $saved = array();
 	
-	function ORM() {
+	function __construct() {
 	}
 	function getPaging($object_name, $sortby = null, $limit = null, $order = "ASC") {
 		$sql = "";
@@ -733,6 +733,13 @@ trait ORM {
 			echo '{"error":{"text":'. $e->getMessage() .'}}';
 		}
 	}
+	function deleteByNamedFieldValues($object_name, $fields, $values) {
+		$objects = $this->getByNamedFieldValues($object_name, $fields, $values);
+		
+		foreach($objects as $object) {
+			$this->deleteById($object_name, $object->id);
+		}
+	}
 	function setRefererOnNestedObject($object, $direction = null) {
 		$classname_referer = $this->getOntologyClassName();
 		$classname_nested = $object->getOntologyClassName();
@@ -1073,46 +1080,48 @@ trait ORM {
 		//if ($class_name !== "Request") echo "before save of " . $class_name . " id: " . $this->id . "\n";
 		
 		if ($this->isNew()) {
-			//echo "is new \n";
-			
 			if ($this->isEmpty($persistables)) return null;
 			
-			if (count($manytooneFields) > 0) {
-				foreach($manytooneFields as $manytooneField) {
-					if (is_object($manytooneField) && get_class($manytooneField) !== "Entity" && get_class($manytooneField) !== "Language" && get_class($manytooneField) !== "Type") {
-						if ($manytooneField->isNew()) {
-							$manytooneField->Ontology = $this->OntologyClass->Ontology;
-							$manytooneField->save(null, array(), array());
+				if (count($manytooneFields) > 0) {
+					foreach($manytooneFields as $manytooneField) {
+						if (is_object($manytooneField) && get_class($manytooneField) !== "Entity" && get_class($manytooneField) !== "Language" && get_class($manytooneField) !== "Type") {
+							if (!method_exists($manytooneField, "isNew")) throw new Exception(get_class($manytooneField) . '.isNew() does not exist.');
 							
-							if (get_class($manytooneField) === "OntologyProperty") {
-								$language = new Language();
-								$language->id = 0;
-								$language->initialize();
-								
-								$lexeme = new Lexeme();
-								$lexeme->name = $manytooneField->name;
-								$lexeme->Language = $language;
-								$lexeme->OntologyProperty = $manytooneField;
-								$lexeme->save(null, array(), array(), $saved);
-								
-								$word = new Word();
-								$word->name = $manytooneField->name;
-								$word->Language = $language;
-								$word->Lexeme = $lexeme;
-								$word->save(null, array(), array(), $saved);
-								
-								array_push($lexeme->Words, $word);
-								
-								array_push($manytooneField->Lexemes, $lexeme);
+							if ($manytooneField->isNew()) {
+								$manytooneField->Ontology = $this->OntologyClass->Ontology;
+								$manytooneField->save(null, array(), array());
+									
+								if (get_class($manytooneField) === "OntologyProperty") {
+									$language = new Language();
+									$language->id = 0;
+									$language->initialize();
+				
+									$lexeme = new Lexeme();
+									$lexeme->name = $manytooneField->name;
+									$lexeme->Language = $language;
+									$lexeme->OntologyProperty = $manytooneField;
+									$lexeme->save(null, array(), array(), $saved);
+				
+									$word = new Word();
+									$word->name = $manytooneField->name;
+									$word->Language = $language;
+									$word->Lexeme = $lexeme;
+									$word->save(null, array(), array(), $saved);
+				
+									array_push($lexeme->Words, $word);
+				
+									array_push($manytooneField->Lexemes, $lexeme);
+								}
+									
+									
+									
+									
 							}
-							
-							
-							
-							
 						}
 					}
 				}
-			}
+			
+			
 			
 			if ($doublicate = $this->checkUniqueConstraints()) {
 				return $doublicate;
@@ -1178,7 +1187,7 @@ trait ORM {
 			$sql = "UPDATE " . $tableName . " SET " . $setters . " WHERE id=:id";
 				
 			if ($this->debug) echo $sql . "\n";
-			//echo $sql . "\n";
+			echo $sql . "\n";
 			//echo $db_scope . "\n";
 			try {
 				$db = $this->openConnection ($db_scope);

@@ -6,7 +6,7 @@ trait ConnectionManager {
 	
 	protected $databaseConnections = array();
 	
-	function ConnectionManager() {
+	function __construct() {
 	}
 	function openConnection($ontologyName = null) {
 		if (!$ontologyName) return null;

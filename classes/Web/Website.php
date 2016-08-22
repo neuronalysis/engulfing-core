@@ -45,7 +45,7 @@ class Website extends Website_Generated {
 	
 	var $levels = array ();
 	
-	var $debug = false;
+	var $debug = true;
 	
 	var $accessRestrictions;
 	

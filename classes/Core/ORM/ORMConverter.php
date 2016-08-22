@@ -1,6 +1,6 @@
 <?php
 trait ORMConverter {
-	function ORMConverter() {
+	function __construct() {
 	}
 	function convertStdClassToObject($stdClass, $object_name, $includingProtected = false, $explicitFields = null) {
 		if (class_exists($object_name)) {

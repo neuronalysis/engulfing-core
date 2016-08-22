@@ -1,6 +1,6 @@
 <?php
 trait QueryBuilder {
-	function QueryBuilder() {
+	function __construct() {
 	}
 	
 	function placeholders($text, $count=0, $separator=","){

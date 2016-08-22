@@ -5,7 +5,7 @@ trait Integrity {
 	protected $validationRules = array();
 	protected $encryptions = array();
 	
-	function Integrity() {
+	function __construct() {
 	}
 	function checkConstraints() {
 		$this->checkUniqueConstraints();

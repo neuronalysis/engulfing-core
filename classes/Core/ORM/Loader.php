@@ -4,7 +4,7 @@ trait Loader {
 	
 	protected $loaded = array();
 	
-	function Loader() {
+	function __construct() {
 	}
 	function getCascades() {
 		return $this->cascades;

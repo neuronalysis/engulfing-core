@@ -20,5 +20,18 @@ class Economics_Test extends TestClass {
 		
 		return $oc;
 	}
+	function prepare() {
+		
+	}
+	function test() {
+		$this->prepare();
+		
+		$assert = new stdClass();
+		$assert->Economics = array();
+		
+		
+		return $assert;
+		
+	}
 }
 ?>

@@ -1,6 +1,6 @@
 <?php
 trait ObjectHelper {
-	function ObjectHelper() {
+	function __construct() {
 	}
 	function isNew() {
 		if (isset($this->id) && $this->id !== -99) return false;

@@ -429,6 +429,11 @@ function getSubDomain() {
 		if (checkSplit[1].length > 0) {
 			subdomain += "../";
 		}
+	} else if (subdomain.indexOf("admin") > -1) {
+		var checkSplit = subdomain.split("admin/");
+		if (checkSplit[1].length > 0) {
+			subdomain += "../";
+		}
 	}
 	return subdomain;
 }
