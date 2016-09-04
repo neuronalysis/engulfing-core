@@ -11,7 +11,6 @@ include_once ($desc . "../engulfing/engulfing-generated/classes/things/Things_Ge
 include_once ($desc . "../engulfing/engulfing-generated/classes/web/Web_Generated.php");
 include_once ($desc . "../engulfing/engulfing-core/classes/Core/FileIO.php");
 include_once ($desc . "../engulfing/engulfing-core/classes/Core/Helper.php");
-include_once ($desc . "../engulfing/engulfing-core/classes/Core/ORM/ORM.php");
 
 //include_once ("Html/Html.php");
 
@@ -24,16 +23,16 @@ include_once ("Websites/Website_ConvertedPDF.php");
 
 class Web extends Web_Generated {
 	use Helper;
-	use ORM;
 	
 	var $classes = array("Website", "Webpage", "Ontology");
 	
 	var $entities = '{}';
 	
 	function __construct() {
+		$this->orm = new ORM();
 	}
 	function getWebsiteByName($name) {
-		$objects = $this->getByNamedFieldValues("Website", array("name"), array($name), false, null, false, true, null, array());
+		$objects = $this->orm->getByNamedFieldValues("Website", array("name"), array($name), false, null, false, true, null, array());
 		
 		if(!$objects) return null;
 		
@@ -41,7 +40,7 @@ class Web extends Web_Generated {
 	}
 	function getWebsiteById($id) {
 		$rest = new REST();
-		$result = $rest->getById("Website", $id);
+		$result = $rest->orm->getById("Website", $id);
 	
 		return $result;
 	}

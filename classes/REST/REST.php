@@ -2,26 +2,16 @@
 include_once ('REST_Transformer.php');
 include_once ('REST_TaskExecutor.php');
 
-$desc = "";
-if (!file_exists("../engulfing/")) {
-	$desc = "../";
-	if (!file_exists($desc . "../engulfing/")) {
-		$desc .= "../";
-	}
-}
-include_once ($desc . "../engulfing/engulfing-core/classes/Core/Helper.php");
-include_once ($desc . "../engulfing/engulfing-core/classes/Core/ORM/ORM.php");
+include_once (__DIR__ . "/../Core/Helper.php");
 
 class REST {
-	use Helper, ORM;
+	use Helper;
 	
 	function __construct() {
-		
+		$this->orm = new ORM();
 	}
 	function get($id = null, $app = null) {
-		$ontologyClassName = $this->getOntologyClassName();
-		
-		//echo $ontologyClassName . "\n";
+		$ontologyClassName = $this->orm->getOntologyClassName();
 		
 		if ($app) {
 			if (isset($_GET['page'])) {
@@ -48,16 +38,16 @@ class REST {
 				
 				
 				if (!$oclass || !$oclass->getIsPersistedConcrete()) {
-					$result_paged = $this->getByNamedFieldValues($ontologyClassName, array_keys($namedfieldParameters), array_values($namedfieldParameters));
+					$result_paged = $this->orm->getByNamedFieldValues($ontologyClassName, array_keys($namedfieldParameters), array_values($namedfieldParameters));
 		
 					foreach($result_paged as $obj_item) {
 						$obj_item->id = intval($obj_item->id);
 		
 						if ($ontologyClassName === "ontologyclassentity") {
-							$relobjects = $this->getByNamedFieldValues("RelationOntologyClassOntologyPropertyEntity", array("ontologyclassentityid"), array($obj_item->id), false);
+							$relobjects = $this->orm->getByNamedFieldValues("RelationOntologyClassOntologyPropertyEntity", array("ontologyclassentityid"), array($obj_item->id), false);
 		
 							if (isset($relobjects[0])) {
-								$propertyentityobjects = $this->getByNamedFieldValues("ontologypropertyentity", array("id"), array($relobjects[0]->ontologyPropertyEntityID), false);
+								$propertyentityobjects = $this->orm->getByNamedFieldValues("ontologypropertyentity", array("id"), array($relobjects[0]->ontologyPropertyEntityID), false);
 		
 								if (isset($propertyentityobjects[0])) $obj_item->name = $propertyentityobjects[0]->name;
 							}
@@ -65,40 +55,28 @@ class REST {
 						}
 					}
 				} else {
-					if ($ontologyClassName === "releasepublication") {
+					if ($ontologyClassName === "ReleasePublication") {
 						$economics = new Economics();
 						$result_paged = $economics->getNextReleasePublications();
-						
-						/*$result_paged = $this->getAllByName($oclass->name, true, null, null, array("releaseID"));
-					
-						foreach($result_paged as $result_item) {
-							$result_item->Release = $this->getById("Release", $result_item->releaseID, false);
-							$result_item->name = $result_item->Release->name;
-							
-							unset($result_item->releaseID);
-						}*/
-					
 					} else {
-						$result_paged = $this->getAllByName($oclass->name);
+						$result_paged = $this->orm->getAllByName($oclass->name);
 					}
 				}
 					
-				//echo "asdf";
 				$result = new stdClass();
 				$result->items = $result_paged;
-				$result->total_count = $this->getTotalAmount($ontologyClassName);
+				$result->total_count = $this->orm->getTotalAmount($ontologyClassName);
 			} else {
 					
 				if (isset($_GET['name'])) {
-					$result = $this->getByNamedFieldValues($ontologyClassName, array("name"), array($_GET['name']));
-					$result = $this->getById($ontologyClassName, $result[0]->id);
+					$result = $this->orm->getByNamedFieldValues($ontologyClassName, array("name"), array($_GET['name']));
+					$result = $this->orm->getById($ontologyClassName, $result[0]->id);
 				} else {
 					if ($ontologyClassName === "releasepublication") {
-						$result_paged = $this->getAllByName($ontologyClassName, false, null, null, array("releaseID"));
+						$result_paged = $this->orm->getAllByName($ontologyClassName, false, null, null, array("releaseID"));
 						
 						foreach($result_paged as $result_item) {
-							//echo "asdf";
-							$result_item->Release = $this->getById("Release", $result_item->releaseID, false);
+							$result_item->Release = $this->orm->getById("Release", $result_item->releaseID, false);
 							unset($result_item->releaseID);
 						}
 						
@@ -107,7 +85,7 @@ class REST {
 						$result->total_count = $this->getTotalAmount($ontologyClassName);
 						
 					} else {
-						$result = $this->getAllByName($ontologyClassName);
+						$result = $this->orm->getAllByName($ontologyClassName);
 					}
 					
 					
@@ -115,39 +93,22 @@ class REST {
 			}
 		
 		} else {
-			
 			if ($id) {
 				$obj = new $ontologyClassName();
-				
 				if ($ontologyClassName === "indicator") {
-					$result = $obj->getById($ontologyClassName, $id);
+					$result = $this->orm->getById($ontologyClassName, $id);
 						
 					unset($result->Release->Indicators);
 					unset($result->Release->ReleasePublications);
 				} else if ($ontologyClassName === "instrument") {
-					$result = $obj->getById("Instrument", $id);
+					$result = $this->orm->getById("Instrument", $id);
 				} else {
-					$result = $obj->getById($ontologyClassName, $id);
+					$result = $this->orm->getById($ontologyClassName, $id);
 				}
-				/*if ($ontologyClassName === "release") {
-					$result = $this->getById($ontologyClassName, $id);
-					
-					if (isset($result)) {
-						foreach($result->Indicators as $res_indicator) {
-							unset($res_indicator->Release);
-						}
-						foreach($result->ReleasePublications as $res_publication) {
-							unset($res_publication->Release);
-						}
-					}
-				} else */
-				
-				
 			} else if (count($_GET) > 0) {
-				$result = $this->getByNamedFieldValues($ontologyClassName, array_keys($_GET), array_values($_GET));
+				$result = $this->orm->getByNamedFieldValues($ontologyClassName, array_keys($_GET), array_values($_GET));
 			} else {
-				
-				$result = $this->getAllByName($ontologyClassName);
+				$result = $this->orm->getAllByName($ontologyClassName);
 			}
 		}
 		
@@ -155,16 +116,7 @@ class REST {
 		return $result;
 	}
 	function getObservations($id = null, $app = null) {
-		$ontologyClassName = ucfirst($this->getOntologyClassName());
-		
-		$desc = "";
-		if (!file_exists("../engulfing/")) {
-			if (file_exists("../../engulfing/")) {
-				$desc = "../";
-			} else {
-				$desc = "../../";
-			}
-		}
+		$ontologyClassName = $this->getScopeObjectName();
 		
 		$limit = null;
 		
@@ -172,15 +124,7 @@ class REST {
 			$limit = $_GET['limit'];
 		}
 	
-		if (class_exists($ontologyClassName . "Observation")) {
-			$observations = $this->getByNamedFieldValues($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID"), array($id), false, null, false, false, null, "date DESC", $limit);
-		} else {
-			if (file_exists($desc . '../engulfing/engulfing-extensions/classes/BusinessLogic/Economics/' . $ontologyClassName . "Observation.php")) {
-				require_once $desc . '../engulfing/engulfing-extensions/classes/BusinessLogic/Economics/' . $ontologyClassName . "Observation.php";
-			}
-			
-			$observations = $this->getByNamedFieldValues($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID"), array($id), false, null, false, false, null, "date DESC", $limit);
-		}
+		$observations = $this->orm->getByNamedFieldValues($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID"), array($id), false, null, false, false, null, "date DESC", $limit);
 		
 		foreach($observations as $item) {
 			unset($item->id);
@@ -193,7 +137,7 @@ class REST {
 		return $result;
 	}
 	function getDetailed($id = null, $app = null) {
-		$ontologyClassName = $this->getOntologyClassName();
+		$ontologyClassName = $this->orm->getOntologyClassName();
 		if ($app) {
 			if (isset($_GET['page'])) {
 				$namedfieldParameters = $_GET;
@@ -202,16 +146,16 @@ class REST {
 				unset($namedfieldParameters['total_pages']);
 				unset($namedfieldParameters['total_entries']);
 		
-				$result_paged = $this->getByNamedFieldValues($ontologyClassName, array_keys($namedfieldParameters), array_values($namedfieldParameters));
+				$result_paged = $this->orm->getByNamedFieldValues($ontologyClassName, array_keys($namedfieldParameters), array_values($namedfieldParameters));
 		
 				foreach($result_paged as $obj_item) {
 					$obj_item->id = intval($obj_item->id);
 		
 					if ($ontologyClassName === "ontology") {
-						$relobjects = $this->getByNamedFieldValues("RelationOntologyClassOntologyPropertyEntity", array("ontologyclassentityid"), array($obj_item->id), false);
+						$relobjects = $this->orm->getByNamedFieldValues("RelationOntologyClassOntologyPropertyEntity", array("ontologyclassentityid"), array($obj_item->id), false);
 		
 						if (isset($relobjects[0])) {
-							$propertyentityobjects = $this->getByNamedFieldValues("ontologypropertyentity", array("id"), array($relobjects[0]->ontologyPropertyEntityID), false);
+							$propertyentityobjects = $this->orm->getByNamedFieldValues("ontologypropertyentity", array("id"), array($relobjects[0]->ontologyPropertyEntityID), false);
 								
 							if (isset($propertyentityobjects[0])) $obj_item->name = $propertyentityobjects[0]->name;
 						}
@@ -224,31 +168,31 @@ class REST {
 				
 					
 				if (isset($_GET['name'])) {
-					$result = $this->getByNamedFieldValues($ontologyClassName, array("name"), array($_GET['name']));
-					$result = $this->getById($ontologyClassName, $result[0]->id);
+					$result = $this->orm->getByNamedFieldValues($ontologyClassName, array("name"), array($_GET['name']));
+					$result = $this->orm->getById($ontologyClassName, $result[0]->id);
 				} else {
-					$result = $this->getAllByName($ontologyClassName);
+					$result = $this->orm->getAllByName($ontologyClassName);
 				}
 			}
 		
 		} else {
 			if ($id) {
-				$result = $this->getById($ontologyClassName, $id);
+				$result = $this->orm->getById($ontologyClassName, $id);
 					
 				if ($ontologyClassName === "ontology") {
-					$related = $this->getByNamedFieldValues("OntologyClass", array("ontologyID"), array($id), false);
+					$related = $this->orm->getByNamedFieldValues("OntologyClass", array("ontologyID"), array($id), false);
 		
 					$result->OntologyClasses = $related;
 				} else if ($ontologyClassName === "release") {
-					$related = $this->getByNamedFieldValues("ReleasePublication", array("releaseID"), array($id), false);
+					$related = $this->orm->getByNamedFieldValues("ReleasePublication", array("releaseID"), array($id), false);
 					
 					$result->ReleasePublications = $related;
 				}
 					
 			} else if (count($_GET) > 0) {
-				$result = $this->getByNamedFieldValues($ontologyClassName, array_keys($_GET), array_values($_GET));
+				$result = $this->orm->getByNamedFieldValues($ontologyClassName, array_keys($_GET), array_values($_GET));
 			} else {
-				$result = $this->getAllByName($ontologyClassName);
+				$result = $this->orm->getAllByName($ontologyClassName);
 			}
 		}
 		
@@ -311,44 +255,7 @@ class REST {
 
 		return $output;
 	}
-	function getJSONAll($objects) {
-		$vars = get_class_vars(get_class($objects[0]));
-		
-		$json = '{"items":';
-		
-		$json .= "[";
-		
-		for ($i=0; $i<count($objects); $i++) {
-			$json .= "{";
-			
-			$j=0;
-			foreach ($vars as $name => $value) {
-				if (!is_array($objects[$i]->$name) && !is_object($objects[$i]->$name)) {
-					if ($j > 0) $json .= ",";
-					
-					$json .= '"' . strtolower($name) . '":';
-					$json .= '"' . $objects[$i]->$name . '"';
-					 
-				}
-				$j++;
-			}
-			
-			$json .= "}";
-			
-			
-			if ($i < count($objects)- 1) $json .= ",";
-		}
-		
-		$json .= "]";
-		
-		$json .= "}";
-		
-		
-		return $json;
-	}
 	function getScopeName($path = null) {
-		$rest = new REST();
-	
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
 		
 		if ($path) {
@@ -366,21 +273,15 @@ class REST {
 		if (strpos($pathToUse, "localhost") !== false) {
 			$scopename = $levels[1];
 		} else if (strpos($pathToUse, "/api/") !== false) {
-			if ($levels[2] === "api") {
-				$scopename = $levels[3];
-			} else {
-				$scopename = $levels[2];
-			}
-			
+			$apiIndex = array_search("api", $levels);
+			$scopename = $levels[$apiIndex+1];
 		} else {
 			$scopename = $levels[1];
 		}
-	
+		
 		return $scopename;
 	}
 	function getScopeObjectName($path = null) {
-		$rest = new REST();
-	
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
 	
 		if ($path) {
@@ -401,43 +302,31 @@ class REST {
 			if (isset($levels[2])) $objectname = $levels[2];
 		}
 	
-		return $objectname;
+		
+		return $this->singularize($objectname);
 	}
 	function loadRoutes($app) {
-		
 		$scopeName = $this->getScopeName();
 	
-		$desc = "";
-		if (!file_exists("../engulfing/")) {
-			if (file_exists("../../engulfing/")) {
-				$desc = "../";
-			} else {
-				$desc = "../../";
-			}
-		}
-	
-		//require_once $desc . '../engulfing/engulfing-core/classes/Core/Error.php';
-		
 		if (strlen($scopeName) < 3) {
 			$classScopeName = strtoupper($scopeName);
 		} else {
 			$classScopeName = ucfirst($scopeName);
 		}
 		
-		//echo $scopeName . "\n";
 		
 		if ($scopeName !== "") {
-			if (file_exists($desc . '../engulfing/engulfing-core/classes/' . $classScopeName . '/')) {
-				require_once $desc . '../engulfing/engulfing-core/classes/' . $classScopeName . '/' . $classScopeName . '.php';
-			} else if (file_exists($desc . '../engulfing/engulfing-extensions/classes/' . $classScopeName . '/')) {
-				require_once $desc . '../engulfing/engulfing-extensions/classes/' . $classScopeName . '/' . $classScopeName . '.php';
+			if (file_exists(__DIR__ . '/../../../../engulfing/engulfing-core/classes/' . $classScopeName . '/')) {
+				require_once __DIR__ . '/../../../../engulfing/engulfing-core/classes/' . $classScopeName . '/' . $classScopeName . '.php';
+			} else if (file_exists(__DIR__ . '/../../../../engulfing/engulfing-extensions/classes/' . $classScopeName . '/')) {
+				require_once __DIR__ . '/../../../../engulfing/engulfing-extensions/classes/' . $classScopeName . '/' . $classScopeName . '.php';
 			} else {
-				if (file_exists($desc . '../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/')) {
-					require_once $desc . '../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/' . $classScopeName . '.php';
+				if (file_exists(__DIR__ . '/../../../../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/')) {
+					require_once __DIR__ . '/../../../../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/' . $classScopeName . '.php';
 				}
 			}
 			
-			$contents = glob(getcwd()  . '/ressources/' . $scopeName . '/' . '*.*');
+			$contents = glob(__DIR__  . '/../../../../api/ressources/' . $scopeName . '/' . '*.*');
 			
 			foreach ($contents as $file_name) {
 				if (strpos($file_name, "task_") === false) {
@@ -461,7 +350,6 @@ class REST {
 						
 					foreach ($classes as $class) {
 						$ressourceName = strtolower($this->pluralize($class->name));
-			
 			
 						$app->get('/' . $scope . '/' . $ressourceName . '/:id',	'get');
 						$app->get('/' . $scope . '/' . $ressourceName . '/:id/detailed',	'getDetailed');
@@ -506,7 +394,7 @@ class REST {
 			$rest = new REST ();
 			$restTransformer = new REST_Transformer ();
 			
-			$OntologyName = $rest->getScopeName();
+			$OntologyName = $rest->orm->getScopeName();
 			
 			
 			$result = $restTransformer->deserialize_JSON ( $app->response->getBody (), "Extract");
@@ -527,7 +415,7 @@ class REST {
 				$request->ResponseStatistics = json_encode($result->processing, JSON_PRETTY_PRINT);
 			}
 			
-			$request->save();
+			$this->orm->save($request);
 		}
 		
 	}

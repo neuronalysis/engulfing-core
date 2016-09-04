@@ -10,7 +10,6 @@ trait WebsiteScript {
 		
 		$scope = $this->getScopeName();
 		
-		
 		$html = '';
 
 		$this->combineUnderscoreTemplates();
@@ -29,8 +28,6 @@ trait WebsiteScript {
 		return $html;
 	}
 	function getScriptPathByScopeAndDirectory($scope, $directory) {
-		//echo "scope: " . $scope . "; directory: " . $directory . "\n";
-		
 		if ($scope === "engulfing") {
 			$scriptPath = str_ireplace("../engulfing/engulfing-core/", "", $directory);
 		} else {
@@ -85,21 +82,32 @@ trait WebsiteScript {
 			if ($this->isLocalRequest()) {
 				if ($this->generated) {
 					if ($scope !== "engulfing" && $scope !== "ontologydriven") {
-						if (!$scope) {
+						if (in_array($scope, array("neuronalysis"))) {
 							if ($scopeDebth == 1) {
 								$source = $scriptPath;
 							} else {
 								if (file_exists($scope)) {
-									$source = $scriptPath;
+									$source = $scope . $scriptPath;
 								} else {
 									if (file_exists("../" . $scope)) {
-										$source = "../" . $scriptPath;
+										$source = "../" . $scope . "/" . $scriptPath;
+									} else {
+										if (file_exists("../../" . $scope)) {
+											$source = "../../" . $scope . "/" . $scriptPath;
+										} else {
+											if (file_exists("../../../" . $scope)) {
+												$source = "../../../" . $scope . "/" . $scriptPath;
+											} else {
+							
+											}
+										}
 									}
 								}
 							}
 						} else {
 							$source = "http://localhost.ontologydriven/" . $scope . "/" . $scriptPath;
 						}
+						
 					} else {
 						if ($scope === "engulfing") {
 							$source = "http://localhost.engulfing/" . $scriptPath;
@@ -138,7 +146,6 @@ trait WebsiteScript {
 							$source = "../../" . $scope . "/" . $scriptPath;
 						} else {
 							if (file_exists("../../../" . $scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
-								//echo "scope: " . $scope . "; " . $scriptPath . "\n";
 								$source = "../../../" . $scope . "/" . $scriptPath;
 							} else {
 								$source = "http://www.engulfing.com/" . $scope . "/" . $scriptPath;
@@ -315,11 +322,7 @@ trait WebsiteScript {
 	function compileHTMLScriptsIfNecessary($scope, $directory, $target, $ordering = null, $exclusions = null, $targetDirectory = null) {
 		if (!$targetDirectory) $targetDirectory = $directory;
 		
-		//echo $targetDirectory . "/" . $target . "\n";
-		
 		$path = $this->getPathForRecursiveDirectoryIterator($scope, $targetDirectory);
-		
-		//echo $path . "\n";
 		
 		if (!file_exists($path . "/" . $target)) {
 			$js = $this->combineJSFromDirectory($path, $ordering, $exclusions);
@@ -408,7 +411,6 @@ trait WebsiteScript {
 						}	
 					}
 				}
-				
 			} else {
 				if (file_exists ( "../" . $scriptSource )) {
 					$path = "../" . $scriptSource;
@@ -417,8 +419,6 @@ trait WebsiteScript {
 						$path = $scriptSource;
 					}
 				}
-				
-				
 			}
 		}
 		
@@ -438,9 +438,7 @@ trait WebsiteScript {
 		
 		$scriptSource = $this->getScriptPathByScopeAndDirectory($scope, $directory);
 	
-		//echo "scope: " . $scope . "; scriptSource: " . $scriptSource . "\n";
 		$pathForIterator = $this->getPathForRecursiveDirectoryIterator($scope, $scriptSource);
-		//echo "pathForIterator: " . $pathForIterator . "\n";
 		
 		$directory_iterator = new RecursiveIteratorIterator ( new RecursiveDirectoryIterator ( $pathForIterator ) );
 		foreach ( $directory_iterator as $filename => $path_object ) {
@@ -653,13 +651,6 @@ trait WebsiteScript {
 				array("app.min.js", "main", "config", "ontologydriven.nlp.min.js", "ontologydriven.wiki.min.js", "ontologydriven.admin.min.js", "ontologydriven.codegeneration.min.js", "ontologydriven.km.min.js", "ontologydriven.edi.min.js")
 		);
 		
-		
-		
-		/*$html .= '
-		<script src="' . $this->getScriptSource(null, 'js/app.min.js') . '"></script>
-    	';*/
-		
-	
 		return $html;
 	}
 	function renderHTMLScripts_Models() {

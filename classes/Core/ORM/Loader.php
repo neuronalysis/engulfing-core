@@ -2,6 +2,7 @@
 trait Loader {
 	protected $cascades = null;
 	
+	protected $loading = array();
 	protected $loaded = array();
 	
 	function __construct() {
@@ -9,8 +10,41 @@ trait Loader {
 	function getCascades() {
 		return $this->cascades;
 	}
-	
-	
+	function startLoading($object, $id) {
+		array_push($this->loading, $object . "_" . $id);
+	}
+	function endLoading($object, $id) {
+		if(($key = array_search($object . "_" . $id, $this->loading)) !== false) {
+			unset($this->loading[$key]);
+		}
+	}
+	function isLoading($object, $id) {
+		if(($key = array_search($object . "_" . $id, $this->loading)) !== false) return true;
+	}
+	function isLoadedObject($object, $id) {
+		$filter = $object . "_" . $id;
+		
+		if (isset($this->loaded[$filter])) return $this->loaded[$filter];
+		
+		return false;
+	}
+	function isLoadedObjectsArray($object, $keyValues) {
+		$filter = $object . "_" . implode("_", array_keys($keyValues)) . "_" . implode("_", array_values($keyValues));
+		
+		if (isset($this->loaded[$filter])) return $this->loaded[$filter];
+		
+		return false;
+	}
+	function storeObject($object) {
+		$this->loaded[get_class($object). "_" . $object->id] = $object;
+	}
+	function storeObjectsArray($objects, $keyValues) {
+		if (!isset($objects[0])) return null;
+		
+		$filter = get_class($objects[0]) . "_" . implode("_", array_keys($keyValues)) . "_" . implode("_", array_values($keyValues));
+		
+		$this->loaded[$filter] = $objects;
+	}
 	/*function fetch($object_name, $id) {
 		if ($id == null) {
 			return $this->fetchList($object_name);
@@ -20,7 +54,6 @@ trait Loader {
 			if (!apc_exists(strtolower($object_name) . "_" . $id)) {
 				return false;
 			} else {
-				//echo "apc exists\n";
 				$data = apc_fetch(strtolower($object_name) . "_" . $id);
 				
 				return $data;

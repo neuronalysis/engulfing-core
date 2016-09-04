@@ -1,15 +1,7 @@
 <?php
-$desc = "";
-if (!file_exists("../engulfing/")) {
-	$desc = "../";
-	if (!file_exists($desc . "../engulfing/")) {
-		$desc .= "../";
-	}
-}
-include_once ($desc . "../engulfing/engulfing-generated/classes/things/Things_Generated.php");
-include_once ($desc . "../engulfing/engulfing-generated/classes/km/KM_Generated.php");
-include_once ($desc . "../engulfing/engulfing-core/classes/Core/Helper.php");
-include_once ($desc . "../engulfing/engulfing-core/classes/Core/ORM/ORM.php");
+include_once (__DIR__ . "/../../../engulfing-generated/classes/things/Things_Generated.php");
+include_once (__DIR__ . "/../../../engulfing-generated/classes/km/KM_Generated.php");
+include_once (__DIR__ . "/../../../engulfing-core/classes/Core/Helper.php");
 
 include_once ("KM_Relations.php");
 include_once ("Ontology.php");
@@ -18,7 +10,6 @@ include_once ("OntologyProperty.php");
 include_once ("OntologyRelationType.php");
 
 class KM extends KM_Generated {
-	use ORM;
 	use Helper;
 	
 	var $Ontologies = array();
@@ -27,9 +18,23 @@ class KM extends KM_Generated {
 	
 	var $entities = '{}';
 	
-	
 	function __construct() {
-		//$this->lexicon = new Lexicon();
+		$this->orm = new ORM(array("convert" => true));
+	}
+	function createTableByOntologyClass($OntologyClass) {
+		$codegen_database = new Generator_DataBase();
+		$sqlCreateTable = $codegen_database->generate_Create_Table($OntologyClass);
+	
+		if ($class_name === "ImportEntity") {
+			$db_scope = strtolower($this->entityOntologyName);
+		} else {
+			$db_scope = $this->getOntologyScope($this);
+		}
+	
+		$db = $this->openConnection ($db_scope);
+	
+		$stmt = $db->prepare ( $sqlCreateTable );
+		$stmt->execute ();
 	}
 	function getNews($topic) {
 		if ($topic === "km") {
@@ -42,7 +47,7 @@ class KM extends KM_Generated {
 				$new->publishedAt = $ontology->getCreatedAt();
 				$new->title = '<a href="./km/ontologies/#' . $ontology->id . '">' . $ontology->name . '</a> created';
 				//$new->content = "New OntologyClass " . $class->name . " was created by ";
-				$creator = $this->getById("User", $ontology->getCreatedBy());
+				$creator = $this->orm->getById("User", $ontology->getCreatedBy());
 			
 				$new->content = 'New Ontology ' . '<a href="./km/ontologies/#' . $ontology->id . '">' . $ontology->name . '</a>' . ' was created by ' . '<a href="./usermanagement/users/#' . $creator->id . '">' . $creator->name . '</a>';
 			
@@ -55,7 +60,7 @@ class KM extends KM_Generated {
 					$new->publishedAt = $class->getCreatedAt();
 					$new->title = '<a href="./km/ontologyclasses/#' . $class->id . '">' . $class->name . '</a> created';
 					//$new->content = "New OntologyClass " . $class->name . " was created by ";
-					$creator = $this->getById("User", $class->getCreatedBy());
+					$creator = $this->orm->getById("User", $class->getCreatedBy());
 						
 					$new->content = 'New OntologyClass ' . '<a href="./km/ontologyclasses/#' . $class->id . '">' . $class->name . '</a>' . ' for Ontology ' . '<a href="./km/ontologies/#' . $ontology->id . '">' . $ontology->name . '</a>' . ' was created by ' . '<a href="./usermanagement/users/#' . $creator->id . '">' . $creator->name . '</a>';
 						
@@ -82,7 +87,7 @@ class KM extends KM_Generated {
 				} else {
 					$new->title = '<a href="./km/ontologyclasses/#' . $class->id . '/entities/#' . $entity->id . '">' . $class->name . '-Entity' . '</a> created';
 				}
-				$creator = $this->getById("User", $class->getCreatedBy());
+				$creator = $this->orm->getById("User", $class->getCreatedBy());
 				
 				if ($entityName) {
 					$new->content = 'New Entity ' . '<a href="./km/ontologyclasses/#' . $class->id . '/entities/#' . $entity->id . '">' . $entityName . '</a>' . ' of OntologyClass ' . '<a href="./km/ontologyclasses/#' . $class->id . '">' . $class->name . '</a>' . ' was created by ' . '<a href="./usermanagement/users/#' . $creator->id . '">' . $creator->name . '</a>';
@@ -117,9 +122,7 @@ class KM extends KM_Generated {
 		
 		$allClasses = $this->getOntologyClassesByOntologyId($ontology->id);
 		foreach($allClasses as $classItem) {
-			//echo $classItem->name . "\n";
 			if ($classItem->Ontology) {
-				//echo "o-name: " . $classItem->Ontology->name . "\n";
 				if (file_exists($desc . "../engulfing/engulfing-extensions/classes/BusinessLogic/" . $ontology->name . "/" . $ontology->name . ".php")) {
 					include_once ($desc . "../engulfing/engulfing-extensions/classes/BusinessLogic/" . $ontology->name . "/" . $ontology->name . ".php");
 				} else if (file_exists($desc . "../engulfing/engulfing-extensions/classes/BusinessLogic/" . $ontology->name . "/" . $classItem->name . ".php")) {
@@ -127,7 +130,6 @@ class KM extends KM_Generated {
 					include_once ($desc . "../engulfing/engulfing-extensions/classes/BusinessLogic/" . $ontology->name . "/" . $classItem->name . ".php");
 				}
 			} else {
-				//echo "o-name: " . $ontology->name . "\n";
 				if (file_exists($desc . "../engulfing/engulfing-generated/classes/" . $ontology->name . "/" . $ontology->name . "_Generated.php")) {
 					include_once ($desc . "../engulfing/engulfing-generated/classes/" . $ontology->name . "/" . $ontology->name . "_Generated.php");
 				}
@@ -222,7 +224,7 @@ class KM extends KM_Generated {
 			$new->publishedAt = $class->getCreatedAt();
 			$new->title = '<a href="./km/ontologyclasses/#' . $class->id . '">' . $class->name . '</a> created';
 			//$new->content = "New OntologyClass " . $class->name . " was created by ";
-			$creator = $this->getById("User", $class->getCreatedBy());
+			$creator = $this->orm->getById("User", $class->getCreatedBy());
 				
 			$new->content = 'New OntologyClass ' . '<a href="./km/ontologyclasses/#' . $class->id . '">' . $class->name . '</a>' . ' was created by ' . '<a href="./usermanagement/users/#' . $creator->id . '">' . $creator->name . '</a>';
 				
@@ -232,12 +234,12 @@ class KM extends KM_Generated {
 		return $news;
 	}
 	function getOntologyClasses() {
-		$oclasses = $this->getAllByName("OntologyClass", true);
+		$oclasses = $this->orm->getAllByName("OntologyClass", true);
 		
 		return $oclasses;
 	}
 	function getPersistedOntologyClasses() {
-		$oclasses = $this->getByNamedFieldValues("OntologyClass", array("isPersistedConcrete"), array(true));
+		$oclasses = $this->orm->getByNamedFieldValues("OntologyClass", array("isPersistedConcrete"), array(true));
 		
 		return $oclasses;
 	}
@@ -336,53 +338,46 @@ class KM extends KM_Generated {
 	}
 	function getOntologyById($id) {
 		$rest = new REST();
-		$result = $rest->getById("Ontology", $id);
+		$result = $rest->orm->getById("Ontology", $id);
 	
 		return $result;
 	}
 	function getOntologyClassById($id) {
 		$rest = new REST();
-		$result = $rest->getById("OntologyClass", $id);
+		$result = $rest->orm->getById("OntologyClass", $id);
 		
 		return $result;
 	}
 	function getOntologyByName($name) {
-		$objects = $this->getByNamedFieldValues("Ontology", array("name"), array($name));
+		$objects = $this->orm->getByNamedFieldValues("Ontology", array("name"), array($name));
 		
 		if (isset($objects[0])) return $objects[0];
 	}
 	function getOntologyPropertyByName($name) {
-		$objects = $this->getByNamedFieldValues("OntologyProperty", array("name"), array($name));
+		$objects = $this->orm->getByNamedFieldValues("OntologyProperty", array("name"), array($name));
 	
 		if (isset($objects[0])) return $objects[0];
 	}
 	function getOntologyRelationTypeByName($name) {
-		$objects = $this->getByNamedFieldValues("OntologyRelationType", array("name"), array($name));
+		$objects = $this->orm->getByNamedFieldValues("OntologyRelationType", array("name"), array($name));
 	
 		if (isset($objects[0])) return $objects[0];
 	}
 	function getOntologyClassByName($name, $eager = false) {
-		$objects = $this->getByNamedFieldValues("OntologyClass", array("name"), array($name), false, null, $eager, true);
-		
+		$objects = $this->orm->getByNamedFieldValues("OntologyClass", array("name"), array($name), false, null, $eager, true);
 		
 		if (isset($objects[0])) {
-			$objects[0]->setDataBaseConnections($this->databaseConnections);
-			return $objects[0];
+			$object = $this->orm->getById("OntologyClass", $objects[0]->id, true);
+		
+			return $object;
 		}
 	}
 	function getOntologyClassEntityByName($name) {
-		$rest = new REST();
-		
-		//echo $name . "\n";
-		$opes = $this->getByNamedFieldValues("OntologyPropertyEntity", array("name"), array($name));
+		$opes = $this->orm->getByNamedFieldValues("OntologyPropertyEntity", array("name"), array($name));
 	
-		//print_r($opes);
+		$relocopes = $$this->orm->getByNamedFieldValues("RelationOntologyClassOntologyPropertyEntity", array("ontologyPropertyEntityID"), array($opes[0]->id));
 		
-		$relocopes = $this->getByNamedFieldValues("RelationOntologyClassOntologyPropertyEntity", array("ontologyPropertyEntityID"), array($opes[0]->id));
-		
-		//print_r($relocopes[0]);
-		
-		$objects = $rest->getById("OntologyClassEntity", $relocopes[0]->ontologyClassEntityID);
+		$objects = $this->orm->getById("OntologyClassEntity", $relocopes[0]->ontologyClassEntityID);
 		
 		return $objects;
 	}
@@ -393,34 +388,32 @@ class KM extends KM_Generated {
 				
 			similar_text($name,$item_oce_name,$percent);
 				
-			//echo "similarity-check: " . $name . "; " . $item_oce_name . "; " . $percent . "\n";
-				
 			if ($percent >= $requiredSimilarity) return $item_oce;
 		}
 		
 		return null;
 	}
 	function getOntologies() {
-		$ontologies = $this->getAllByName("Ontology", true);
+		$ontologies = $this->orm->getAllByName("Ontology", true);
 		
 		return $ontologies;
 	}
 	function getOntologyClassEntities() {
-		$ocentities = $this->getAllByName("OntologyClassEntity", false, "createdAt", null, array("ontologyClassID"));
+		$ocentities = $this->orm->getAllByName("OntologyClassEntity", false, "createdAt", null, array("ontologyClassID"));
 		
 		foreach($ocentities as $entity) {
-			$entity->OntologyClass = $this->getById("OntologyClass", $entity->ontologyClassID);
+			$entity->OntologyClass = $this->orm->getById("OntologyClass", $entity->ontologyClassID);
 		}
 		
 		return $ocentities;
 	}
 	function getOntologyProperties() {
-		$ontologyproperties = $this->getAllByName("OntologyProperty", true);
+		$ontologyproperties = $this->orm->getAllByName("OntologyProperty", true);
 		
 		return $ontologyproperties;
 	}
 	function getOntologyRelationTypes() {
-		$ontologyrelationtypes = $this->getAllByName("OntologyRelationType", true);
+		$ontologyrelationtypes = $this->orm->getAllByName("OntologyRelationType", true);
 		
 		return $ontologyrelationtypes;
 	}
@@ -434,7 +427,7 @@ class KM extends KM_Generated {
 		return $Ontologies;
 	}
 	function getOntologyClassesByOntologyId($ontologyID) {
-		$objects = $this->getByNamedFieldValues("OntologyClass", array("ontologyID"), array($ontologyID));
+		$objects = $this->orm->getByNamedFieldValues("OntologyClass", array("ontologyID"), array($ontologyID));
 
 		return $objects;
 	}
@@ -481,16 +474,13 @@ class KM extends KM_Generated {
 						return $oclass_entity;
 					} else {
 						similar_text($value, $oproperty_entity_value, $percent);
-						//echo "pct-match between [" . $value . "] and [" . $oproperty_entity_value . "]: " . $percent . "\n";
 						
 						if ($percent > 80) {
 							return $oclass_entity;
 						} else {
 							if (stripos($value, substr($oproperty_entity_value, 0, 5)) !== false) {
-								//echo $oproperty_entity_value . "; " . stripos($value, substr($oproperty_entity_value, 0, 5)) . "; " . strlen($oproperty_entity_value) . "\n";
-								
 								similar_text(substr($value, stripos($value, substr($oproperty_entity_value, 0, 5)), strlen($oproperty_entity_value)), $oproperty_entity_value, $percent);
-								//echo "pct-match between [" . substr($value, stripos($value, substr($oproperty_entity_value, 0, 5)), strlen($oproperty_entity_value)) . "] and [" . $oproperty_entity_value . "]: " . $percent . "\n";
+								
 								if ($percent > 80) {
 									return $oclass_entity;
 								}
@@ -531,17 +521,6 @@ class KM extends KM_Generated {
 		
 		$entities = $oclass->getOntologyClassEntitiesByObjects($objects);
 		
-		/*foreach ($catalogue as $item) {
-			$oc_entity = new OntologyClassEntity();
-			$oc_entity->OntologyClass = $oclass;
-			
-			foreach ($item as $key => $value) {
-				$oc_entity->setOPEntity($key, $value, array());
-			}
-			
-			array_push($entities, $oc_entity);
-		}*/
-		
 		return $entities;
 	}
 	function loadOntologyRelations($oclasses) {
@@ -573,8 +552,7 @@ class KM extends KM_Generated {
 					$relation->setOntologyRelationType("extends", array());
 					foreach($oclasses as $oclass) {
 						if ($oclass->name == $relation->relation_ococ_outgoingOntologyClass->name) {
-							//echo "pushing " . ": " . $oclass->name . " " . $relation->relation_ococ_Ontologyrelationtype->name . " " . $relation->relation_ococ_incomingOntologyClass->name . "outgoing pushed \n";
-							//array_push($oclass->RelationOntologyClassOntologyClasses_outgoing, $relation);
+							array_push($oclass->RelationOntologyClassOntologyClasses_outgoing, $relation);
 						}
 					}
 				}
@@ -611,7 +589,6 @@ class KM extends KM_Generated {
 					$relation->setOntologyRelationType("extendedBy", array());
 					foreach($oclasses as $oclass) {
 						if ($oclass->name == $relation->relation_ococ_outgoingOntologyClass->name) {
-							//echo "pushing " . ": " . $oclass->name . " " . $relation->relation_ococ_Ontologyrelationtype->name . " " . $relation->relation_ococ_incomingOntologyClass->name . "outgoing pushed \n";
 							array_push($oclass->RelationOntologyClassOntologyClasses, $relation);
 						}
 					}
@@ -620,7 +597,7 @@ class KM extends KM_Generated {
 		}
 		
 		//HasOneToOnes
-		/*
+		
 		foreach($oclasses as $oclass) {
 			$class_name = $oclass->name;
 			
@@ -648,7 +625,7 @@ class KM extends KM_Generated {
 			}
 			
 		}
-		*/
+		
 	}
 	function loadOntologyClass($class) {
 		$class_name = get_class($class);
@@ -664,7 +641,6 @@ class KM extends KM_Generated {
 		
 		foreach($class_vars as $key => $value) {
 			if (!class_exists($key . "")) {
-				//print_r($words[$key]);
 				if (in_array($key, $identifiers, TRUE)) {
 					$oclass->setOntologyProperty($key, $words[$key], true);
 				}
@@ -676,9 +652,6 @@ class KM extends KM_Generated {
 						$oclass->setOntologyProperty($key, $words[$key]);
 					}
 				}
-				
-			} else {
-				//echo $key . "\n";
 			}
 		}
 		

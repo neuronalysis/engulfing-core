@@ -1,0 +1,30 @@
+{
+    "name": "save_new_nested_Release",
+    "Indicators": [
+        {
+            "name": "Total Consumer Credit Owned and Securitized, Outstanding",
+            "unit": "Bil. of $",
+            "isSeasonallyAdjusted": "1",
+            "isHeadlineNumber": null,
+            "popularity": "67",
+            "externalKey": "TOTALSL",
+            "Frequency": {
+                "code": "M",
+                "name": "Monthly",
+                "id": "0"
+            },
+            "Country": {
+                "code": "US",
+                "name": "United States",
+                "id": "233"
+            },
+            "IndicatorObservations": null
+        }
+    ],
+    "ReleasePublications": [
+        {
+            "date": "1996-12-06 00:00:00"
+        }
+    ],
+    "externalKey": 14
+}

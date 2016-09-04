@@ -13,14 +13,14 @@ trait ConnectionManager {
 		
 		if (isset($this->databaseConnections[$ontologyName])) {
 			if (is_object($this->databaseConnections[$ontologyName])) {
-				//echo " existing connection\n";
-				
 				return $this->databaseConnections[$ontologyName];
 			}
 		}
 		
-		//echo "oname: " . $ontologyName . "";
-		//echo " new connection\n";
+		if ($this->debug) {
+			echo "oname: " . $ontologyName . "\n";
+			echo " new connection\n";
+		}
 		
 		$databaseName = $this->getDatabaseName($ontologyName);
 		

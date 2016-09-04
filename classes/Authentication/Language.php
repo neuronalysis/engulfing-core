@@ -1,7 +1,6 @@
 <?php
 class Language {
 	
-	var $id;
 	var $isoCode;
 	var $name;
 	

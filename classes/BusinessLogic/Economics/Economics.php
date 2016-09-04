@@ -1,19 +1,10 @@
 <?php
-$desc = "";
-if (!file_exists("../engulfing/")) {
-	$desc = "../";
-	if (!file_exists($desc . "../engulfing/")) {
-		$desc .= "../";
-	}
-}
+include_once (__DIR__ . "/../GEO/GEO.php");
+include_once (__DIR__ . "/../Cybernetics/Cybernetics.php");
+include_once (__DIR__ . "/../../../../engulfing-core/classes/Core/GSystem.php");
 
-include_once ($desc . "../engulfing/engulfing-core/classes/BusinessLogic/GEO/GEO.php");
-include_once ($desc . "../engulfing/engulfing-core/classes/BusinessLogic/Cybernetics/Cybernetics.php");
-include_once ($desc . "../engulfing/engulfing-core/classes/Core/GSystem.php");
-
-include_once ($desc . "../engulfing/engulfing-generated/classes/things/Things_Generated.php");
-include_once ($desc . "../engulfing/engulfing-generated/classes/economics/Economics_Generated.php");
-
+include_once (__DIR__ . "/../../../../engulfing-generated/classes/things/Things_Generated.php");
+include_once (__DIR__ . "/../../../../engulfing-generated/classes/economics/Economics_Generated.php");
 
 include_once ('Release.php');
 include_once ('ReleasePublication.php');
@@ -31,14 +22,12 @@ class Economics extends Economics_Generated {
 	function getNextReleasePublications() {
 		$rest = new REST();
 		
-		$sql = "select id, releaseID, MIN(date) AS date FROM releasepublications WHERE date >= CURDATE() GROUP BY releaseID ORDER BY date ASC";
+		$sql = "SELECT id, releaseID, MIN(date) AS date FROM releasepublications WHERE date >= CURDATE() GROUP BY releaseID ORDER BY date ASC";
 		
-		$releasepublications = $rest->getAllByQuery($sql, "ReleasePublication", array("releaseID"));
-		
-		//print_r($releasepublications);
+		$releasepublications = $rest->orm->getAllByQuery($sql, "ReleasePublication", array("releaseID"));
 		
 		foreach($releasepublications as $relpub_item) {
-			$relpub_item->Release = $rest->getById("Release", $relpub_item->releaseID, false);
+			$relpub_item->Release = $rest->orm->getById("Release", $relpub_item->releaseID, false);
 			
 			if (isset($relpub_item->Release)) {
 				$relpub_item->name = $relpub_item->Release->name;
@@ -52,14 +41,14 @@ class Economics extends Economics_Generated {
 	function getPublicationsByRelease($release) {
 		$rest = new REST();
 		
-		$publications = $rest->getByNamedFieldValues("ReleasePublication", array("releaseID"), array($release->id));
+		$publications = $rest->orm->getByNamedFieldValues("ReleasePublication", array("releaseID"), array($release->id));
 		
 		return $publications;
 	}
 	function getIndicatorsByRelease($release) {
 		$rest = new REST();
 	
-		$indicators = $rest->getByNamedFieldValues("Indicator", array("releaseID"), array($release->id), false, null, false, true);
+		$indicators = $rest->orm->getByNamedFieldValues("Indicator", array("releaseID"), array($release->id), false, null, false, true);
 	
 		return $indicators;
 	}
@@ -125,7 +114,7 @@ class Economics extends Economics_Generated {
 						
 					if ($availableIndicators) {
 						if ($availableIndicators > 0) {
-							$indicators = $rest->countByObjectAndId("Indicator", array("releaseID" => $rel_item->id));
+							$indicators = $rest->orm->getTotalAmount("Indicator", array("releaseID" => $rel_item->id));
 							
 							if (intval($indicators) !== intval($availableIndicators)) {
 								//echo "   availableIndicators: " . $availableIndicators . "; effective.indicators: " . count($indicators) . "\n";
@@ -147,7 +136,7 @@ class Economics extends Economics_Generated {
 					
 				if ($availableIndicators) {
 					if ($availableIndicators > 0) {
-						$indicators = $importprocess->countByObjectAndId("Indicator", array("releaseID" => $rel_item->id));
+						$indicators = $importprocess->getTotalAmount("Indicator", array("releaseID" => $rel_item->id));
 							
 						if (intval($indicators) !== intval($availableIndicators)) {
 							//echo "   availableIndicators: " . $availableIndicators . "; effective.indicators: " . $indicators . "\n";
@@ -289,7 +278,7 @@ class Economics extends Economics_Generated {
 		$iex = new Extraction();
 		$km = new KM();
 		
-		$releases = $rest->getAllByName("Release", true);
+		$releases = $rest->orm->getAllByName("Release", true);
 		$releases_publications = $this->filterReleasesWithPendingReleasePublications($releases);
 		
 		echo "count.releases.with.pending.publications: " . count($releases_publications) . "\n";
@@ -336,8 +325,8 @@ class Economics extends Economics_Generated {
 		$km = new KM();
 	
 		//$sql = "SELECT id, name, popularity FROM indicators WHERE indicators.popularity > 0 ";
-		//$indicators = $rest->getAllByQuery($sql, "Indicator");
-		$indicators = $rest->getAllByName("Indicator", true, null, null, null, true);
+		//$indicators = $rest->orm->getAllByQuery($sql, "Indicator");
+		$indicators = $rest->orm->getAllByName("Indicator", true, null, null, null, true);
 	
 		$indicators = $this->filterIndicatorsWithPendingIndicatorObservations($indicators);
 		
@@ -362,8 +351,8 @@ class Economics extends Economics_Generated {
 		$km = new KM();
 	
 		//$sql = "SELECT id, name, popularity FROM indicators WHERE indicators.popularity > 0 ";
-		//$indicators = $rest->getAllByQuery($sql, "Indicator");
-		$instruments = $rest->getAllByName("Instrument", true, null, null, null, true);
+		//$indicators = $rest->orm->getAllByQuery($sql, "Indicator");
+		$instruments = $rest->orm->getAllByName("Instrument", true, null, null, null, true);
 	
 		$instruments = $this->filterInstrumentsWithPendingInstrumentObservations($instruments);
 	
@@ -391,11 +380,11 @@ class Economics extends Economics_Generated {
 				WHERE indicators.id = indicatorobservations.indicatorID AND date <= NOW() " . $sql_onlyHeadlineNumbers . " GROUP BY indicatorID
 				ORDER BY date DESC";
 	
-		$indicatorobservations = $rest->getAllByQuery($sql, "IndicatorObservation", array("indicatorID"));
+		$indicatorobservations = $rest->orm->getAllByQuery($sql, "IndicatorObservation", array("indicatorID"));
 	
 		//print_r($indicatorobservations);
 		foreach($indicatorobservations as $obs_item) {
-			$obs_item->Indicator = $rest->getById("Indicator", $obs_item->indicatorID, false);
+			$obs_item->Indicator = $rest->orm->getById("Indicator", $obs_item->indicatorID, false);
 				
 			unset($obs_item->Indicator->IndicatorObservations);
 			unset($obs_item->indicatorID);
@@ -411,12 +400,12 @@ class Economics extends Economics_Generated {
 				WHERE instruments.id = instrumentobservations.instrumentID AND date <= NOW() GROUP BY instrumentID
 				ORDER BY date DESC";
 	
-		$instrumentobservations = $rest->getAllByQuery($sql, "InstrumentObservation", array("instrumentID"));
+		$instrumentobservations = $rest->orm->getAllByQuery($sql, "InstrumentObservation", array("instrumentID"));
 	
 		//print_r($indicatorobservations);
 		if ($instrumentobservations) {
 			foreach($instrumentobservations as $obs_item) {
-				$obs_item->Instrument = $rest->getById("Instrument", $obs_item->instrumentID, false);
+				$obs_item->Instrument = $rest->orm->getById("Instrument", $obs_item->instrumentID, false);
 			
 				unset($obs_item->Instrument->InstrumentObservations);
 				unset($obs_item->indicatorID);
@@ -430,10 +419,10 @@ class Economics extends Economics_Generated {
 		
 		$sql = "select id, releaseID, MAX(date) AS date FROM releasepublications WHERE date < NOW() GROUP BY releaseID ORDER BY date DESC";
 		
-		$releasepublications = $rest->getAllByQuery($sql, "ReleasePublication", array("releaseID"));
+		$releasepublications = $rest->orm->getAllByQuery($sql, "ReleasePublication", array("releaseID"));
 		
 		foreach($releasepublications as $relpub_item) {
-			$relpub_item->Release = $rest->getById("Release", $relpub_item->releaseID, false);
+			$relpub_item->Release = $rest->orm->getById("Release", $relpub_item->releaseID, false);
 			
 			unset($relpub_item->releaseID);
 		}
@@ -445,10 +434,10 @@ class Economics extends Economics_Generated {
 		
 		$sql = "select id, releaseID, MAX(date) AS date FROM releasepublications WHERE releaseID = " . $release->id . " GROUP BY releaseID ORDER BY date DESC";
 		
-		$releasepublications = $rest->getAllByQuery($sql, "ReleasePublication", array("releaseID"));
+		$releasepublications = $rest->orm->getAllByQuery($sql, "ReleasePublication", array("releaseID"));
 		
 		foreach($releasepublications as $relpub_item) {
-			$relpub_item->Release = $rest->getById("Release", $relpub_item->releaseID, false);
+			$relpub_item->Release = $rest->orm->getById("Release", $relpub_item->releaseID, false);
 			
 			unset($relpub_item->releaseID);
 		}
@@ -534,10 +523,10 @@ class Economics extends Economics_Generated {
 		
 		$sql = "select id, releaseID, MAX(date) AS date FROM releasepublications WHERE releaseID = " . $release->id . " AND date < NOW() GROUP BY releaseID ORDER BY date DESC";
 		
-		$releasepublications = $rest->getAllByQuery($sql, "ReleasePublication", array("releaseID"));
+		$releasepublications = $rest->orm->getAllByQuery($sql, "ReleasePublication", array("releaseID"));
 		
 		foreach($releasepublications as $relpub_item) {
-			$relpub_item->Release = $rest->getById("Release", $relpub_item->releaseID, false);
+			$relpub_item->Release = $rest->orm->getById("Release", $relpub_item->releaseID, false);
 			
 			unset($relpub_item->releaseID);
 		}
@@ -549,10 +538,10 @@ class Economics extends Economics_Generated {
 	
 		$sql = "select id, indicatorID, MAX(date) AS date FROM indicatorobservations WHERE indicatorID = " . $indicator->id . " AND date < NOW() GROUP BY indicatorID ORDER BY date DESC";
 	
-		$indicatorobservations = $rest->getAllByQuery($sql, "IndicatorObservation", array("indicatorID"));
+		$indicatorobservations = $rest->orm->getAllByQuery($sql, "IndicatorObservation", array("indicatorID"));
 	
 		foreach($indicatorobservations as $indobs_item) {
-			$indobs_item->Indicator = $rest->getById("Indicator", $indobs_item->indicatorID, false);
+			$indobs_item->Indicator = $rest->orm->getById("Indicator", $indobs_item->indicatorID, false);
 				
 			unset($indobs_item->indicatorID);
 		}
@@ -564,10 +553,10 @@ class Economics extends Economics_Generated {
 	
 		$sql = "select id, instrumentID, MAX(date) AS date FROM instrumentobservations WHERE instrumentID = " . $instrument->id . " AND date < NOW() GROUP BY instrumentID ORDER BY date DESC";
 	
-		$instrumentobservations = $rest->getAllByQuery($sql, "InstrumentObservation", array("instrumentID"));
+		$instrumentobservations = $rest->orm->getAllByQuery($sql, "InstrumentObservation", array("instrumentID"));
 	
 		foreach($instrumentobservations as $instobs_item) {
-			$instobs_item->Instrument = $rest->getById("Instrument", $instobs_item->instrumentID, false);
+			$instobs_item->Instrument = $rest->orm->getById("Instrument", $instobs_item->instrumentID, false);
 	
 			unset($instobs_item->instrumentID);
 		}

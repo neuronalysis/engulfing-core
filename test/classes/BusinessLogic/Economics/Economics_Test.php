@@ -11,17 +11,25 @@ include_once ($desc . "../engulfing/engulfing-core/classes/Testing/Testing.php")
 
 class Economics_Test extends TestClass {
 	
-	function __construct() {
+	function prepare($method = null, $object = null) {
+		$mockRelease = new Release(array("name" => "forImpactFunctions", "externalKey" => "forImpactFunctions"));
+		$mockRelease->id = $this->orm->replace($mockRelease);
+		
+		$mockIndicator = new Indicator(array("name" => "forImpactFunctions", "externalKey" => "forImpactFunctions"));
+		$country = $this->orm->getById("Country", 233);
+		$mockIndicator->countryID = $country->id;
+		$mockIndicator->Release = $mockRelease;
+		
+		print_r($mockIndicator);
+		$indicatorID = $this->orm->replace($mockIndicator);
+		
 	}
 	function getById() {
 		$rest = new REST();
 		
-		$oc = $rest->getById("OntologyClass", 148);
+		$oc = $rest->orm->getById("OntologyClass", 148);
 		
 		return $oc;
-	}
-	function prepare() {
-		
 	}
 	function test() {
 		$this->prepare();

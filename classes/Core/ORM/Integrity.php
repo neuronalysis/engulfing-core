@@ -1,7 +1,5 @@
 <?php
 trait Integrity {
-	protected $constraints_unique = array();
-	
 	protected $validationRules = array();
 	protected $encryptions = array();
 	
@@ -10,19 +8,23 @@ trait Integrity {
 	function checkConstraints() {
 		$this->checkUniqueConstraints();
 	}
-	function checkUniqueConstraints() {
-		if (isset($this->constraints_unique)) {
-			foreach($this->constraints_unique as $constraint_unique_item) {
-				$class_name = strtolower($this->getOntologyClassName());
+	function checkUniqueConstraints($object) {
+		if (!method_exists($object, "getConstraintsUnique")) return false;
+		
+		$constraintsUnique = $object->getConstraintsUnique();
+		
+		if (is_array($constraintsUnique)) {
+			foreach($constraintsUnique as $constraintUnique) {
+				$class_name = strtolower($this->getOntologyClassName($object));
 				$fields = array();
 				$values = array();
-				foreach($constraint_unique_item as $item_name) {
-					if ($this->isOneToOneObject($item_name)) {
+				foreach($constraintUnique as $item_name) {
+					if ($this->isToOneField($item_name)) {
 						array_push($fields, $item_name . "ID");
-						array_push($values, $this->$item_name);
+						array_push($values, $object->$item_name);
 					} else {
 						array_push($fields, $item_name);
-						array_push($values, $this->$item_name);
+						array_push($values, $object->$item_name);
 					}
 				}
 				

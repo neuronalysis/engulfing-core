@@ -10,7 +10,7 @@ include_once ("TestObject.php");
 include_once ("TestLocation.php");
 
 class Sandbox extends Sandbox_Generated {
-	use ORM;
+	
 	use Helper;
 	
 	var $Ontologies = array();

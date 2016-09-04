@@ -10,32 +10,34 @@ tpl = {
 	loadTemplates : function(templates, callback) {
 		var that = this;
 
-		var names = [ '../../layouts/objectlist', '../../layouts/entitylist',
-				'../../layouts/singleobject',
-				'../../layouts/ontologyinformation',
-				'../../layouts/concreteinformation',
+		var names = [ '../../layouts/objectlist',
+		        '../../layouts/entitylist',
+		        '../../layouts/singleobject',
+		        '../../layouts/ontologyinformation',
+		        '../../layouts/concreteinformation',
 
 				'../../components/accordiongroup',
-				'../../components/accordionitem', '../../components/backgrid',
+				'../../components/accordionitem',
+				'../../components/backgrid',
 				'../../components/backgrid_actions',
 
 				'../../components/input_datepicker',
 				'../../components/input_textarea',
-				'../../components/input_text', '../../components/input_tags',
+				'../../components/input_text',
+				'../../components/input_tags',
 				'../../components/input_highcharts',
 				'../../components/input_select',
 				'../../components/input_locationmap',
 				'../../components/input_datepicker',
-				'../../components/input_checkbox' ];
+				'../../components/input_checkbox'
+				];
 
 		names = names.concat(templates)
 		
 		var loadTemplate = function(index) {
-
 			var name = names[index];
 			var desc = '';
 			var subDomain = '';
-
 			
 			if (name.indexOf("../../") > -1) {
 				name = name.replace("../../", "");
@@ -431,6 +433,26 @@ function getSubDomain() {
 		}
 	} else if (subdomain.indexOf("admin") > -1) {
 		var checkSplit = subdomain.split("admin/");
+		if (checkSplit[1].length > 0) {
+			subdomain += "../";
+		}
+	} else if (subdomain.indexOf("extraction") > -1) {
+		var checkSplit = subdomain.split("extraction/");
+		if (checkSplit[1].length > 0) {
+			subdomain += "../";
+		}
+	} else if (subdomain.indexOf("usermanagement") > -1) {
+		var checkSplit = subdomain.split("usermanagement/");
+		if (checkSplit[1].length > 0) {
+			subdomain += "../";
+		}
+	} else if (subdomain.indexOf("nlp") > -1) {
+		var checkSplit = subdomain.split("nlp/");
+		if (checkSplit[1].length > 0) {
+			subdomain += "../";
+		}
+	} else if (subdomain.indexOf("km") > -1) {
+		var checkSplit = subdomain.split("km/");
 		if (checkSplit[1].length > 0) {
 			subdomain += "../";
 		}

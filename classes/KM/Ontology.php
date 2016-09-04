@@ -4,7 +4,9 @@ class Ontology extends Ontology_Generated {
 	function __construct() {
 	}
 	function getOntologyClasses() {
-		$oclasses = $this->getByNamedFieldValues("OntologyClass", array("ontologyID"), array($this->id));
+		$rest = new REST();
+		
+		$oclasses = $rest->orm->getByNamedFieldValues("OntologyClass", array("ontologyID"), array($this->id));
 		
 		return $oclasses;
 	}
@@ -104,7 +106,7 @@ class Ontology extends Ontology_Generated {
 			
 			$dataSummary = new stdClass();
 			foreach($ontologyData->dataSummary->classes as $class) {
-				$objects[$class] = $this->getAllByName($class);
+				$objects[$class] = $this->orm->getAllByName($class);
 				
 				
 				$dataSummaryObjects = array();

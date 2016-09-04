@@ -1,8 +1,6 @@
 <?php
-//include_once ("ORM/OntologyClass_ORM.php");
-
 class OntologyClass extends OntologyClass_Generated {
-	protected $relations = array("Lexemes", "Ontology", "Ressource", "RelationOntologyClassOntologyClass" => array("IncomingOntologyClass", "OntologyRelationType"), "RelationOntologyClassOntologyProperty" => array("OntologyProperty"));
+	//protected $relations = array("Lexemes", "Ontology", "Ressource", "RelationOntologyClassOntologyClass" => array("IncomingOntologyClass", "OntologyRelationType"), "RelationOntologyClassOntologyProperty" => array("OntologyProperty"));
 	//var $loadingMode = array("RelationOntologyClassOntologyClasses" => "lazy", "RelationOntologyClassOntologyProperties" => "lazy");
 	
 	//use OntologyClass_ORM;
@@ -33,13 +31,13 @@ class OntologyClass extends OntologyClass_Generated {
 		}
 	}
 	function getOntology() {
-		$o = $this->getByNamedFieldValues("Ontology", array("ontologyID"), array($this->ontologyID));
+		$o = $this->orm->getByNamedFieldValues("Ontology", array("ontologyID"), array($this->ontologyID));
 		
 		return $o;
 	}
 	function getRessource() {
 		if (isset($this->ressourceID)) {
-			$r = $this->getById("Ressource", $this->ressourceID);
+			$r = $this->orm->getById("Ressource", $this->ressourceID);
 		} else {
 			$r = null;
 		}
@@ -50,20 +48,16 @@ class OntologyClass extends OntologyClass_Generated {
 	function getOntologyClassEntitiesByObjects($objects, $object_name = null, $onlyNameOnRelated = false) {
 		$oces = array();
 		
-		//print_r($this);
-		
 		if (count($objects) > 5) {
 			
 			$objects = array_slice($objects, 0, 5);
 		}
-		//echo "count: " . count($objects) . "\n";
 		
 		foreach($objects as $item_object) {
 			$oce = new OntologyClassEntity();
 			$oce->OntologyClass = $this;
 			
 			if (!method_exists($item_object, "initialize")) {
-				//echo "name: " . get_class($item_object) . "\n";
 				$oce->id = $item_object->id;
 			}
 			
@@ -93,7 +87,6 @@ class OntologyClass extends OntologyClass_Generated {
 					
 				if ($onlyNameOnRelated) {
 					if (isset($item_object->$opName) && $opName === "name") {
-						//echo $opName . "\n";
 						$oce->setOPEntity($oclassProperty->name, $item_object->$opName);
 					}
 				} else {
@@ -155,17 +148,17 @@ class OntologyClass extends OntologyClass_Generated {
 	}
 	function getOntologyClassEntities($stdobjects = null) {
 		if ($this->isPersistedConcrete) {
-			if (!$stdobjects) $stdobjects = $this->getAllByName($this->name, true);
+			if (!$stdobjects) $stdobjects = $this->orm->getAllByName($this->name, true);
 			
 			//$stdobjects = array_slice($stdobjects, 0, 10);
 			
 			$objects = $this->getOntologyClassEntitiesByObjects($stdobjects, $this->name);
 		} else {
-			$oces = $this->getByNamedFieldValues("OntologyClassEntity", array("ontologyClassID"), array($this->id));
+			$oces = $this->orm->getByNamedFieldValues("OntologyClassEntity", array("ontologyClassID"), array($this->id));
 			
 			$objects = array();
 			foreach($oces as $item_oce) {
-				$item_oce = $this->getById("OntologyClassEntity", $item_oce->id);
+				$item_oce = $this->orm->getById("OntologyClassEntity", $item_oce->id);
 					
 				array_push($objects, $item_oce);
 			}
@@ -351,20 +344,24 @@ class OntologyClass extends OntologyClass_Generated {
 		return $parent_top;
 	}
 	function getOntologyPropertyByName($name, $createIfMissing = false) {
-		$relocop = $this->getByNamedFieldValues("RelationOntologyClassOntologyProperty", array("ontologyClassID"), array($this->id), false, null, false, false, array("OntologyProperty"));
-		
-		foreach($relocop as $item_relocop) {
-			if ($item_relocop->OntologyProperty->name === $name) return $item_relocop->OntologyProperty;
+		if ($this->RelationOntologyClassOntologyProperties[0]->OntologyProperty) {
+			foreach($this->RelationOntologyClassOntologyProperties as $item_relocop) {
+				if ($item_relocop->OntologyProperty->name === $name) return $item_relocop->OntologyProperty;
+			}
+		} else {
+			$rest = new REST();
+				
+			$relocop = $rest->orm->getByNamedFieldValues("RelationOntologyClassOntologyProperty", array("ontologyClassID"), array($this->id), false, null, false, false, array("OntologyProperty"));
+			
+			foreach($relocop as $item_relocop) {
+				if ($item_relocop->OntologyProperty->name === $name) return $item_relocop->OntologyProperty;
+			}
 		}
-		
-		return null;
 	}
 	function getEntityByValue($value) {
 		for ($i=0; $i<count($this->entities); $i++) {
 			for ($j=0; $j<count($this->entities[$i]->propertyentities); $j++) {
 				for ($w=0; $w<count($this->entities[$i]->propertyentities[$j]->Lexeme->Words); $w++) {
-					//echo "compare: " . $value . ": " . $this->entities[$i]->propertyentities[$j]->Lexeme->Words[$w]->name . "\n";
-					
 					if ($this->entities[$i]->propertyentities[$j]->Lexeme->Words[$w]->name == $value) {
 						return $this->entities[$i];
 					}
@@ -375,38 +372,55 @@ class OntologyClass extends OntologyClass_Generated {
 		return null;
 	}
 	function getRelationOntologyClassOntologyProperties() {
-		$relocop = $this->getByNamedFieldValues("RelationOntologyClassOntologyProperty", array("ontologyClassID"), array($this->id), false, null, false, false, array("OntologyProperty"));
+		$relocop = $this->orm->getByNamedFieldValues("RelationOntologyClassOntologyProperty", array("ontologyClassID"), array($this->id), false, null, false, false, array("OntologyProperty"));
 		
 		if(isset($relocop[0])) $relocop[0]->setDataBaseConnections($this->databaseConnections);
 			
 		return $relocop;
 	}
 	function getOntologyProperties() {
-		$relocop = $this->getByNamedFieldValues("RelationOntologyClassOntologyProperty", array("ontologyClassID"), array($this->id), false, null, false, false, array("OntologyProperty"));
-		
 		$properties = array();
-		foreach($relocop as $item_relocop) {
-			array_push($properties, $item_relocop->OntologyProperty);
+		
+		if ($this->RelationOntologyClassOntologyProperties[0]->OntologyProperty) {
+			foreach($this->RelationOntologyClassOntologyProperties as $item_relocop) {
+				array_push($properties, $item_relocop->OntologyProperty);
+			}
+		} else {
+			$rest = new REST();
+			
+			$relocop = $rest->orm->getByNamedFieldValues("RelationOntologyClassOntologyProperty", array("ontologyClassID"), array($this->id), false, null, false, false, array("OntologyProperty"));
+			
+			foreach($relocop as $item_relocop) {
+				array_push($properties, $item_relocop->OntologyProperty);
+			}
 		}
 		
 		return $properties;
 	}
 	function getIncomingOntologyClasses() {
-		$relococ = $this->getByNamedFieldValues("RelationOntologyClassOntologyClass", array("outgoingOntologyClassID"), array($this->id), false, null, false, false, array("IncomingOntologyClass", "OntologyRelationType"));
-		
 		$classes = array();
-		foreach($relococ as $item_relococ) {
-			array_push($classes, $item_relococ->IncomingOntologyClass);
+		
+		if ($this->RelationOntologyClassOntologyClasses[0]->IncomingOntologyClass) {
+			foreach($this->RelationOntologyClassOntologyClasses as $item_relococ) {
+				array_push($classes, $item_relococ->IncomingOntologyClass);
+			}
+		} else {
+			$rest = new REST();
+			
+			$relococ = $rest->orm->getByNamedFieldValues("RelationOntologyClassOntologyClass", array("outgoingOntologyClassID"), array($this->id), false, null, false, false, array("IncomingOntologyClass", "OntologyRelationType"));
+			
+			foreach($relococ as $item_relococ) {
+				array_push($classes, $item_relococ->IncomingOntologyClass);
+			}
 		}
+		
 		
 		return $classes;
 	}
 	function getRelationOntologyClassOntologyClasses($twoWay = false, $byReverse = false) {
-		$relococ = $this->getByNamedFieldValues("RelationOntologyClassOntologyClass", array("outgoingOntologyClassID"), array($this->id), false, null, false, false, array("IncomingOntologyClass" => array("Ressource"), "OntologyRelationType"));
+		$relococ = $this->orm->getByNamedFieldValues("RelationOntologyClassOntologyClass", array("outgoingOntologyClassID"), array($this->id), false, null, false, false, array("IncomingOntologyClass" => array("Ressource"), "OntologyRelationType"));
 		
 		$relations = array();
-		
-		//echo "count: " . count($relococ) . "\n";
 		
 		foreach($relococ as $item_relococ) {
 			$item_relococ->setDataBaseConnections($this->databaseConnections);
@@ -444,7 +458,7 @@ class OntologyClass extends OntologyClass_Generated {
 		}
 		
 		if ($byReverse) {
-			$relococ = $this->getByNamedFieldValues("RelationOntologyClassOntologyClass", array("incomingOntologyClassID"), array($this->id), false, null, false, false, array("OutgoingOntologyClass" => array("Ressource"), "OntologyRelationType"));
+			$relococ = $this->orm->getByNamedFieldValues("RelationOntologyClassOntologyClass", array("incomingOntologyClassID"), array($this->id), false, null, false, false, array("OutgoingOntologyClass" => array("Ressource"), "OntologyRelationType"));
 			
 			$km = new KM();
 			
@@ -480,7 +494,7 @@ class OntologyClass extends OntologyClass_Generated {
 		
 		if (isset($parent_relation)) {
 			if (isset($parent_relation->incomingOntologyClass_id)) {
-				$parent = $this->rest_get($parent_relation->incomingOntologyClass_id);
+				$parent = $this->orm_get($parent_relation->incomingOntologyClass_id);
 					
 				return $parent;
 			}
@@ -503,18 +517,22 @@ class OntologyClassEntity extends OntologyClassEntity_Generated {
 		}
 	}
 	function getOntologyClass() {
+		$rest = new REST();
+		
 		if (!isset($this->ontologyClassID)) return null;
 		
-		$oclass = $this->getById("OntologyClass", $this->ontologyClassID);
+		$oclass = $rest->orm->getById("OntologyClass", $this->ontologyClassID);
 		
 		return $oclass;
 	}
 	function getOntologyPropertyEntities() {
-		$relocope = $this->getByNamedFieldValues("RelationOntologyClassOntologyPropertyEntity", array("ontologyClassEntityID"), array($this->id), false, null, false, false, array("OntologyPropertyEntity"));
+		$rest = new REST();
+		
+		$relocope = $rest->orm->getByNamedFieldValues("RelationOntologyClassOntologyPropertyEntity", array("ontologyClassEntityID"), array($this->id), false, null, false, false, array("OntologyPropertyEntity"));
 		
 		foreach($relocope as $item_relocop) {
 			if (isset($item_relocop->OntologyPropertyEntity->ontologyPropertyID)) {
-				$item_relocop->OntologyPropertyEntity->OntologyProperty = $this->getById("OntologyProperty", $item_relocop->OntologyPropertyEntity->ontologyPropertyID);
+				$item_relocop->OntologyPropertyEntity->OntologyProperty = $this->orm->getById("OntologyProperty", $item_relocop->OntologyPropertyEntity->ontologyPropertyID);
 				
 			}
 		}
@@ -674,20 +692,13 @@ class OntologyClassEntity extends OntologyClassEntity_Generated {
 	function setOPEntity($name, $value, $wordnames = array(), $language = "en") {
 		if (!isset($this->OntologyClass)) return null;
 		
-		//print_r($this->OntologyClass);
 		if (!$relpropertyentity = $this->hasPropertyEntity($name)) {
 			$relpropertyentity = new RelationOntologyClassOntologyPropertyEntity();
 			
 			$propertyentity = new OntologyPropertyEntity();
 				
-			//echo "name: " . $name . "\n";
 			$ontologyProperty = $this->OntologyClass->getOntologyPropertyByName($name, true);
 			
-			//print_r($ontologyProperty);
-			//echo $ontologyProperty->name . "\n";
-				
-			//echo "oc-name: " . $this->OntologyClass->name . "\n";
-			//echo "op-name: " . $name . "; " . $ontologyProperty->name . "\n";
 			$propertyentity->OntologyProperty = $ontologyProperty;
 			$propertyentity->name = $value;
 

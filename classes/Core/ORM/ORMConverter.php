@@ -2,7 +2,7 @@
 trait ORMConverter {
 	function __construct() {
 	}
-	function convertStdClassToObject($stdClass, $object_name, $includingProtected = false, $explicitFields = null) {
+	function convertStdClassToObject($stdClass, $object_name, $includingProtected = true, $explicitFields = null) {
 		if (class_exists($object_name)) {
 			$object = new $object_name;
 		} else {
@@ -16,23 +16,24 @@ trait ORMConverter {
 			}
 			
 		}
-		
-		if (class_exists($object_name)) {
+		if (class_exists($object_name) && isset($stdClass)) {
 			foreach($stdClass as $key => $value) {
 				$corrected = $key;
 				if (stripos($key, $object_name) !== false) {
 					$corrected = str_ireplace($object_name . "_", "", $key);
 				}
-					
+				
 				if (property_exists($object, $corrected)) {
 					$rp = new ReflectionProperty($object,$corrected);
 					if (!$rp->isProtected()) {
+						if (substr($corrected, 0, 2) == "is" && $this->starts_with_upper($corrected, 2)) $value = boolval($value);
+						if ($corrected == "id") $value = intval($value);
+						if (is_numeric($value)) $value = 1 * $value;
 						$object->$corrected = $value;
 					} else {
 						if ($includingProtected) {
 							$setterMethod = "set" . ucfirst($corrected);
 							if (method_exists($object, $setterMethod)) {
-								//echo $setterMethod . ": " . $value . "\n";
 								$object->$setterMethod($value);
 							}
 						} else {
@@ -64,14 +65,16 @@ trait ORMConverter {
 					
 			}
 		} else {
-			foreach($stdClass as $key => $value) {
-				$corrected = $key;
-				if (stripos($key, $object_name) !== false) {
-					$corrected = str_ireplace($object_name . "_", "", $key);
-				}
+			if (isset($stdClass)) {
+				foreach($stdClass as $key => $value) {
+					$corrected = $key;
+					if (stripos($key, $object_name) !== false) {
+						$corrected = str_ireplace($object_name . "_", "", $key);
+					}
 				
-				if (!in_array($corrected, array("createdAt", "createdBy", "updatedAt", "updatedBy"))) {
-					$object->$corrected = $value;
+					if (!in_array($corrected, array("createdAt", "createdBy", "updatedAt", "updatedBy"))) {
+						$object->$corrected = $value;
+					}
 				}
 			}
 		}
@@ -94,7 +97,7 @@ trait ORMConverter {
 			if (count($object_names) == 2) {
 				$obj_first_name = $object_names[0];
 				if ($obj_first_name === "Lexeme") {
-					$obj_first = $this->getById("Lexeme", $stdClass_item->Lexeme_id, true);
+					$obj_first = $this->orm->getById("Lexeme", $stdClass_item->Lexeme_id, true);
 				} else {
 					$obj_first = $this->convertStdClassToObject($stdClass_item, $object_names[0]);
 				}

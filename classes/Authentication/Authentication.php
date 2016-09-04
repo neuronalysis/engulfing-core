@@ -1,15 +1,7 @@
 <?php
-$desc = "";
-if (!file_exists("../engulfing/")) {
-	$desc = "../";
-	if (!file_exists($desc . "../engulfing/")) {
-		$desc .= "../";
-	}
-}
-include_once ($desc . "../engulfing/engulfing-generated/classes/things/Things_Generated.php");
-include_once ($desc . "../engulfing/engulfing-generated/classes/authentication/Authentication_Generated.php");
-include_once ($desc . "../engulfing/engulfing-core/classes/Core/Helper.php");
-include_once ($desc . "../engulfing/engulfing-core/classes/Core/ORM/ORM.php");
+include_once (__DIR__ . "/../../../engulfing-generated/classes/things/Things_Generated.php");
+include_once (__DIR__ . "/../../../engulfing-generated/classes/authentication/Authentication_Generated.php");
+include_once (__DIR__ . "/../../../engulfing-core/classes/Core/Helper.php");
 
 include_once ('User.php');
 include_once ('Role.php');
@@ -17,13 +9,13 @@ include_once ('Language.php');
 
 class Authentication {
 	use Helper;
-	use ORM;
 	
 	var $showRegister 	= true;
 	var $showNewUser 	= true;
 	var $userclass		= "User";
 	
 	function __construct() {
+		$this->orm = new ORM(array("convert" => true));
 	}
 	function isLogged() {
 		if (isset($_COOKIE['logged'])) {
@@ -82,13 +74,14 @@ class Authentication {
 		}
 	}
 	function login($username, $password) {
-		$objects = $this->getByNamedFieldValues("User", array("name"), array($username), false, null, true);
+		$objects = $this->orm->getByNamedFieldValues("User", array("name"), array($username), false, null, true);
 		
 		if (isset($objects[0])) {
 			$objects[0]->setPassword($this->crypto($username, $password));
-			$objects[0]->save();
+			$this->orm->save($objects[0]);
 			
 			if ( hash_equals($objects[0]->getPassword(), crypt($password, $objects[0]->getPassword())) ) {
+				$objects[0] = $this->orm->getById("User", $objects[0]->id);
 				return $objects[0];
 			}
 		}

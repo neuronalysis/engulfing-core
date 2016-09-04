@@ -16,7 +16,7 @@ class OntologyRelationType extends OntologyRelationType_Generated {
 		$parent_relation = $onto->getOntologyTypeRelationByTypeOut(4, $this->id);
 		
 		if (isset($parent_relation)) {
-			$parent = $this->rest_get($parent_relation->relation_oror_relation_ococ_incoming_id	);
+			$parent = $this->orm_get($parent_relation->relation_oror_relation_ococ_incoming_id	);
 
 			return $parent;
 		}

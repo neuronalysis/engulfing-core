@@ -2,8 +2,8 @@
 trait ObjectHelper {
 	function __construct() {
 	}
-	function isNew() {
-		if (isset($this->id) && $this->id !== -99) return false;
+	function isNew($object) {
+		if (isset($object->id) && $object->id !== -99) return false;
 		return true;
 	}
 	function isEmpty($persistables) {
@@ -31,7 +31,6 @@ trait ObjectHelper {
 				$persistanceClassName = $objectName;
 			} else {
 				if (substr(get_parent_class(get_parent_class($objectName)), -10, 10) === "_Generated") {
-					//echo "pers-classname-getter: " . get_parent_class($objectName) . "\n";
 					$persistanceClassName = get_parent_class($objectName);
 				} else {
 					$persistanceClassName = $objectName;
@@ -43,16 +42,56 @@ trait ObjectHelper {
 		
 		return $persistanceClassName;
 	}
+	function setModificationInfo($object) {
+		if (!property_exists($object, 'createdBy')) return null;
+		
+		if (!$UserID = isLogged()) {
+			$UserID = 23;
+		}
+	
+		$class_name = $this->getOntologyClassName($object);
+	
+		if ($this->isNew($object)) {
+			if (isset($UserID)) $object->setCreatedBy($UserID);
+			$object->setCreatedAt(date('Y-m-d H:i:s', time()));
+		}
+	
+		if (isset($UserID)) $object->setUpdatedBy($UserID);
+		$object->setUpdatedAt(date('Y-m-d H:i:s', time()));
+	}
+	function tableExists($object) {
+		$class_name = get_class($object);
+	
+		if ($class_name === "ImportEntity") {
+			$tableName = $this->getTableNameByObjectName($object->entityClassName, false);
+				
+			$db_scope = strtolower($object->entityOntologyName);
+		} else {
+			$tableName = $this->getTableNameByObjectName($class_name);
+				
+			$db_scope = $this->getOntologyScope($object);
+				
+		}
+	
+		$db = $this->openConnection ($db_scope);
+	
+		$stmt = $db->prepare ( "SHOW TABLES LIKE '$tableName'" );
+		$stmt->execute ();
+		$objects = $stmt->fetchAll(PDO::FETCH_OBJ);
+	
+		if(count($objects) > 0){
+			return true;
+		} else {
+			return false;
+		}
+	}
 	function getTableNameByObjectName($objectName, $checkExistance = true) {
-		//echo "tablenamegetter: " . $objectName . "\n";
 		if ($objectName . "_Generated" !== get_parent_class($objectName)) {
 			$checkExistance = true;
 		}
 		
 		if ($checkExistance) {
 			$persistanceClassName = $this->getPersistanceClassName($objectName);
-			//echo "persistanceclassname: " . $persistanceClassName . "\n";
-			
 		} else {
 			$persistanceClassName = $objectName;
 		}
@@ -85,212 +124,198 @@ trait ObjectHelper {
 			return $classname;
 		}
 	}
-	function isNestedObjectsKey($key) {
-		//echo "key: " . $key . "\n";
-		if (class_exists($key) && substr($key, -11, 11) !== "Observation") {
-			if (substr($key, 0, 1) == strtoupper(substr($key, 0, 1)) && !in_array($key, array("Financials", "Quotes"))) return "one";
-		}
-		$key_singularized = $this->singularize(strtolower($key));
-		//echo "key: " . $key . " key singularized: " . $key_singularized . "\n";
+	function isObjectReference($key) {
+		if ($this->starts_with_upper($key)) return true;
 		
-		if (class_exists($key_singularized)) {
-			if (substr(get_parent_class($key_singularized), -10, 10) == "_Generated") {
-				return $key_singularized;
-			} else {
-				if (substr(get_parent_class(get_parent_class($key_singularized)), -10, 10) == "_Generated") {
-					return $key_singularized;
-				}
+		return false;
+	}
+	function isToOneField($field) {
+		if (class_exists($field)) return true;
+		
+		return false;
+	}
+	function isToManyField($field) {
+		if (class_exists($this->singularize($field)) && $field !== $this->singularize($field)) return true;
+		
+		return false;
+	}
+	function getObjectIdFieldName($field) {
+		$idFieldName = lcfirst($field) . "ID";
+		
+		return $idFieldName;
+	}
+	function filterPersistableKeyValues($keyValues) {
+		$filtered = array();
+		
+		foreach($keyValues as $key => $value) {
+			if (!is_object($value)) {
+				$filtered[$key] = $value;
 			}
-			
-		} else {
-			if (class_exists($key_singularized . "_Generated")) {
-				return $key_singularized;
-			}
+		}
+		
+		return $filtered;
+	}
+	function filterPersistableFields($object) {
+		$objectvars = get_object_vars($object);
+		
+		return $this->filterPersistableKeyValues($objectvars);
+	}
+	function loadNonPersistableObject($object, $id) {
+		if (is_string($object)) {
+			$object_name = $object;
+		} else if (is_object($object)) {
+			$object_name = get_class($object);
+		}
+		
+		$nonpersistableObject = new $object_name();
+		$nonpersistableObject->id = $id;
+		
+		if (method_exists($nonpersistableObject, "initialize")) {
+			$nonpersistableObject->initialize();
+		}
+		
+		return $nonpersistableObject;
+	}
+	function isPersistableObject($object) {
+		if (is_string($object)) {
+			if (property_exists($object, "id")) return true;
+		} else if (is_object($object)) {
+			if (property_exists(get_class($object), "id")) return true;
 		}
 		
 		return false;
 	}
-	function getManyToOneFields() {
-		$class_name = get_class($this);
+	function getFieldsByRelationType($object, $relationshipType) {
 		
 		
-		if (class_exists ($class_name . "_Generated")) {
-			$classvars = get_class_vars ( $class_name . "_Generated" );
-		} else {
-			$classvars = get_class_vars ( $class_name );
-		}
+		$filtered = array();
 		
-		$objectvars = get_object_vars ( $this );
+		$reflection = new ReflectionClass(get_class($object));
+		$classvars = $reflection->getDefaultProperties();
 		
-		$manytooneFields = array();
-		
-		foreach($objectvars as $key => $value) {
-			if (array_key_exists($key, $classvars)) {
-				if ($nesting = $this->isNestedObjectsKey($key)) {
-					if ($nesting == "one" && substr($key, 0, 8) !== "Relation") {
-						$manytooneFields[$key] = $this->$key;
-					}
-				}
+		foreach($classvars as $key => $value) {
+			if (is_object($value) || is_array($value)) {
+				if ($this->getRelationshipType($object, $key) == $relationshipType) array_push($filtered, $key);
 			}
 		}
 		
-		return $manytooneFields;
+		return $filtered;
 	}
-	function getManyToManyFields() {
-		$class_name = get_class($this);
-	
+	function loadReferencedObjects($stdClass, $object_name, $excludes) {
+		$referencedObjects = array();
 		
-		if (class_exists ($class_name . "_Generated")) {
-			$classvars = get_class_vars ( $class_name . "_Generated" );
-		} else {
-			$classvars = get_class_vars ( $class_name );
-		}
+		$object = new $object_name();
 		
-		$objectvars = get_object_vars ( $this );
-	
-		$manytomanyFields = array();
-	
-		foreach($objectvars as $key => $value) {
-			if (array_key_exists($key, $classvars)) {
-				if ($nesting = $this->isNestedObjectsKey($key)) {
-					if ($nesting !== "one" && substr($key, 0, 8) == "Relation") {
-						$manytomanyFields[$key] = $this->$key;
-					}
-				}
-			}
-		}
-	
-		return $manytomanyFields;
-	}
-	function getOneToManyFields() {
-		$class_name = get_class($this);
+		$reflection = new ReflectionClass($object_name);
+		$classvars = $reflection->getDefaultProperties();
 		
-		if (class_exists ($class_name . "_Generated")) {
-			$classvars = get_class_vars ( $class_name . "_Generated" );
-		} else {
-			$classvars = get_class_vars ( $class_name );
-		}
-		
-		$objectvars = get_object_vars ( $this );
-		
-		$onetomanyFields = array();
-		
-		foreach($objectvars as $key => $value) {
-			if (array_key_exists($key, $classvars)) {
-				if ($nesting = $this->isNestedObjectsKey($key)) {
-					if ($nesting !== "one" && substr($key, 0, 8) !== "Relation") {
-						$onetomanyFields[$key] = $this->$key;
-					}
-				}
-			}
-		}
-		
-		return $onetomanyFields;
-	}
-	function getPersistables($unprotectables = array(), $excludeAllButUnProtectables = false) {
-		$class_name = get_class($this);
-	
-		if (class_exists ($class_name . "_Generated")) {
-			$classvars = get_class_vars ( $class_name . "_Generated" );
-		} else {
-			$classvars = get_class_vars ( $class_name );
-		}
-		
-		
-		foreach($classvars as $classvarKey => $classvarValue) {
-			if (property_exists($this, $classvarKey)) {
-				$rp = new ReflectionProperty($this,$classvarKey);
+		foreach($classvars as $key => $value) {
+			$rp = new ReflectionProperty($object,$key);
 				
-				if ($rp->isProtected()) {
-					if (!in_array($classvarKey, $unprotectables) && !in_array($classvarKey, array("createdAt", "createdBy", "updatedBy", "updatedAt"))) {
-						unset($classvars[$classvarKey]);
+			if ($this->isObjectReference($key) && !in_array($key, $excludes)) {
+				$relationshipType = $this->getRelationshipType($object, $key);
+				
+				if ($relationshipType == "toOne") {
+					$idFieldname = lcfirst($key) . "ID";
+					
+					$refObject = $this->getById($key, $stdClass->$idFieldname);
+					
+					if ($refObject->id == null) {
+						$refObject = null;
 					}
-				} else {
-					if ($excludeAllButUnProtectables) {
-						if (!in_array($classvarKey, $unprotectables) && !in_array($classvarKey, array("createdAt", "createdBy", "updatedBy", "updatedAt"))) {
-							unset($classvars[$classvarKey]);
-						}
+					$referencedObjects[$key] = $refObject;
+				} else if ($relationshipType == "toOneFromRecursive") {
+					$idFieldname = lcfirst($key) . "ID";
+					$objectFieldname = str_ireplace("Incoming", "", $key);
+					
+					$exclusions = $this->getFieldsByRelationType(new $objectFieldname(), "toManyRecursive");
+					
+					$refObject = $this->getById($objectFieldname, $stdClass->$idFieldname, true, $exclusions);
+						
+					if ($refObject->id == null) {
+						$refObject = null;
 					}
+					$referencedObjects[$key] = $refObject;
+				} else if ($relationshipType == "toMany") {
+					$idFieldname = lcfirst($object_name) . "ID";
+					
+					$refObjectsTotalAmount = $this->getTotalAmount($this->singularize($key));
+					
+					$refObjectName = $this->singularize($key);
+					
+					if ($refObjectsTotalAmount > 15 && class_exists($refObjectName)) {
+						$refObject = new $refObjectName();
+								
+						$refObjects = $this->getByNamedFieldValues($this->singularize($key), array($idFieldname), array($stdClass->id), false, null, false, true, null, $refObject->getDefaultOrder(), 10);
+					} else {
+						$refObjects = $this->getByNamedFieldValues($this->singularize($key), array($idFieldname), array($stdClass->id), false, null, false, true);
+					}
+					
+					$manyObjects = array();
+				
+					foreach($refObjects as $refObjectItem) {
+						$pulled = $this->getById(get_class($refObjectItem), $refObjectItem->id, true, array($object_name));
+						array_push($manyObjects, $pulled);
+					}
+					
+					$referencedObjects[$key] = $manyObjects;
+				} else if ($relationshipType == "toObservations") {
+					$referencedObjects[$key] = null;
+				} else if ($relationshipType == "toManyRecursive") {
+					$idFieldname = lcfirst("Outgoing" . $object_name) . "ID";
+					
+					$refObjects = $this->getByNamedFieldValues($this->singularize($key), array($idFieldname), array($stdClass->id), false, null, false, true);
+					
+					$manyObjects = array();
+					foreach($refObjects as $refObjectItem) {
+						$pulled = $this->getById(get_class($refObjectItem), $refObjectItem->id, true, array("Outgoing" . $object_name));
+						array_push($manyObjects, $pulled);
+					}
+					$referencedObjects[$key] = $manyObjects;
 				}
 			}
 		}
 		
-		$reflection = new ReflectionClass("ConnectionManager");
-		$classvars_connectionManager = $reflection->getdefaultProperties();
-		
-		$objectvars = get_object_vars ( $this );
-		
-		$classvars_modification = array();
-		if (!$this->isNew()) {
-			unset($classvars['createdBy']);
-			unset($classvars['createdAt']);
-		}
-		
-		if ($class_name === "Request") {
-			unset($classvars['createdBy']);
-			unset($classvars['createdAt']);
-			unset($classvars['updatedBy']);
-			unset($classvars['updatedAt']);
-		}
-		
-		unset($classvars['saved']);
-		unset($classvars['cascades']);
-		unset($classvars['loaded']);
-		unset($classvars['debug']);
-		
-		$persistables = array();
-		
-		foreach($objectvars as $key => $value) {
-			if (array_key_exists($key, $classvars) && $key != "constraints_unique" && $key != "validationRules" && $key !== "ontologyName" && $key !== "encryptions" && $key !== "className" && !array_key_exists($key, $classvars_connectionManager)) {
-				if ($nesting = $this->isNestedObjectsKey($key)) {
-					//echo "getpers: " . $key . "\n";
-					if ($nesting == "one") {
-						if ($key === "User" && $class_name === "Request") {
-							$persistables["userID"] = $this->userID;
-						} else {
-							if (isset($this->$key->id)) {
-								//echo "key: " . $key . ": " . $this->$key->id . "\n";
-								$persistables[lcfirst($key) . "ID"] = $this->$key->id;
-							} else {
-								if (isset($this->$key)) {
-									if (is_object($this->$key) && $key !== "Language" && $key !== "Type") {
-										$nestedObject = $this->convertStdClassToObject($this->$key, $key);
-										$nestedObject->save();
-											
-										$persistables[lcfirst($key) . "ID"] = $nestedObject->id;
-									}
-							
-								} else {
-									$persistables[lcfirst($key) . "ID"] = null;
-								}
-							}
-						}
-					}
-				} else if ($key != "id" && $key != "userID") {
-					$persistables[$key] = $value;
-				}
-			}
-		}
-		
-		return $persistables;
+		return $referencedObjects;
 	}
-	function getOntologyClassName() {
-		$OntologyClassname = get_class($this);
+	function getRelationshipType($object, $key) {
+		$singular = $this->singularize($key);
+		$plural = $this->pluralize($key);
 		
-		if (strtolower($OntologyClassname) !== "rest") return $OntologyClassname;
-	
+		if ($key == $singular && property_exists($object, $key)) {
+			if (substr($key, 0, 8) == "Incoming") {
+				$relationshipType = "toOneFromRecursive";
+			} else {
+				$relationshipType = "toOne";
+			}
+		} else if ($key == $plural && property_exists($object, $key)) {
+			if (substr_count($key, get_class($object)) == 2) {
+				$relationshipType = "toManyRecursive";
+			} else if (substr($key, -12, 11) == "Observation") {
+				$relationshipType = "toObservations";
+			} else {
+				$relationshipType = "toMany";
+			}
+		}
+		
+		return $relationshipType;
+	}
+	function getOntologyClassName($object = null) {
+		if ($object) {
+			$OntologyClassname = get_class($object);
+			
+			if (strtolower($OntologyClassname) !== "rest") return $OntologyClassname;
+		}
+		
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
 		$levels = explode ( "/", $url_parsed ['path'] );
 	
-		//echo $url_parsed ['path'] . "\n";
-		
 		if (strpos($url_parsed ['path'], "localhost") !== false) {
 			if (strpos($url_parsed ['path'], "/api/") !== false) {
 				$OntologyClassname = $levels[3];
 			} else {
 				$OntologyClassname = $levels[1];
 			}
-			
 		} else if (strpos($url_parsed ['path'], "/api/") !== false) {
 			if (isset($levels[3])) {
 				if ($levels[2] === "api") {
@@ -309,6 +334,8 @@ trait ObjectHelper {
 	
 		if (!class_exists($OntologyClassname)) {
 			$OntologyClassname = $this->singularize($OntologyClassname);
+			
+			if (class_exists($OntologyClassname)) $OntologyClassname = get_class(new $OntologyClassname());
 		}
 		
 		return $OntologyClassname;
@@ -319,8 +346,6 @@ trait ObjectHelper {
 		} else {
 			$object_name = $object;
 		}
-		
-		//echo "obj-name: " . $object_name . "\n";
 		
 		if ($object_name === "rest") {
 			$OntologyClassname = $object->getOntologyClassName();
@@ -345,8 +370,6 @@ trait ObjectHelper {
 		return $ontologyName;
 	}
 	function getOntologyScope($object_name) {
-		//echo "obj-name: " . $object_name . "\n";
-		
 		if (is_object($object_name)) $object_name = get_class($object_name);
 		
 		if (class_exists($object_name)) {
@@ -363,55 +386,17 @@ trait ObjectHelper {
 		} else {
 			$km = new KM();
 			
-			//echo $object_name . "\n";
 			$ontologyClass = $km->getOntologyClassByName($object_name, true);
 			
-			$scope = $ontologyClass->Ontology->name;
-		}
-		
-		
-		//echo "namespace of " . $object_name . "; " . ": " . end(explode("\\", $directory))  . "\n";
-		
-		/*
-		if (is_object($object)) {
-			$object_name = strtolower(get_class($object));
-		} else {
-			$object_name = $object;
-		}
-		
-		if (!class_exists($object_name)) {
-			$desc = "";
-			if (!file_exists("../engulfing/")) {
-				$desc = "../";
-				if (!file_exists($desc . "../engulfing/")) {
-					$desc .= "../";
-				}
-			}
-			
-			$km = new KM();
-			
-			$oClass = $km->getOntologyClassByName($object_name);
-			
-			if (!$oClass) {
-				$oClass = $km->getOntologyClassByName($this->singularize($object_name));
-				
-				if ($oClass->ontologyID) {
-					$ontology = $km->getOntologyById($oClass->ontologyID);
+			if (isset($ontologyClass)) {
+				if ($ontologyClass->Ontology) {
+					$scope = $ontologyClass->Ontology->name;
 				}
 			} else {
-				if ($oClass->ontologyID) {
-					$ontology = $km->getOntologyById($oClass->ontologyID);
-				}
+				$scope = $this->getScopeName();
 			}
 			
-			
-			
-			$ontologyName = $ontology->name;
-		} else {
-			$ontologyName = $this->getOntologyName($object);
 		}
-		
-		*/
 		
 		return strtolower($scope);
 	}

@@ -66,7 +66,7 @@ window.FinancialMarketsTeaserView = Backbone.View.extend({
 		
 		
 		
-		var chartsView = new HighChartsView({model : this.model, observationsLimit : 1000});
+		var chartsView = new HighChartsView({model : this.model, observationsLimit : 250});
 		chartsView.withLabel = false;
 		chartsView.field = 'InstrumentObservations';
 		

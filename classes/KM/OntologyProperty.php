@@ -33,16 +33,13 @@ class OntologyProperty extends OntologyProperty_Generated {
 	}*/
 	function getOntologyClass($className = null) {
 		if ($className) {
-			//echo "classname: " . $className . "\n";
-			$objects = $this->getByNamedFieldValues("OntologyClass", array("name"), array($className));
+			$objects = $this->orm->getByNamedFieldValues("OntologyClass", array("name"), array($className));
 			
 			$result = $objects[0];
 		} else {
-			$objects = $this->getByNamedFieldValues("RelationOntologyClassOntologyProperty", array("ontologyPropertyID"), array($this->id), false, null, true);
+			$objects = $this->orm->getByNamedFieldValues("RelationOntologyClassOntologyProperty", array("ontologyPropertyID"), array($this->id), false, null, true);
 			
 			$result = $objects[0]->OntologyClass;
-				
-			//print_r($result);
 		}
 		
 		return $result;
@@ -79,25 +76,10 @@ class OntologyPropertyEntity extends OntologyPropertyEntity_Generated {
 		//$entity_value = $this->getValue();
 		$entity_value = $this->name;
 		
-		
-		//echo "pe.value: " . $entity_value . "\n";
-		
-		//print_r($this->OntologyProperty);
-		
 		if (isset($this->OntologyProperty->OntologyClass)) {
 			$propentity = $this->OntologyProperty->OntologyClass->getEntityByValue($entity_value);
 			
-			//print_r($propentity);
 			if (isset($propentity)) return $propentity;
-		} else {
-			/*$rest = new REST();
-			$objects = $this->getByNamedFieldValues("RelationOntologyClassOntologyProperty", array("ontologyPropertyID"), array($this->OntologyProperty->id));
-			$result = $rest->getById("OntologyClass", $objects[0]->ontologyClassID);
-			
-			$oce = new OntologyClassEntity();
-			$oce->OntologyClass = $result;
-			
-			return $oce;*/
 		}
 		
 		return false;
@@ -106,7 +88,6 @@ class OntologyPropertyEntity extends OntologyPropertyEntity_Generated {
 }
 class Type {
 
-	var $id;
 	var $name;
 	var $text;
 	function __construct() {

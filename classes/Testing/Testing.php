@@ -1,15 +1,90 @@
 <?php
-
 class Testing {
-	
 	function __construct() {
-		
 	}
-	
 }
 class TestClass {
+	
+	var $rest;
+	
 	function __construct() {
+		$this->orm = new ORM();
 		
+		$classname = str_ireplace("_Test", "", get_class($this));
+		
+		$this->testobject = new $classname();
+	}
+	function test() {
+		$this->prepare();
+	
+		$coverage = $this->getTestCoverage();
+	
+		$classname = str_ireplace("_Test", "", get_class($this));
+	
+		$check = new stdClass();
+		$check->$classname = new stdClass();
+		$check->$classname->coverage = $coverage;
+		$check->$classname->methodAsserts = array();
+	
+	
+		foreach($coverage->methods as $method => $coverage) {
+			if ($coverage[0]) {
+				$asserts = $this->$method();
+				if (is_array($asserts)) {
+					$check->$classname->methodAsserts = array_merge($check->$classname->methodAsserts, $asserts);
+				} else {
+					array_push($check->$classname->methodAsserts, $asserts);
+				}
+			}
+				
+		}
+	
+		return $check;
+	}
+	function testMethod($method) {
+		if (!method_exists($this, $method)) return null;
+		
+		$this->prepare($method);
+	
+		$coverage = $this->getTestCoverage();
+	
+		$classname = str_ireplace("_Test", "", get_class($this));
+		
+		$check = new stdClass();
+		$check->$classname = new stdClass();
+		$check->$classname->coverage = $coverage;
+		$check->$classname->methodAsserts = array();
+	
+		
+		$asserts = $this->$method();
+		if (is_array($asserts)) {
+			$check->$classname->methodAsserts = array_merge($check->$classname->methodAsserts, $asserts);
+		} else {
+			array_push($check->$classname->methodAsserts, $asserts);
+		}
+	
+		return $check;
+	}
+	function testMethodAndObject($method, $object) {
+		$this->prepare($method, $object);
+	
+		$coverage = $this->getTestCoverage();
+	
+		$classname = str_ireplace("_Test", "", get_class($this));
+	
+		$check = new stdClass();
+		$check->$classname = new stdClass();
+		$check->$classname->coverage = $coverage;
+		$check->$classname->methodAsserts = array();
+	
+		$asserts = $this->$method($object);
+		if (is_array($asserts)) {
+			$check->$classname->methodAsserts = array_merge($check->$classname->methodAsserts, $asserts);
+		} else {
+			array_push($check->$classname->methodAsserts, $asserts);
+		}
+	
+		return $check;
 	}
 	function regression() {
 		$assert = $this->prepare();
@@ -17,10 +92,18 @@ class TestClass {
 		
 		return $assert;
 	}
-	function assertNumerics($method, $expected, $actual) {
-		$assert = (object) array(
-				$method => ((($expected - $actual) == 0) ? true : false)
-		);
+	function assertNumerics($method, $expected, $actual, $operator = null) {
+		if ($operator) {
+			if ($operator == ">") {
+				$assert = (object) array(
+						$method => (($actual > $expected) ? true : false)
+				);
+			}
+		} else {
+			$assert = (object) array(
+					$method => ((($expected - $actual) == 0) ? true : false)
+			);
+		}
 		
 		return $assert;
 	}
@@ -29,6 +112,30 @@ class TestClass {
 				$method => (($expected == $actual) ? true : false)
 		);
 	
+		return $assert;
+	}
+	function plottError($method, $e) {
+		$error = new Error ();
+		$error->details = $e->getMessage () . "\n" . $e->getFile() . " - " . $e->getLine();
+		
+		$assert = (object) array(
+				$method => $error
+		);
+		
+		return $assert;
+	}
+	function assertObject($method, $expected, $actual) {
+		$assert = (object) array(
+				$method => $this->compareTwoObjects($expected, $actual)
+		);
+		
+		if (!$assert->$method) {
+			echo "actual:\n";
+			print_r($actual);
+			echo "expected:\n";
+			print_r($expected);
+		}
+		
 		return $assert;
 	}
 	function assertJson($method, $result, $classname, $id = null) {
@@ -42,9 +149,6 @@ class TestClass {
 			
 		$result =  json_encode ( $result, JSON_PRETTY_PRINT );
 		
-		//echo $assert . "\n";
-		//echo $result . "\n";
-		
 		$assert = (object) array(
 			$method => $this->compareTwoStrings($assert, $result)
 		);
@@ -57,8 +161,6 @@ class TestClass {
 		$count = 0;
 				
 		if (file_exists($directory)) {
-			//echo $directory . "\n";
-			
 			$directory_iterator = new RecursiveIteratorIterator ( new RecursiveDirectoryIterator ( $directory ) );
 			foreach ( $directory_iterator as $filename => $path_object ) {
 				if(is_file($filename) && pathinfo($filename, PATHINFO_EXTENSION) == "php" && pathinfo($filename, PATHINFO_FILENAME ) !== str_ireplace("_Test", "", get_class($this)) . ".php") {
@@ -71,8 +173,7 @@ class TestClass {
 		
 		return $count;
 	}
-	function arrayContains($array, $string)
-	{
+	function arrayContains($array, $string) {
 		if ($array === null) return false;
 	
 		$exploded = explode("\\", $string);
@@ -93,9 +194,11 @@ class TestClass {
 		return false;
 	}
 	function getTestCoverage() {
-		$class = new ReflectionClass('ORM');
+		$classname = get_class($this);
+		
+		$class = new ReflectionClass(str_ireplace("_Test", "", $classname));
 		$methods = $class->getMethods();
-		$classTest = new ReflectionClass('ORM_Test');
+		$classTest = new ReflectionClass($classname);
 		$methodsTest = $classTest->getMethods();
 		
 		$coverage = new stdClass();
@@ -125,31 +228,39 @@ class TestClass {
 			
 		}
 		
-		//print_r($methods);
-		
-		//echo count($coverage->methods) . "; " . count($methods) . "\n";
-		
 		$coverage->overAll = $coveredAmount / count($methods);
 		
 		return $coverage;
 	}
-	function compareTwoStrings($string1, $string2) {
-		$lines1 = preg_split("/((\r?\n)|(\r\n?))/", $string1);
-		$lines2 = preg_split("/((\r?\n)|(\r\n?))/", $string2);
-		
-		for($i=0; $i<count($lines1); $i++) {
-			if (substr($lines2[$i], -1) == ',')	$lines2[$i] = substr($lines2[$i], 0, -1);
-			if (substr($lines2[$i], -3, 2) == '[]')	$lines2[$i] = str_ireplace('"[]"', 'null', $lines2[$i]);
-			if (substr($lines2[$i], -2, 2) == '[]')	$lines2[$i] = str_ireplace('[]', 'null', $lines2[$i]);
-			if (substr($lines1[$i], -1) == ',')	$lines1[$i] = substr($lines1[$i], 0, -1);
-			if ($lines1[$i] !== $lines2[$i] && substr($lines2[$i], 5, 2) !== "id" && strpos($lines2[$i], ':') !== false) {
-				echo "[" . $lines1[$i] . "]" . " vs. " . "[" . $lines2[$i] . "]" . "\n";
-				
+	function compareTwoObjects($a,$b, $ignoreID = true, $convertNumericStrings = true) {
+		if(is_object($a) && is_object($b)) {
+			if(get_class($a)!=get_class($b))
 				return false;
-			}
+				foreach($a as $key => $val) {
+					if(!$this->compareTwoObjects($val,$b->$key) && (!in_array($key, array("id")) || !$ignoreID)) {
+						if (!is_array($val) && !is_array($b->$key)) {
+							echo "delta key " . $key . ": " . $val . "; " . $b->$key . "\n";
+						} else {
+							echo "delta key " . $key . "\n";
+						}
+						return false;
+					}
+				}
+				return true;
 		}
-		
-		return true;
+		else if(is_array($a) && is_array($b)) {
+			while(!is_null(key($a)) && !is_null(key($b))) {
+				if (key($a)!==key($b) || !$this->compareTwoObjects(current($a),current($b)))
+					return false;
+					next($a); next($b);
+			}
+			return is_null(key($a)) && is_null(key($b));
+		}
+		else
+			if (is_array($a)) $a = print_r($a, true);
+			if (is_array($b)) $b = print_r($b, true);
+			//echo $a . "; " . $b . "\n";
+			return "" . $a === "" . $b;
 	}
 }
 ?>

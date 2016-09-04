@@ -19,7 +19,6 @@ trait Helper {
 		if ($singular === "corpus") return "corpora";
 		if (in_array(strtolower($singular), array("information", "knowledge", "development"))) return $singular;
 		
-		
 		if (strlen($singular) > 0) {
 			$last_two_letters = strtolower(substr($singular,-2,2));
 			$last_letter = strtolower($singular[strlen($singular)-1]);
@@ -34,7 +33,16 @@ trait Helper {
 				case 'ls':
 					$plural = $singular;
 					break;
+				case 'ds':
+					$plural = $singular;
+					break;
 				case 'es':
+					$plural = $singular;
+					break;
+				case 'rs':
+					$plural = $singular;
+					break;
+				case 'ns':
 					$plural = $singular;
 					break;
 				default:
@@ -77,7 +85,6 @@ trait Helper {
 		if ($plural === "financials") return "financials";
 		if ($plural === "quotes") return "quotes";
 		
-		//echo $plural;
 		$last_letter = strtolower(substr($plural,-1,1));
 		$last_two_letters = strtolower(substr($plural,-2,2));
 		$last_three_letters = strtolower( substr($plural,-3,3));
@@ -159,7 +166,6 @@ trait Helper {
 							} else {
 								if (gettype($value) == "boolean") {
 									if ($value === null) $value = 0;
-									//echo "key: " . $key . "\n";
 									$value = (bool)$value;
 								}
 								
@@ -203,19 +209,15 @@ trait Helper {
 						//unset($objects->$key);
 					} else {
 						if (gettype($value) == "boolean") {
-							//echo "key: " . $key . "\n";
 							if ($value === null) $value = 0;
 							$value = (bool)$value;
 						}
 						if (in_array($key, array("dbtable", "eager", "loading_eager", "loading_list", "loading_one", "dbfieldnames", "constraints_unique", "dbfieldnames_modification", "databaseConnections"))) {
 							unset($objects->$key);
 						}
-						//echo "key: " . $key . "\n";
 					}
 				}
 			}
-		} else {
-			//echo "key: " . $key . "\n";
 		}
 	}
 	function crypto($username, $password) {
@@ -227,16 +229,19 @@ trait Helper {
 		
 		return $hash;
 	}
+	function starts_with_upper($str, $offset = 0) {
+		$chr = mb_substr ($str, $offset, 1, "UTF-8");
+		return mb_strtolower($chr, "UTF-8") != $chr;
+	}
 	function getScopeName() {
-		$rest = new REST();
-	
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
 		$levels = explode ( "/", $url_parsed ['path'] );
 	
 		if (strpos($url_parsed ['path'], "localhost") !== false) {
 			$scopename = $levels[1];
 		} else if (strpos($url_parsed ['path'], "/api/") !== false) {
-			$scopename = $rest->singularize($levels[4]);
+			$apiPos = array_search("api", $levels);
+			$scopename = $this->singularize($levels[$apiPos+1]);
 		} else {
 			$scopename = $levels[1];
 		}
@@ -244,8 +249,6 @@ trait Helper {
 		return $scopename;
 	}
 	function getScopeObjectName() {
-		$rest = new REST();
-		 
 		$scopename = "";
 		 
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
@@ -254,7 +257,7 @@ trait Helper {
 		if (strpos($url_parsed ['path'], "localhost") !== false) {
 			$scopename = $levels[2];
 		} else if (strpos($url_parsed ['path'], "/api/") !== false) {
-			$scopename = $rest->singularize($levels[4]);
+			$scopename = $this->singularize($levels[4]);
 		} else {
 			if (isset($levels[2])) {
 				$scopename = $levels[2];
