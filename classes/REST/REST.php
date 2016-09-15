@@ -138,6 +138,7 @@ class REST {
 	}
 	function getDetailed($id = null, $app = null) {
 		$ontologyClassName = $this->orm->getOntologyClassName();
+		echo "oclassname: " . $ontologyClassName . " \n";
 		if ($app) {
 			if (isset($_GET['page'])) {
 				$namedfieldParameters = $_GET;
@@ -297,12 +298,13 @@ class REST {
 		if (strpos($pathToUse, "localhost") !== false) {
 			if (isset($levels[2])) $objectname = $levels[2];
 		} else if (strpos($pathToUse, "/api/") !== false) {
-			if (isset($levels[3])) $objectname = $levels[3];
+			$apiIndex = array_search("api", $levels);
+			
+			$objectname = $levels[$apiIndex+2];
 		} else {
 			if (isset($levels[2])) $objectname = $levels[2];
 		}
 	
-		
 		return $this->singularize($objectname);
 	}
 	function loadRoutes($app) {

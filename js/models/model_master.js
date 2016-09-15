@@ -148,6 +148,16 @@ window.Master = Backbone.RelationalModel.extend({
     				if (this.__proto__.relations[i].key === getPlural(this.__proto__.relations[i].relatedModel) && this.__proto__.relations[i].key !== "Lexemes") {
     					var fieldGroupName = this.__proto__.relations[i].relatedModel;
         				
+    					if (fieldGroupName.substr(0, 8) === "Relation") {
+    						var relations_inout = this.get(this.__proto__.relations[i].key);
+    			        	
+    						if (relations_inout.models[0]) {
+    							var relation_item = relations_inout.models[0];
+        						
+        						for(fieldGroupName in relation_item.attributes);
+        					}
+    					}
+    				
         				fieldGroups.push({"name" : getPlural(fieldGroupName), "fieldViews" : []} );
     				}
     			}

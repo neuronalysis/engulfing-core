@@ -81,7 +81,7 @@ trait QueryBuilder {
 		
 		foreach($classvars as $key => $value) {
 			$rp = new ReflectionProperty($object,$key);
-			if (!$this->isObjectReference($key) && !in_array($key, array("cascade", "constraintsUnique"))) {
+			if (!$this->isObjectReference($key) && !in_array($key, array("cascade", "constraintsUnique", "defaultOrder"))) {
 				if ($rp->isProtected()) {
 					$getterMethodName = "get" . ucfirst($key);
 					$fields[$key] = $object->$getterMethodName();

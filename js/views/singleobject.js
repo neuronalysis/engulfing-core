@@ -162,9 +162,46 @@ var SingleObjectView = BaseView.extend({
 			
 			if (entityFieldName === groupName) {
 				
+			} else if ("ImpactFunctions" === groupName && entityFieldName == "ImpactFunction") {
+				var groupClassEntities = this.model.getEntities(entityFieldName);
+				
+				for (var e=0; e < groupClassEntities.length; e++) {
+					
+					var impactFunctionName = groupClassEntities[e].get('name');
+					
+					var indicatorsNames = "";
+					
+					//var impactFunctionIndicators = groupClassEntities[e].get('RelationIndicatorImpactFunctions');
+					
+					fieldView = this.createFieldViewByModel(groupClassEntities[e], 'RelationIndicatorImpactFunctions', false);
+					fieldViews.push(fieldView);
+					/*for (var j=0; j < impactFunctionIndicators.length; j++) {
+						//indicatorsNames += impactFunctionIndicators.models[j].get('Indicator').get('name');
+						
+						
+						fieldView = this.createFieldViewByModel(impactFunctionIndicators.models[j], 'Indicator', false);
+							
+						fieldViews.push(fieldView);
+					}*/
+				}
+			} else if ("ImpactFunctions" === groupName && entityFieldName == "RelationIndicatorImpactFunction") {
+				var groupClassEntities = this.model.getEntities(entityFieldName);
+				
+				for (var e=0; e < groupClassEntities.length; e++) {
+					for(field in groupClassEntities[e].attributes) {
+						if (!this.model.isProtected(field) && (field === "name" || field === "date" || field === "ImpactFunction")) {
+							if (field.substring(0, 3) !== "Rel") {
+								fieldView = this.createFieldViewByModel(groupClassEntities[e], field);
+								
+								fieldViews.push(fieldView);
+							}
+						}
+					}
+					
+				}
 			} else if (getPlural(entityFieldName) === groupName) {
 				if (groupName.indexOf("Observations") !== -1) {
-					var chartsView = new HighChartsView({model : this.model});
+					var chartsView = new HighChartsView({model : this.model, observationsLimit: 250});
 					chartsView.field = groupName;
 					
 					

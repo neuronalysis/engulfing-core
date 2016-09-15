@@ -192,7 +192,7 @@ var BaseView = Backbone.View.extend({
 						
 						return fieldView;
 					} else if (field.indexOf("Observations") !== -1) {
-						var fieldView = new HighChartsView({model : model});
+						var fieldView = new HighChartsView({model : model, observationsLimit: 250});
 						fieldView.field = field;
 						
 						return fieldView;
@@ -338,7 +338,7 @@ var BaseView = Backbone.View.extend({
 						
 						return fieldView;
 					} else if (field.indexOf("Observations") !== -1) {
-						var fieldView = new HighChartsView({model : this.model});
+						var fieldView = new HighChartsView({model : this.model, observationsLimit: 250});
 						fieldView.field = field;
 						
 						return fieldView;

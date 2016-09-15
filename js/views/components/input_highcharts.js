@@ -18,7 +18,7 @@ var HighChartsView = InputView.extend({
 		var model_observations = this.model.get(this.field);
 		
 		if (model_observations !== undefined) {
-			var data = {"object_name": this.model.type.toLowerCase(), "field_name": this.field, "label": this.label, "field_value": model_observations.getString(), "withCell" : this.withCell, "withLabel" : this.withLabel};
+			var data = {"object_name": this.model.type.toLowerCase(), "field_name": this.field, "label": this.label, "field_value": model_observations.getString(), "withCell" : this.withCell, "withLabel" : this.withLabel, "chart_height" : "250px"};
 		} else {
 			var data = {"object_name": this.model.type.toLowerCase(), "field_name": this.field, "label": this.label, "field_value": null, "withCell" : this.withCell, "withLabel" : this.withLabel, "chart_height" : "100px"};
 		}
@@ -71,9 +71,9 @@ var HighChartsView = InputView.extend({
 						);
 					}
 					
-					console.log({
+					/*console.log({
 				            	y: series_data[0][1],
-				            	segmentColor: 'red'});
+				            	segmentColor: 'red'});*/
 					
 					this.$("#" + getPlural(model_observations.type)).highcharts({
 				        chart: {
@@ -127,7 +127,7 @@ var HighChartsView = InputView.extend({
 				            pointInterval: 24 * 3600 * 1000,
 				            pointStart: Date.UTC(1906, 0, 1),
 				            data: series_data
-				        }, {
+				        }/*, {
 				            type: 'coloredline',
 				            data: [{
 				                    x: series_data[series_data.length-2][0],
@@ -138,7 +138,7 @@ var HighChartsView = InputView.extend({
 			                    	y: series_data[series_data.length-2][1],
 				                    segmentColor: 'red'
 				            }]
-				        }]
+				        }*/]
 			        });
 				}
 			});

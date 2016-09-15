@@ -7,7 +7,7 @@ var AccordionItemView = BaseView.extend({
 
 
 		for(field in this.model.attributes) {
-			if (field !== "id" && field.indexOf("Outgoing") == -1 && this.model.type.indexOf("Relation" + field.replace("Entity", "")) == -1) {
+			if (field !== "id" && field.indexOf("Outgoing") == -1 &&  (this.model.type.indexOf("Relation") !== -1 && this.model.type.indexOf(field.replace("Entity", "")) !== -1)) {
 				fieldView = this.createFieldView(field, true);
 				if (fieldView) {
 					fieldView.withLabel = false;

@@ -161,23 +161,40 @@ class ORM {
 			
 			if (isset($objects[0])) {
 				$object = $objects[0];
-					
-				$referencedObjects = $this->loadReferencedObjects($objects[0], $object_name, $excludes);
 				
-				foreach($referencedObjects as $nestedToOneObjectKey => $nestedToOneObjectValue) {
-					$object->$nestedToOneObjectKey = $nestedToOneObjectValue;
+				if ($object_name !== "RelationIndicatorImpactFunction") {
+					$referencedObjects = $this->loadReferencedObjects($object, $object_name, $excludes);
+					
+					foreach($referencedObjects as $nestedToOneObjectKey => $nestedToOneObjectValue) {
+						$object->$nestedToOneObjectKey = $nestedToOneObjectValue;
+					}
+				} else {
+					
+					$indicator = $this->getById("Indicator", $object->indicatorID, false);
+					
+					$impactfunctions = $this->executeQuery(
+							"SELECT * FROM impactfunctions WHERE id=:id",
+							"ImpactFunction", array("id" => $objects[0]->impactFunctionID));
+					
+					$instrument = $this->getById("Instrument", $impactfunctions[0]->instrumentID, false);
+					
+					$impactFunction = $this->convertStdClassToObject($impactfunctions, "ImpactFunction");
+						
+					$impactFunction->Instrument = $instrument;
+					
+					$object->Indicator = $indicator;
+					$object->ImpactFunction = $impactFunction;
+					
 				}
 			} else {
 				$object = null;
 			}
 		}
 		
-		
 		$object = $this->convertStdClassToObject($object, $object_name);
-		
 		$this->endLoading($object_name, $id);
 		$this->storeObject($object);
-		
+	
 		return $object;
 	}
 	function deleteById($object_name, $id, $cascade = true) {
@@ -243,22 +260,29 @@ class ORM {
 			$db->beginTransaction(); // also helps speed up your inserts.
 			
 			if ($db_scope === "search") {
-				$fields = $this->prepareFields(false);
+				$fields = $this->prepareFields($entities, false);
 					
-				$array = $this->prepareArray($start, $stackSize, false);
+				$array = $this->prepareArray($entities, $start, $stackSize, false);
 			} else {
-				$fields = $this->prepareFields();
+				$fields = $this->prepareFields($entities);
 					
-				$array = $this->prepareArray($start, $stackSize);
+				$array = $this->prepareArray($entities, $start, $stackSize);
 			}
-							
-			if ($db_scope === "search" && $this->entities[0]->entityClassName === "index") {
+						
+			
+			if ($db_scope === "search" && $entities[0]->entityClassName === "index") {
 				$tableName = "index";
 			} else {
-				$tableName = $this->getTableNameByObjectName($this->entities[0]->entityClassName, false);
+				$tableName = $this->getTableNameByObjectName($entities[0]->entityClassName, false);
 			}
-			
-			if ($truncate) $db->query("SET FOREIGN_KEY_CHECKS = 0; TRUNCATE TABLE `" . $tableName . "` SET FOREIGN_KEY_CHECKS = 1;");
+				
+			if ($truncate)  {
+				$sql_truncate = "SET FOREIGN_KEY_CHECKS = 0; TRUNCATE TABLE `" . $tableName . "` SET FOREIGN_KEY_CHECKS = 1;";
+				
+				if ($this->debug) echo $sql_truncate . "\n";
+				
+				$db->query($sql_truncate);
+			}
 				
 			$qm = '('  . $this->placeholders('?', count($fields)) . ')';
 	
@@ -267,6 +291,7 @@ class ORM {
 			$sql = "INSERT IGNORE INTO `" . $tableName . "` (" . implode(",", $fields ) . ") VALUES " . implode(',', $question_marks);
 	
 			if ($this->debug) echo $sql . "\n";
+			
 			$stmt = $db->prepare ($sql);
 	
 			$stmt->execute($array);

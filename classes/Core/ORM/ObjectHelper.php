@@ -1,5 +1,9 @@
 <?php
 trait ObjectHelper {
+	var $entities = array();
+	var $entityClasses = array();
+	var $entityProperties = array();
+	
 	function __construct() {
 	}
 	function isNew($object) {
@@ -215,6 +219,8 @@ trait ObjectHelper {
 			if ($this->isObjectReference($key) && !in_array($key, $excludes)) {
 				$relationshipType = $this->getRelationshipType($object, $key);
 				
+				//echo $object_name . ": " . $relationshipType . "\n";
+				
 				if ($relationshipType == "toOne") {
 					$idFieldname = lcfirst($key) . "ID";
 					
@@ -298,6 +304,7 @@ trait ObjectHelper {
 			}
 		}
 		
+		//echo $key . ": " . $relationshipType . "\n";
 		return $relationshipType;
 	}
 	function getOntologyClassName($object = null) {
@@ -399,6 +406,71 @@ trait ObjectHelper {
 		}
 		
 		return strtolower($scope);
+	}
+	function prepareArray($entities, $start, $stackSize, $inclusiveModification = true) {
+		$array = array();
+	
+	
+		$entities = array_slice ($entities, $start, $stackSize);
+	
+		foreach($entities as $entity) {
+			/*if (isset($entity->name)) {
+			 foreach($this->entityClasses as $class) {
+			 $classname = $class->name;
+			 if ($this->entities[0]->entityClassName === $class->name) {
+			 array_push($array, $entity->name);
+			 }
+	
+			 }
+				}*/
+				
+			foreach($this->entityProperties as $prop) {
+				$propname = $prop->name;
+	
+				array_push($array, $entity->$propname);
+			}
+				
+			if ($inclusiveModification) {
+				array_push($array, $entity->createdBy);
+				array_push($array, $entity->createdAt);
+				array_push($array, $entity->updatedBy);
+				array_push($array, $entity->updatedAt);
+			}
+				
+				
+		}
+	
+		//print_r($array);
+	
+		return $array;
+	}
+	function prepareFields($entities, $inclusiveModification = true) {
+		$fields = array();
+	
+		foreach($this->entityClasses as $class) {
+			if (isset($entities[0]->name)) {
+				if ($entities[0]->entityClassName === $class->name) {
+					array_push($fields, "name");
+				}
+			}
+		}
+	
+		//print_r($this->entityProperties);
+	
+		foreach($this->entityProperties as $prop) {
+			if (!in_array($prop->name, $fields)) {
+				array_push($fields, $prop->name);
+			}
+		}
+	
+		if ($inclusiveModification) {
+			array_push($fields, "createdBy");
+			array_push($fields, "createdAt");
+			array_push($fields, "updatedBy");
+			array_push($fields, "updatedAt");
+		}
+	
+		return $fields;
 	}
 }
 ?>

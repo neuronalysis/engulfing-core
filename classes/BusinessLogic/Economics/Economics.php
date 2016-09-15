@@ -774,4 +774,15 @@ class Frequency extends Frequency_Generated {
 	function __construct() {
 	}
 }
+
+class ImpactFunction extends ImpactFunction_Generated {
+
+	function __construct() {
+	}
+}
+class RelationIndicatorImpactFunction extends RelationIndicatorImpactFunction_Generated {
+
+	function __construct() {
+	}
+}
 ?>

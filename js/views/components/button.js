@@ -24,7 +24,7 @@ var ButtonView = Backbone.View.extend({
 	start : function () {
 		var service = new Service({
 			ontology : "edi",
-			ressource : "import",
+			ressource : "importdata",
 			parameterName : "importprocessID",
 			parameterValue : this.id
 		});

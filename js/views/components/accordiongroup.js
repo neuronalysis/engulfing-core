@@ -55,7 +55,7 @@ var AccordionGroupView = BaseView.extend({
 		var collectionAttributes = this.collection.getModelAttributes();
 		
 		for (var i = 0; i < collectionAttributes.length; i++) {
-			if (collectionAttributes[i] !== "id" && collectionAttributes[i].indexOf("Outgoing") == -1 && this.collection.type.indexOf("Relation" + collectionAttributes[i].replace("Entity", "")) == -1) {
+			if (collectionAttributes[i] !== "id" && collectionAttributes[i].indexOf("Outgoing") == -1 && (this.collection.type.indexOf("Relation") !== -1 && this.collection.type.indexOf(collectionAttributes[i].replace("Entity", "")) !== -1)) {
 				this.$("#relation_headers").append('<th>' + collectionAttributes[i] + "</th>");
 			}
 		}
