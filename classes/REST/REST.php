@@ -138,7 +138,7 @@ class REST {
 	}
 	function getDetailed($id = null, $app = null) {
 		$ontologyClassName = $this->orm->getOntologyClassName();
-		echo "oclassname: " . $ontologyClassName . " \n";
+		
 		if ($app) {
 			if (isset($_GET['page'])) {
 				$namedfieldParameters = $_GET;
@@ -369,12 +369,15 @@ class REST {
 								callback_getObjects($callback);
 							}
 						});
+						
+						
+						if (method_exists($class->name, "getValuation")) {
+							$app->get('/' . $scope . '/' . $ressourceName . '/:id/valuation',	'getValuation');
+						}
 					}
 				}
 			}
 		}
-		
-		
 		
 		if (isset($scope)) {
 			if ($scope === "wiki") {
@@ -383,6 +386,15 @@ class REST {
 				$app->get('/news/:topic',	'getNewsByTopic');
 			}
 		}
+	}
+	function getValuation($id = null, $app = null) {
+		$ontologyClassName = $this->orm->getOntologyClassName();
+		
+		if ($id) {
+			$result = $this->orm->getById($ontologyClassName, $id);
+		}
+		
+		return $result->getValuation();
 	}
 	function logRequest($app, $request_date) {
 		if (stripos($app->request->getResourceUri(), "monitoring") !== false) return null;

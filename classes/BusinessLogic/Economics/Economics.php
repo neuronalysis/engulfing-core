@@ -10,6 +10,7 @@ include_once ('Release.php');
 include_once ('ReleasePublication.php');
 include_once ('Instrument.php');
 include_once ('Indicator.php');
+include_once ('ImpactFunction.php');
 
 class Economics extends Economics_Generated {
 	var $classes = array("Release", "ReleasePublication", "Indicator", "Instrument");
@@ -536,9 +537,9 @@ class Economics extends Economics_Generated {
 	function getLastIndicatorObservationsByIndicator($indicator) {
 		$rest = new REST();
 	
-		$sql = "select id, indicatorID, MAX(date) AS date FROM indicatorobservations WHERE indicatorID = " . $indicator->id . " AND date < NOW() GROUP BY indicatorID ORDER BY date DESC";
+		$sql = "SELECT id, indicatorID, value, MAX(date) AS date FROM indicatorobservations WHERE indicatorID = " . $indicator->id . " AND date < NOW() GROUP BY indicatorID ORDER BY date DESC";
 	
-		$indicatorobservations = $rest->orm->getAllByQuery($sql, "IndicatorObservation", array("indicatorID"));
+		$indicatorobservations = $rest->orm->getAllByQuery($sql, "IndicatorObservation", array("indicatorID", "value"));
 	
 		foreach($indicatorobservations as $indobs_item) {
 			$indobs_item->Indicator = $rest->orm->getById("Indicator", $indobs_item->indicatorID, false);
@@ -546,12 +547,14 @@ class Economics extends Economics_Generated {
 			unset($indobs_item->indicatorID);
 		}
 	
+		$indicatorobservations = $rest->orm->convertStdClassesToObjects($indicatorobservations, "IndicatorObservation");
+		
 		return $indicatorobservations;
 	}
 	function getLastInstrumentObservationsByInstrument($instrument) {
 		$rest = new REST();
 	
-		$sql = "select id, instrumentID, MAX(date) AS date FROM instrumentobservations WHERE instrumentID = " . $instrument->id . " AND date < NOW() GROUP BY instrumentID ORDER BY date DESC";
+		$sql = "SELECT id, instrumentID, MAX(date) AS date FROM instrumentobservations WHERE instrumentID = " . $instrument->id . " AND date < NOW() GROUP BY instrumentID ORDER BY date DESC";
 	
 		$instrumentobservations = $rest->orm->getAllByQuery($sql, "InstrumentObservation", array("instrumentID"));
 	
@@ -770,12 +773,6 @@ class Economics extends Economics_Generated {
 }
 
 class Frequency extends Frequency_Generated {
-
-	function __construct() {
-	}
-}
-
-class ImpactFunction extends ImpactFunction_Generated {
 
 	function __construct() {
 	}
