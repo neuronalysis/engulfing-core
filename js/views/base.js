@@ -310,6 +310,11 @@ var BaseView = Backbone.View.extend({
 					fieldView.field = field;
 					
 					return fieldView;
+				} else if (field.substring(0, 5) == "image") {
+					var fieldView = new InputImageView({model: this.model});
+					fieldView.field = field;
+					
+					return fieldView;
 				} else {
 					var fieldView = new InputTextView({model: this.model});
 					fieldView.field = field;
