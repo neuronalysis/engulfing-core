@@ -22,7 +22,6 @@ var HighChartsView = InputView.extend({
 		} else {
 			var data = {"object_name": this.model.type.toLowerCase(), "field_name": this.field, "label": this.label, "field_value": null, "withCell" : this.withCell, "withLabel" : this.withLabel, "chart_height" : "100px"};
 		}
-			
 		
 		this.$el.html(this.template(data));
 		
@@ -56,7 +55,6 @@ var HighChartsView = InputView.extend({
 			if (this.observationsLimit) {
 				model_observations.url += "?limit=" + this.observationsLimit;
 			}
-			
 			
 			model_observations.fetch({
 				success : function(model_observations) {

@@ -20,13 +20,9 @@ var BaseView = Backbone.View.extend({
 		
 		var input_id_element = $(item).closest('label');
 		
-		
 		var newContextActionButton = new ButtonView({id: "btn_context_dataservice", model: this.model.boundOntologyClass});
-		//newContextActionButton.events['click #btn_import_dataservice'] = 'importDataService';
-		//newContextActionButton.delegateEvents();
+	
 		$("#context").append(newContextActionButton.render().el);
-		
-		
 	},
 	createEntityFieldView : function(field) {
 		for (var i=0; i < this.model.get('RelationOntologyClassOntologyPropertyEntities').models.length; i++) {
@@ -42,13 +38,11 @@ var BaseView = Backbone.View.extend({
 			var rel_entity = this.model.get('RelationOntologyClassOntologyClassEntities').models[i];
 			if (rel_entity.get('IncomingOntologyClassEntity').get('OntologyClass').get('name') === field) {
 				var fieldView = new InputSelectView({model: rel_entity});
-				//var fieldView = new InputSelectView({model: rel_entity, tagName: 'IncomingOntologyClassEntity'});
 				fieldView.field = 'IncomingOntologyClassEntity';
 				
 				fieldView.labelName = field;
 				
 				return fieldView;
-				
 			}
 		}
 	},
@@ -67,43 +61,63 @@ var BaseView = Backbone.View.extend({
 			var rel_entity = classEntity.get('RelationOntologyClassOntologyClassEntities').models[i];
 			if (rel_entity.get('IncomingOntologyClassEntity').get('OntologyClass').get('name') === field) {
 				var fieldView = new InputSelectView({model: rel_entity});
-				//var fieldView = new InputSelectView({model: rel_entity, tagName: 'IncomingOntologyClassEntity'});
 				fieldView.field = 'IncomingOntologyClassEntity';
 				
 				fieldView.labelName = field;
 				
 				return fieldView;
-				
 			}
 		}
 	},
-	createFieldViewByModel : function(model, field, withCell) {
-		var value = model.get(field);
-		var value_type = typeof value;
-		if (value_type === "object" && value) {
-			if (value.models) {
-				value.type = getSingular(field);
+	createFieldViewByModel : function(model, field, withCell, reference) {
+		if (field == "CourseDocument") {
+			var value = model;
+			var value_type = typeof value;
+			if (value_type === "object" && value) {
+				if (value.models) {
+					value.type = getSingular(field);
+				} else {
+					value.type = field;
+				}
 			} else {
-				value.type = field;
+				if (value === null) {
+					if (field[0] === field[0].toUpperCase()) {
+						value = new window[field];
+						value.type = field;
+						model.set(field, value);
+					} else {
+						value_type = "string";
+					}
+				}
 			}
 		} else {
-			if (value === null) {
-				if (field[0] === field[0].toUpperCase()) {
-					value = new window[field];
-					value.type = field;
-					model.set(field, value);
+			var value = model.get(field);
+			var value_type = typeof value;
+			if (value_type === "object" && value) {
+				if (value.models) {
+					value.type = getSingular(field);
 				} else {
-					value_type = "string";
+					value.type = field;
+				}
+			} else {
+				if (value === null) {
+					if (field[0] === field[0].toUpperCase()) {
+						value = new window[field];
+						value.type = field;
+						model.set(field, value);
+					} else {
+						value_type = "string";
+					}
 				}
 			}
 		}
-		
 		
 		var enumeration = null;
 		var model_name;
 		var model_name_set;
 		var object;
 		var object_working;
+		
 		
 		if (value === null) {
 			for (var i=0; i < model.relations.length; i++) {
@@ -147,7 +161,7 @@ var BaseView = Backbone.View.extend({
 		}
 		
 		if (value_type === "string" || value_type === "number") {
-			if (field !== "id" && field.slice(-2) !== "ID" && field !== "DataServices") {
+			if (field !== "id" && field.slice(-2) !== "ID" && field !== "DataServices" && field !== "CourseDocument") {
 				if (field.slice(-2) == "At" || field.slice(-4) == "Date") {
 					var fieldView = new DatePickerView({model: model});
 					fieldView.field = field;
@@ -204,11 +218,20 @@ var BaseView = Backbone.View.extend({
 					}
 					
 				} else {
-					var fieldView = new InputSelectView({model: model, withCell: withCell});
-					//var fieldView = new InputSelectView({model: this.model, tagName: tagName});
-					fieldView.field = field;
+					if (field == "CourseDocument") {
+						var fieldView = new FileUploadView({model: model, withCell: withCell, referencingObject: reference});
+						fieldView.field = field;
+						
+						return fieldView;
+					} else {
+						var fieldView = new InputSelectView({model: model, withCell: withCell});
+						//var fieldView = new InputSelectView({model: this.model, tagName: tagName});
+						fieldView.field = field;
+						
+						return fieldView;
+					}
 					
-					return fieldView;
+					
 					
 					/*if (field.indexOf("Location") !== -1) {
 						var fieldView = new LocationMapView({model: this.model});
@@ -230,150 +253,7 @@ var BaseView = Backbone.View.extend({
 		return false;
 	},
 	createFieldView : function(field, withCell) {
-		var value = this.model.get(field);
-		var value_type = typeof value;
-		if (value_type === "object" && value) {
-			if (value.models) {
-				value.type = getSingular(field);
-			} else {
-				value.type = field;
-			}
-		} else {
-			if (value === null) {
-				if (field[0] === field[0].toUpperCase()) {
-					value = new window[field];
-					value.type = field;
-					this.model.set(field, value);
-				} else {
-					value_type = "string";
-				}
-			}
-		}
-		
-		
-		var enumeration = null;
-		var model_name;
-		var model_name_set;
-		var object;
-		var object_working;
-		
-		if (value === null) {
-			for (var i=0; i < this.model.relations.length; i++) {
-				if (this.model.relations[i].key === field) {
-					model_name =  this.model.relations[i].relatedModel;
-					
-					object = window[model_name];
-					object_working = object.findOrCreate({id: null});
-					
-					if (object_working.__proto__.enumeration) {
-						model_name_set = model_name;
-						value_type = "enumeration";
-						enumeration = object_working.__proto__.enumeration;
-					} else {
-						model_name_set = model_name;
-						value = object_working;
-						value.type = field;
-					}
-				}
-			}
-		} else {
-			model_name =  "";
-			
-			object = null;
-			object_working = null;
-			
-			for (var i=0; i < this.model.relations.length; i++) {
-				if (this.model.relations[i].key === field) {
-					model_name =  this.model.relations[i].relatedModel;
-					
-					object = window[model_name];
-					object_working = object.findOrCreate({id: null});
-					
-					if (object_working.__proto__.enumeration) {
-						model_name_set = model_name;
-						value_type = "enumeration";
-						enumeration = object_working.__proto__.enumeration;
-					}
-				}
-			}
-		}
-		
-		if (value_type === "string" || value_type === "number") {
-			if (field !== "id" && field.slice(-2) !== "ID" && field !== "DataServices") {
-				if (field.slice(-2) == "At" || field.slice(-4) == "Date") {
-					var fieldView = new DatePickerView({model: this.model});
-					fieldView.field = field;
-					
-					return fieldView;
-				} else if (field.slice(-10) == "Definition") {
-					var fieldView = new InputTextAreaView({model: this.model});
-					fieldView.field = field;
-					
-					return fieldView;
-				} else {
-					var fieldView = new InputTextView({model: this.model});
-					fieldView.field = field;
-					
-					return fieldView;
-				}
-			}
-		} else if (value_type === "boolean") {
-			fieldView = new InputCheckBoxView({model: this.model});
-			fieldView.field = field;
-			
-			return fieldView;
-		} else if (value_type === "enumeration") {
-			var fieldView = new InputSelectView({model: this.model, withCell: withCell});
-			fieldView.field = field;
-			fieldView.options = enumeration;
-			
-			return fieldView;
-		} else if (value !== null) {
-			if (typeof value === "object") {
-				
-				if (value.models) {
-					if (field.indexOf("Relation") !== -1) {
-						var fieldView = new AccordionGroupView({collection : this.model.get(field)});
-						fieldView.field = field;
-						
-						return fieldView;
-					} else if (field.indexOf("Observations") !== -1) {
-						var fieldView = new HighChartsView({model : this.model, observationsLimit: 250});
-						fieldView.field = field;
-						
-						return fieldView;
-					} else {
-						var fieldView = new InputTagsView({model: this.model});
-						fieldView.field = field;
-						
-						return fieldView;
-					}
-					
-				} else {
-					var fieldView = new InputSelectView({model: this.model, withCell: withCell});
-					//var fieldView = new InputSelectView({model: this.model, tagName: tagName});
-					fieldView.field = field;
-					
-					return fieldView;
-					
-					/*if (field.indexOf("Location") !== -1) {
-						var fieldView = new LocationMapView({model: this.model});
-						fieldView.field = field;
-						
-						return fieldView;
-					} else {
-						var fieldView = new InputSelectView({model: this.model});
-						fieldView.field = field;
-						
-						return fieldView;
-					}*/
-					
-				}
-			}
-		}
-		
-		
-		return false;
+		return this.createFieldViewByModel(this.model, field, withCell);
 	},
 	assign : function (selector, view) {
 	    var selectors;

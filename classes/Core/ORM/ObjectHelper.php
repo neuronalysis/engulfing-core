@@ -288,6 +288,7 @@ trait ObjectHelper {
 		$singular = $this->singularize($key);
 		$plural = $this->pluralize($key);
 		
+		//echo $key . "; "  . $singular . "; " . $plural . "; " . get_class($object) . "\n";
 		if ($key == $singular && property_exists($object, $key)) {
 			if (substr($key, 0, 8) == "Incoming") {
 				$relationshipType = "toOneFromRecursive";

@@ -1,6 +1,23 @@
+<% if (withCell) { %><div class="col-md-12"><% } %>
 <div class="form-group">
+<% if (withLabel) { %>
 	<label class="control-label col-sm-2">Raw Data File</label>
-	<div class="col-md-8">
+<% } %>
+
+<% if (withCell) { %>
+	<div class="col-md-12">
+<% } else { %>
+	<div class="col-md-5">
+<% } %>
+
+<% if (accessMode === "read") { %>
+		<span style="position: relative; top: 7px; left: 13px; height: 20px;"><a href="<%= downloadUrl %>" target="_blank"><%= field_value %></a></span>
+<% } else if (accessMode === "edit") { %>
 		<input id="input-1" type="file" class="file">
+<% } else if (accessMode === "new") { %>
+		<input id="input-1" type="file" class="file">
+<% } %>
+
 	</div>
 </div>
+<% if (withCell) { %></div><% } %>

@@ -73,13 +73,15 @@ trait QueryBuilder {
 		
 		return $sql;
 	}
-	function getPersistableFieldsFromObject($object) {
+	function getPersistableFieldsFromObject($object, $includingObjects = true) {
 		$fields = array();
 		
 		$reflection = new ReflectionClass(get_class($object));
-		$classvars = $reflection->getDefaultProperties();
+		$classvars = $reflection->getProperties();
 		
-		foreach($classvars as $key => $value) {
+		for($i=0; $i < count($classvars); $i++) {
+			$key = $classvars[$i]->name;
+			
 			$rp = new ReflectionProperty($object,$key);
 			if (!$this->isObjectReference($key) && !in_array($key, array("cascade", "constraintsUnique", "defaultOrder"))) {
 				if ($rp->isProtected()) {
@@ -88,10 +90,17 @@ trait QueryBuilder {
 				} else {
 					$fields[$key] = $object->$key;
 				}
-				
-				
+		
+		
+			} else {
+				if ($includingObjects && $this->isObjectReference($key)) {
+					if (isset($object->$key->id)) {
+						$fields[lcfirst($key) . "ID"] = $object->$key->id;
+					}
+				}
 			}
 		}
+		
 		
 		return $fields;
 	}

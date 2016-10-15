@@ -143,8 +143,6 @@ trait WebsiteNavigation {
 		if ($this->siteMapDefinition) {
 		} else {
 			if (isset($this->activescope_Ontology)) {
-				echo $this->activescope_Ontology->name . "\n";
-				
 				//if($this->auth->isLogged()) {
 					foreach($this->activescope_Ontology->OntologyClasses as $OntologyClass_item) {
 						if (property_exists($OntologyClass_item->name, "id")) {
@@ -246,8 +244,6 @@ trait WebsiteNavigation {
 						if ($this->isAllowed($Ontology_item)) {
 							if (isset($Ontology_item) && $Ontology_item->isFinal) {
 								if ($Ontology_item->name !== $this->activescope_Ontology->name) {
-									//echo $home_url . strtolower($Ontology_item->name) . "\n";
-									
 									$html .= '
 									<li><a href="' . $home_url . strtolower($Ontology_item->name) . '/">' . $Ontology_item->name . '</a></li>';
 								}

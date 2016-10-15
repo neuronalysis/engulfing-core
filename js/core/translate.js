@@ -90,6 +90,8 @@ function getOntology(objectName) {
 		ontologyShortName = "usermanagement";
 	} else if (objName == "indicator" || objName == "release" || objName == "impactfunction") {
 		ontologyShortName = "neuronalysis";
+	} else if (objName == "course" || objName == "module" || objName == "courseevent") {
+		ontologyShortName = "lms";
 	}
 	
 	return ontologyShortName;

@@ -207,6 +207,9 @@ class Website extends Website_Generated {
     			),
     			"CodeGeneration" => array(
     				1 => true
+    			),
+    			"LMS" => array(
+    				1 => true
     			)
     	);
     	

@@ -30,8 +30,6 @@ var SingleEntityView = SingleObjectView.extend({
 				if (!relations_ococ.models[i].get('IncomingOntologyClass').isFieldGroup()) {
 					var entityFieldName = relations_ococ.models[i].get('IncomingOntologyClass').get('name');
 					
-					
-					
 					var hasEntity = false;
 					for (var j=0; j < this.model.get('RelationOntologyClassOntologyClassEntities').models.length; j++) {
 						if (this.model.get('RelationOntologyClassOntologyClassEntities').models[j].get('IncomingOntologyClassEntity').get('OntologyClass').get('name') === entityFieldName) {
@@ -58,8 +56,6 @@ var SingleEntityView = SingleObjectView.extend({
 					
 					fieldViews.push(fieldView);
 				}
-				
-				
 			}
 		}
 		
@@ -140,17 +136,14 @@ var SingleEntityView = SingleObjectView.extend({
 			if (relations_ocop.models[i].isNew()) relations_ocop.models[i].save();
 		}
 		
-			
 		var attrs = { }, k;
 		for(k in this.model.attributes) {
 	        attrs[k] = this.model.attributes[k];
 	        if (k !== "id") {
 	        	input_type = $('#' + k).prop('type');
 	        	
-	        	//if (input_type !== "checkbox" && k.indexOf("relation") === -1) {
 	        	if (input_type === "text") {
-		        //if (input_type !== "checkbox" && k.indexOf("relation") === -1) {
-	        		this.model.set(k, $('#' + k).val());
+		        	this.model.set(k, $('#' + k).val());
 	        	}
 	        }
 	    }
@@ -158,8 +151,6 @@ var SingleEntityView = SingleObjectView.extend({
 		this.model.save({}, {
 		    success: function(model){
 		    	if (model.type.substr(-6, 6) === "Entity") {
-		    		
-		    		
 		    		var url = window.location.href;
 		    		
 		    		if (url.substr(-1) == '/') url = url.substr(0, url.length - 2);
@@ -168,10 +159,7 @@ var SingleEntityView = SingleObjectView.extend({
 			    	url.pop();
 			    	
 			    	var target = url[url.length-2] + "/entities/#" + model.id + "/";
-			    	
-			    	
-			    	//app.navigate("#212/entities/#46", true);
-		    	} else {
+			   } else {
 		    		app.navigate('#' + model.id, true);
 		    	}
 		    }
@@ -199,9 +187,7 @@ var SingleEntityView = SingleObjectView.extend({
 			}
 		}
 		
-		
 		this.renderButtons();
-		
 		
 		return this;
 	}

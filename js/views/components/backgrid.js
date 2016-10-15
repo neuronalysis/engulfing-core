@@ -33,7 +33,7 @@ window.BackGridTableView = BaseView.extend({
 			editable : false
 		},*/
 		    {
-			name : "name",
+			name : "summary",
 			label : "Object Name",
 			cell : UriCell.extend({
 				target : '_self'

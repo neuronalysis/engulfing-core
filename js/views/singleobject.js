@@ -38,9 +38,7 @@ var SingleObjectView = BaseView.extend({
 			}
 		}
 		
-		
 		this.contextButtonViews = [];
-		
 		
 		if (accessMode == "read") {
 			this.buttonView = new ButtonView({id: "btn_edit"});
@@ -48,11 +46,7 @@ var SingleObjectView = BaseView.extend({
 			this.buttonView = new ButtonView({id: "btn_save"});
 		}
 		
-		
-		
 		SingleObjectView.__super__.initialize.apply(this, arguments);
-		
-		//this.model.bind('change', this.render);
 	},
 	events : {
 		"click #btn_save" : "saveObject",
@@ -73,14 +67,12 @@ var SingleObjectView = BaseView.extend({
     	var url = window.location.href;
 
     	window.location = url + '/entities/new';
-    	
 	},
 	endpoint : function(item) {
     	var url = window.location.href;
 
     	window.location = url + '/endpoint';
-    	
-	},
+ 	},
 	watchObject : function() {
 		if (app.activeView.model.id == this.model.id) {
 			this.model.watch();
@@ -154,7 +146,6 @@ var SingleObjectView = BaseView.extend({
 	getGroupFieldViews : function (groupName) {
 		var fieldViews = [];
 		
-		//var relations = this.model.__proto__.relations;
 		var relations = this.model.getRelatedObjects();
 		
 		for (var i=0; i < relations.length; i++) {
@@ -171,18 +162,8 @@ var SingleObjectView = BaseView.extend({
 					
 					var indicatorsNames = "";
 					
-					//var impactFunctionIndicators = groupClassEntities[e].get('RelationIndicatorImpactFunctions');
-					
 					fieldView = this.createFieldViewByModel(groupClassEntities[e], 'RelationIndicatorImpactFunctions', false);
 					fieldViews.push(fieldView);
-					/*for (var j=0; j < impactFunctionIndicators.length; j++) {
-						//indicatorsNames += impactFunctionIndicators.models[j].get('Indicator').get('name');
-						
-						
-						fieldView = this.createFieldViewByModel(impactFunctionIndicators.models[j], 'Indicator', false);
-							
-						fieldViews.push(fieldView);
-					}*/
 				}
 			} else if ("ImpactFunctions" === groupName && entityFieldName == "RelationIndicatorImpactFunction") {
 				var groupClassEntities = this.model.getEntities(entityFieldName);
@@ -197,13 +178,25 @@ var SingleObjectView = BaseView.extend({
 							}
 						}
 					}
+				}
+			} else if ("CourseDocuments" === groupName && entityFieldName == "CourseDocument") {
+				var groupClassEntities = this.model.getEntities(entityFieldName);
+				
+				if (groupClassEntities.length == 0) {
+					fieldView = this.createFieldViewByModel(new CourseDocument(), entityFieldName, false, this.model);
 					
+					fieldViews.push(fieldView);
+				} else {
+					for (var e=0; e < groupClassEntities.length; e++) {
+						fieldView = this.createFieldViewByModel(groupClassEntities[e], entityFieldName, false, this.model);
+						
+						fieldViews.push(fieldView);
+					}
 				}
 			} else if (getPlural(entityFieldName) === groupName) {
 				if (groupName.indexOf("Observations") !== -1) {
 					var chartsView = new HighChartsView({model : this.model, observationsLimit: 250});
 					chartsView.field = groupName;
-					
 					
 					fieldViews.push(chartsView);
 				} else {
@@ -233,7 +226,6 @@ var SingleObjectView = BaseView.extend({
 										}
 									}
 								}
-								
 							}
 						} else {
 							for (var e=0; e < groupClassEntities.length; e++) {
@@ -253,17 +245,12 @@ var SingleObjectView = BaseView.extend({
 										
 										fieldViews.push(fieldView);
 									}
-									
-									
 								}
 							}
 						}
 					}
-					
 				}
-				
 			}
-			
 		}
 		
 		return fieldViews;
@@ -277,9 +264,7 @@ var SingleObjectView = BaseView.extend({
 	        if (k !== "id") {
 	        	input_type = $('#' + k).prop('type');
 	        	
-	        	//if (input_type !== "checkbox" && k.indexOf("relation") === -1) {
 	        	if (input_type === "text" || input_type === "password") {
-		        //if (input_type !== "checkbox" && k.indexOf("relation") === -1) {
 	        		this.model.set(k, $('#' + k).val());
 	        	} else {
 	        		var objectValue = attrs[k];
@@ -311,10 +296,7 @@ var SingleObjectView = BaseView.extend({
 				    	url.pop();
 				    	
 				    	var target = url[url.length-2] + "/entities/#" + model.id + "/";
-				    	
-				    	
-				    	//app.navigate(target, true);
-			    	} else {
+				   	} else {
 			    		app.navigate('#' + model.id, true);
 			    	}
 		    	} else {
@@ -361,9 +343,6 @@ var SingleObjectView = BaseView.extend({
 				this.fieldViews[i].delegateEvents();
 			}
 		}
-		
-		//this.$("#ontologyInformation").append('<i>').append(this.ontologyInformationView.render().el).append('<i>');
-		//this.$("#ontologyInformation").append('aasdfasdf');
 		
 		this.renderButtons();
 				
@@ -426,8 +405,6 @@ var SingleObjectView = BaseView.extend({
 				this.$("#sidebar").append(newEntityButton.render().el);
 				newEntityButton.delegateEvents();
 				
-				
-				
 				var entitiesImportButton = new ButtonView({id: "btn_entityImport"});
 				
 				this.$("#sidebar").append('<br /><br /><br /><br />').append(entitiesImportButton.render().el);
@@ -437,9 +414,7 @@ var SingleObjectView = BaseView.extend({
 				
 				this.$("#sidebar").append('<br /><br />').append(entitiesButton.render().el);
 				entitiesButton.delegateEvents();
-				
 			}
-			
 			
 			if (this.model.isWatched) {
 				var ignoreObjectButton = new ButtonView({id: "btn_ignore"});
@@ -452,7 +427,6 @@ var SingleObjectView = BaseView.extend({
 				self.$("#sidebar").append('<br /><br /><br /><br />').append(watchObjectButton.render().el);
 				watchObjectButton.delegateEvents();
 			}
-			
 			
 			if (this.model.type === "DataMartService") {
 				var endpointButton = new ButtonView({id: "btn_endpoint"});
@@ -471,5 +445,4 @@ var SingleObjectView = BaseView.extend({
 			}
 		}		
 	}
-});
-		
+});		

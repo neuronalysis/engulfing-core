@@ -39,7 +39,13 @@ trait Helper {
 				case 'es':
 					$plural = $singular;
 					break;
+				case 'nt':
+					$plural = $singular . 's';
+					break;
 				case 'rs':
+					$plural = $singular;
+					break;
+				case 'ts':
 					$plural = $singular;
 					break;
 				case 'ns':

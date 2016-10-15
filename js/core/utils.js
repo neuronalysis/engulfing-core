@@ -25,6 +25,7 @@ tpl = {
 				'../../components/input_textarea',
 				'../../components/input_text',
 				'../../components/input_tags',
+				'../../components/input_file',
 				'../../components/input_highcharts',
 				'../../components/input_select',
 				'../../components/input_locationmap',

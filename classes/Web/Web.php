@@ -32,6 +32,8 @@ class Web extends Web_Generated {
 		$this->orm = new ORM();
 	}
 	function getWebsiteByName($name) {
+		if (!$name) return null;
+		
 		$objects = $this->orm->getByNamedFieldValues("Website", array("name"), array($name), false, null, false, true, null, array());
 		
 		if(!$objects) return null;
