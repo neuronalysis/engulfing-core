@@ -162,6 +162,7 @@ class ORM {
 			if (isset($objects[0])) {
 				$object = $objects[0];
 				
+					
 				if ($object_name !== "RelationIndicatorImpactFunction") {
 					$referencedObjects = $this->loadReferencedObjects($object, $object_name, $excludes);
 					

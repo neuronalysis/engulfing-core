@@ -151,11 +151,15 @@ window.Master = Backbone.RelationalModel.extend({
     					if (fieldGroupName.substr(0, 8) === "Relation") {
     						var relations_inout = this.get(this.__proto__.relations[i].key);
     			        	
-    						if (relations_inout.models[0]) {
-    							var relation_item = relations_inout.models[0];
-        						
-        						for(fieldGroupName in relation_item.attributes);
-        					}
+    						var collectionModelAttributes = this.get('RelationIndicatorImpactFunctions').getModelAttributes();
+    						
+    						for (var j=0; j < collectionModelAttributes.length; j++) {
+    							if (collectionModelAttributes[j] === this.type) {
+    							} else {
+    								var fieldGroupName = collectionModelAttributes[j];
+    							}
+    						}
+    						
     					}
     				
         				fieldGroups.push({"name" : getPlural(fieldGroupName), "fieldViews" : []} );

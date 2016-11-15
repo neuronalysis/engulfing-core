@@ -88,7 +88,7 @@ function getOntology(objectName) {
 		ontologyShortName = "edi";
 	} else if (objName == "role" || objName == "user" || objName == "owner") {
 		ontologyShortName = "usermanagement";
-	} else if (objName == "indicator" || objName == "release" || objName == "impactfunction") {
+	} else if (objName == "instrument" || objName == "indicator" || objName == "release" || objName == "impactfunction") {
 		ontologyShortName = "neuronalysis";
 	} else if (objName == "course" || objName == "module" || objName == "courseevent") {
 		ontologyShortName = "lms";

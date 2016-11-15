@@ -165,6 +165,20 @@ var SingleObjectView = BaseView.extend({
 					fieldView = this.createFieldViewByModel(groupClassEntities[e], 'RelationIndicatorImpactFunctions', false);
 					fieldViews.push(fieldView);
 				}
+			} else if ("Indicators" === groupName && entityFieldName == "RelationIndicatorImpactFunction") {
+				var groupClassEntities = this.model.getEntities(entityFieldName);
+				
+				for (var e=0; e < groupClassEntities.length; e++) {
+					for(field in groupClassEntities[e].attributes) {
+						if (!this.model.isProtected(field) && (field === "name" || field === "date" || field === "Indicator")) {
+							if (field.substring(0, 3) !== "Rel") {
+								fieldView = this.createFieldViewByModel(groupClassEntities[e], field);
+								
+								fieldViews.push(fieldView);
+							}
+						}
+					}
+				}
 			} else if ("ImpactFunctions" === groupName && entityFieldName == "RelationIndicatorImpactFunction") {
 				var groupClassEntities = this.model.getEntities(entityFieldName);
 				

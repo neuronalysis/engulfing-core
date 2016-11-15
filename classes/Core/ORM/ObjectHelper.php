@@ -219,8 +219,6 @@ trait ObjectHelper {
 			if ($this->isObjectReference($key) && !in_array($key, $excludes)) {
 				$relationshipType = $this->getRelationshipType($object, $key);
 				
-				//echo $object_name . ": " . $relationshipType . "\n";
-				
 				if ($relationshipType == "toOne") {
 					$idFieldname = lcfirst($key) . "ID";
 					
