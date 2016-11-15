@@ -82,7 +82,7 @@ trait WebsiteScript {
 			if ($this->isLocalRequest()) {
 				if ($this->generated) {
 					if ($scope !== "engulfing" && $scope !== "ontologydriven") {
-						if (in_array($scope, array("neuronalysis", "kissenstern"))) {
+						if (in_array($scope, array("neuronalysis", "kissenstern")) || $scope == "") {
 							if ($scopeDebth == 1) {
 								$source = $scriptPath;
 							} else {
@@ -157,7 +157,7 @@ trait WebsiteScript {
 		} else {
 			$scope = str_ireplace(".com", "", $scope);
 			
-			if ($scope === "ontologydriven" || $scope === "neuronalysis") {
+			if ($scope === "ontologydriven" || $scope === "neuronalysis" || $scope === "kissenstern") {
 				$scope = "";
 				
 				if (!file_exists($desc . $scope . "/")) {
@@ -176,7 +176,7 @@ trait WebsiteScript {
 					$source = $desc . $scope . "/" . $scriptPath;
 				}
 				
-			} else if (in_array($scope, array("releases", "indicators", "releasepublications"))) {
+			} else if (in_array($scope, array("releases", "indicators", "releasepublications", "pillowcases", "pillowfillings"))) {
 				$desc .= "../";
 				
 				$source = $desc . $scriptPath;
@@ -591,7 +591,14 @@ trait WebsiteScript {
 		return $html;
 	}
 	function renderHTMLScripts_Controller($scope) {
+		$scopeDepth = $this->getScopeDepth();
+		$objectName = $this->getRefererScopeName($scope);
+		
+		//echo "scope: " . $scope . "; " . $scopeDepth . "; " . $objectName . "\n";
+		
 		$html = "";
+		
+		
 		if (isset($this->activescope_OntologyClass)) {
 			if (isset($this->activescope_OntologyClass->name)) {
 				$html .= '
@@ -604,12 +611,24 @@ trait WebsiteScript {
 			}
 				
 		} else {
-			if ($this->siteMapDefinition) {
+			if ($this->generated) {
+				if ($scopeDepth == 1) {
+					$html .= '
+		<script src="' . $this->getScriptSource($scope, 'js/main_intro.js') . '"></script>
+			 		';
+				} else if ($scopeDepth == 2) {
+					$html .= '
+		<script src="' . $this->getScriptSource($scope, 'js/main_' . $objectName . '.js') . '"></script>
+			 		';
+				}
+			}
+			/*if ($this->siteMapDefinition) {
 				$onPage = false;
 				
 				$sitemap = json_decode($this->siteMapDefinition);
+				
 				foreach($sitemap->pages[0]->pages as $page_item) {
-					if (strpos($this->website_url, strtolower($page_item->name)) !== false) {
+					if (strpos($this->website_url, strtolower($page_item->name)) !== false  ) {
 						$html .= '
 		<script src="/js/main_' . $this->singularize(strtolower($page_item->name)) . '.js"></script>
 			 ';
@@ -634,7 +653,7 @@ trait WebsiteScript {
 			 		';
 					}
 				}
-			}
+			}*/
 			
 		}
 		

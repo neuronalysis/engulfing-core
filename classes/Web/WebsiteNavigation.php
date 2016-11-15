@@ -28,27 +28,11 @@ trait WebsiteNavigation {
 		return $html;
 	}
 	function renderHTMLNavigation_Header() {
-		$topdomain = $this->getTopDomain();
-		
 		$html = "";
 	
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
 		
-		if ($this->isLocalRequest()) {
-			$home_url = "";
-			if ($this->generated) {
-				$home_url = "http://localhost." . $topdomain . "/";
-			} else {
-				$home_url = "http://localhost." . $topdomain . "/";
-			}
-		} else {
-			$home_url = "";
-			if ($this->generated) {
-				$home_url = "http://www." . $topdomain . ".com/";
-			} else {
-				$home_url = "http://www." . $topdomain . ".com/";
-			}
-		}
+		$home_url = $this->getHomeUrl();
 		
 		$html .= '
 				<div class="navbar-header">
@@ -77,7 +61,7 @@ trait WebsiteNavigation {
 		return $html;
 	}
 	function renderHTMLNavigation_Bar() {
-		$topdomain = $this->getTopDomain();
+		$home_url = $this->getHomeUrl();
 		
 		$html = "";
 		
@@ -101,12 +85,20 @@ trait WebsiteNavigation {
 
 		$html .= $this->renderHTMLNavigation_Authentication();
 
+		if ($this->isShop) {
+			$html .= '
+					<li><a href="' . $home_url . 'ecommerce/basket' . '">Basket</a></li>';
+		}
+		
+		
 		$html .= '
 					</ul>';
+
+		
 		
 		$html .= '
 				</div>';
-	
+		
 		return $html;
 	}
 	function renderHTMLNavigation_Sub() {
@@ -129,7 +121,7 @@ trait WebsiteNavigation {
 		
 		$html .= $this->renderHTMLNavigation_Search();
 		
-	
+		
 		$html .= '
 				</div>';
 	
@@ -183,26 +175,10 @@ trait WebsiteNavigation {
 		return $html;
 	}
 	function renderHTMLNavigation_Menu() {
-		$topdomain = $this->getTopDomain();
-		
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
 		 
-		if ($this->isLocalRequest()) {
-			$home_url = "";
-			if ($this->generated) {
-				$home_url = "http://localhost." . $topdomain . "/";
-			} else {
-				$home_url = "http://localhost." . $topdomain . "/";
-			}
-		} else {
-			$home_url = "";
-			if ($this->generated) {
-				$home_url = "http://www." . $topdomain . ".com/";
-			} else {
-				$home_url = "http://www." . $topdomain . ".com/";
-			}
-		}
-		
+		$home_url = $this->getHomeUrl();
+			
 		$html = "";
 	
 		if ($this->siteMapDefinition) {
@@ -218,8 +194,13 @@ trait WebsiteNavigation {
 							<ul class="dropdown-menu" role="menu">';
 					
 					foreach($page_item->pages as $subpage_item) {
-						$html .= '<li><a href="' . $home_url . strtolower($subpage_item->name) . '">' . $subpage_item->name . '</a></li>
+						if (isset($subpage_item->urlPartName)) {
+							$html .= '<li><a href="' . $home_url . strtolower($subpage_item->urlPartName) . '">' . $subpage_item->name . '</a></li>
 						';
+						} else {
+							$html .= '<li><a href="' . $home_url . strtolower($subpage_item->name) . '">' . $subpage_item->name . '</a></li>
+						';
+						}
 					}
 					
 						
@@ -301,7 +282,6 @@ trait WebsiteNavigation {
 			}
 		}
 		
-						
     	return $html;
 	}
 	function renderHTMLNavigation_Administration() {

@@ -92,6 +92,8 @@ function getOntology(objectName) {
 		ontologyShortName = "neuronalysis";
 	} else if (objName == "course" || objName == "module" || objName == "courseevent") {
 		ontologyShortName = "lms";
+	} else if (objName == "pillowcase" || objName == "pillowfilling") {
+		ontologyShortName = "kissenstern";
 	}
 	
 	return ontologyShortName;

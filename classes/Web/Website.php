@@ -121,6 +121,27 @@ class Website extends Website_Generated {
     	
     	return $this->title;
     }
+    function getHomeUrl() {
+    	$topDomain = $this->getTopDomain();
+    	 
+    	if ($this->isLocalRequest()) {
+    		$home_url = "";
+    		if ($this->generated) {
+    			$home_url = "http://localhost." . $topDomain . "/";
+    		} else {
+    			$home_url = "http://localhost." . $topDomain . "/";
+    		}
+    	} else {
+    		$home_url = "";
+    		if ($this->generated) {
+    			$home_url = "http://www." . $topDomain . ".com/";
+    		} else {
+    			$home_url = "http://www." . $topDomain . ".com/";
+    		}
+    	}
+    	
+    	return $home_url;
+    }
     function getHomeTitle() {
     	$depth = $this->getScopeDepth();
     	
@@ -132,7 +153,9 @@ class Website extends Website_Generated {
     	
     	if ($this->isLocalRequest()) {
     		if ($depth == 0) {
-    			$ontologyJSON = file_get_contents ( "data/ontology.json" );
+    			if (file_exists("/data/ontology.json")) {
+    				$ontologyJSON = file_get_contents ( "data/ontology.json" );
+    			}
     		} else if ($depth == 1) {
     			if (file_exists("../" . $topDomain . "/data/ontology.json")) {
     				$ontologyJSON = file_get_contents ( "../" . $topDomain . "/data/ontology.json" );
@@ -172,8 +195,9 @@ class Website extends Website_Generated {
     function getShortTitle() {
     	$scopename = $this->getScopeName();
     	if ($scopename === "") {
-    		$scopename = end(explode("/", $_SERVER ['DOCUMENT_ROOT']));
-    	}
+    		$tmp = explode("/", $_SERVER ['DOCUMENT_ROOT']);
+    		$scopename = end($tmp);
+     	}
     	 
     	$ontologyJSON = "";
         if (file_exists("../" . strtolower($scopename) . "/data/ontology.json")) {
@@ -196,6 +220,7 @@ class Website extends Website_Generated {
     	$loadedWebsite = $web->getWebsiteByName($this->title);
     	if ($loadedWebsite) {
     		$this->siteMapDefinition = $loadedWebsite->siteMapDefinition;
+    		$this->isShop = $loadedWebsite->isShop;
     	}
     	
     	$this->accessRestrictions = array(
@@ -335,13 +360,7 @@ class Website extends Website_Generated {
   				
   		}
   		
-  		
-  		$html .= '
-		<footer class="footer">
-			<div class="container">
-				<p class="text-muted text-center">&copy; 2015-2016 Ontology Driven - Zurich, Switzerland - <a href="mailto:info@ontologydriven.com"><span class="glyphicon glyphicon-envelope" /></a></p>
-			</div>
-		</footer>';
+  		$html .= $this->renderHTML_Footer();
   		
   		$html .= $this->renderHTMLScripts($auth);
   		
@@ -490,6 +509,19 @@ class Website extends Website_Generated {
 		</style>
 	</head>';
     	
+    	return $html;
+    }
+    function renderHTML_Footer() {
+    	$html = '';
+    	 
+    	$html .= '
+		<footer class="footer">
+			<div class="container">
+				<p class="text-muted text-center">&copy; 2015-2016 Ontology Driven - Zurich, Switzerland - <a href="mailto:info@ontologydriven.com"><span class="glyphicon glyphicon-envelope" /></a></p>
+			</div>
+		</footer>';
+  		
+    	 
     	return $html;
     }
     function parse($page = 1) {

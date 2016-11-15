@@ -55,6 +55,7 @@ var SingleObjectView = BaseView.extend({
 		"click #btn_entityList" : "entityList",
 		"click #btn_endpoint" : "endpoint",
 		"click #btn_watch" : "watchObject",
+		"click #btn_addToBasket" : "addToBasket",
 		"click #btn_ignore" : "ignoreObject",
 		"click #btn_entityImport" : "entityImport",
 		"click #btn_importProcessing" : "importProcessing"
@@ -81,6 +82,26 @@ var SingleObjectView = BaseView.extend({
 			
 			this.render();
 		}
+		
+		return false;
+	},
+	addToBasket : function() {
+		if (Cookie.get("Basket")) {
+			if (app.activeView.model.id == this.model.id) {
+				this.model.watch();
+				
+				this.model.isWatched = true;
+				
+				this.render();
+			}
+		} else {
+			var basket = new Basket({});
+			basket.addPosition(this.model);
+			
+			Cookie.set("Basket", JSON.stringify(basket));
+		}
+			
+		
 		
 		return false;
 	},
@@ -457,6 +478,19 @@ var SingleObjectView = BaseView.extend({
 				this.$("#sidebar").append(this.buttonView.render().el);
 				this.buttonView.delegateEvents();
 			}
-		}		
+		}	
+		
+		if (this.model.isInBasket) {
+			var removeFromBasketButton = new ButtonView({id: "btn_removeFromBasket"});
+			
+			self.$("#sidebar").append('<br /><br /><br /><br />').append(removeFromBasketButton.render().el);
+			removeFromBasketButton.delegateEvents();
+		} else {
+			var addToBasketButton = new ButtonView({id: "btn_addToBasket"});
+			
+			self.$("#sidebar").append('<br /><br /><br /><br />').append(addToBasketButton.render().el);
+			addToBasketButton.delegateEvents();
+		}
+		
 	}
 });		

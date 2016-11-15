@@ -230,21 +230,6 @@ var BaseView = Backbone.View.extend({
 						
 						return fieldView;
 					}
-					
-					
-					
-					/*if (field.indexOf("Location") !== -1) {
-						var fieldView = new LocationMapView({model: this.model});
-						fieldView.field = field;
-						
-						return fieldView;
-					} else {
-						var fieldView = new InputSelectView({model: this.model});
-						fieldView.field = field;
-						
-						return fieldView;
-					}*/
-					
 				}
 			}
 		}

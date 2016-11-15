@@ -24,6 +24,7 @@ tpl = {
 				'../../components/input_datepicker',
 				'../../components/input_textarea',
 				'../../components/input_text',
+				'../../components/input_image',
 				'../../components/input_tags',
 				'../../components/input_file',
 				'../../components/input_highcharts',

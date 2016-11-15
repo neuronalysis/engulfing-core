@@ -242,7 +242,7 @@ trait Helper {
 	function getScopeName() {
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
 		$levels = explode ( "/", $url_parsed ['path'] );
-	
+		
 		if (strpos($url_parsed ['path'], "localhost") !== false) {
 			$scopename = $levels[1];
 		} else if (strpos($url_parsed ['path'], "/api/") !== false) {
