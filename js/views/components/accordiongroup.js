@@ -58,6 +58,21 @@ var AccordionGroupView = BaseView.extend({
 			if (collectionAttributes[i] !== "id" && collectionAttributes[i].indexOf("Outgoing") == -1 && (this.collection.type.indexOf("Relation") !== -1 && this.collection.type.indexOf(collectionAttributes[i].replace("Entity", "")) !== -1)) {
 				this.$("#relation_headers").append('<th>' + collectionAttributes[i] + "</th>");
 			}
+			
+			if (collectionAttributes[i] == "ImpactFunction") {
+				var impactfunction = this.collection.models[0].get('ImpactFunction');
+				
+				impactfunction.url = apiHost + "economics/impactfunctions/" + this.collection.models[0].id + "/valuation";
+				
+				impactfunction.fetch({
+					success : function(impactfunction) {
+						var result = impactfunction;
+						
+						var test = "asdf";
+						
+					}
+				});
+			}
 		}
 		this.$("#relation_action").append('<div class="col-md-12" id="panelheader_buttons" style="text-align: right;"></div>');
 		

@@ -82,7 +82,7 @@ trait WebsiteScript {
 			if ($this->isLocalRequest()) {
 				if ($this->generated) {
 					if ($scope !== "engulfing" && $scope !== "ontologydriven") {
-						if (in_array($scope, array("neuronalysis"))) {
+						if (in_array($scope, array("neuronalysis", "kissenstern"))) {
 							if ($scopeDebth == 1) {
 								$source = $scriptPath;
 							} else {
