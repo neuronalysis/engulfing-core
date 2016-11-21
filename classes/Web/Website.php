@@ -1,15 +1,4 @@
 <?php
-$desc = "";
-if (!file_exists("../engulfing/")) {
-	$desc = "../";
-	if (!file_exists($desc . "../engulfing/")) {
-		$desc .= "../";
-	}
-}
-
-//include_once ("../../engulfing/engulfing-extensions/classes/JShrink/Minifier.php");
-
-//XXX define sitemap schema (sample: http://docs.mixture.io/sitemap)
 //XXX clean up class
 class Website extends Website_Generated {
 	use Helper;
@@ -44,6 +33,8 @@ class Website extends Website_Generated {
 	var $Ontologies = array();
 	
 	var $levels = array ();
+	
+	var $isShop;
 	
 	var $debug = true;
 	
@@ -117,6 +108,10 @@ class Website extends Website_Generated {
     		$ontologyData = json_decode($ontologyJSON);
     		
     		if (isset($ontologyData->title)) $this->title = $ontologyData->title;
+    	}
+    	
+    	if (!$this->title) {
+    		$this->title = str_replace("Website_", "", get_class($this));
     	}
     	
     	return $this->title;
@@ -215,14 +210,37 @@ class Website extends Website_Generated {
        		return $this->getTitle();
        	}
     }
+    function loadOntologiesFromSiteMap($siteMap) {
+    	$ontologies = $siteMap->Ontologies;
+    	 
+    	foreach($ontologies as $ontology) {
+    		foreach($ontology->OntologyClasses as $ontologyclass) {
+    			$ontologyclass->Ontology = $ontology;
+    		}
+    	}
+    	
+    	$this->Ontologies = $ontologies;
+    }
     function init_forRendering() {
+    	$rest = new REST_Transformer();
+    	
+    	$this->title = $this->getTitle();
+    	
+    	$this->auth = new Authentication();
+    	
     	$web = new Web();
     	$loadedWebsite = $web->getWebsiteByName($this->title);
     	if ($loadedWebsite) {
     		$this->siteMapDefinition = $loadedWebsite->siteMapDefinition;
+    		
     		$this->isShop = $loadedWebsite->isShop;
     	}
     	
+    	if (!class_exists("KM")) {
+	    	$siteMap = $rest->deserialize_JSON($this->siteMapDefinition);
+	    	$this->loadOntologiesFromSiteMap($siteMap);
+	    }
+	    
     	$this->accessRestrictions = array(
     			"EDI" => array(
     				1 => true
@@ -309,9 +327,7 @@ class Website extends Website_Generated {
     		}
     	}
     }
-    function renderHTML($auth = null) {
-    	$this->auth = $auth;
-    	
+    function renderHTML() {
     	$this->init_forRendering();
     	
     	
@@ -329,7 +345,7 @@ class Website extends Website_Generated {
   		
   		$html .= $this->renderHTMLNavigation();
   			
-  		if ($auth->isLogged()) {
+  		if ($this->auth->isLogged()) {
   			if (isset($this->activescope_OntologyClass)) {
   				$html .= $this->renderHTML_ContentContainer();
    			} else {
@@ -362,7 +378,7 @@ class Website extends Website_Generated {
   		
   		$html .= $this->renderHTML_Footer();
   		
-  		$html .= $this->renderHTMLScripts($auth);
+  		$html .= $this->renderHTMLScripts();
   		
 
    		$html .= '

@@ -1,18 +1,12 @@
 <?php
-$desc = "";
-if (!file_exists("../engulfing/")) {
-	$desc = "../";
-	if (!file_exists($desc . "../engulfing/")) {
-		$desc .= "../";
-	}
-}
+include_once __DIR__ . '/../DM/DM.php';
+include_once __DIR__ . '/../Core/FileIO.php';
+include_once __DIR__ . '/../Core/Helper.php';
+include_once __DIR__ . '/../REST/REST.php';
+include_once __DIR__ . '/../Authentication/Authentication.php';
 
-include_once ($desc . "../engulfing/engulfing-generated/classes/things/Things_Generated.php");
-include_once ($desc . "../engulfing/engulfing-generated/classes/web/Web_Generated.php");
-include_once ($desc . "../engulfing/engulfing-core/classes/Core/FileIO.php");
-include_once ($desc . "../engulfing/engulfing-core/classes/Core/Helper.php");
-
-//include_once ("Html/Html.php");
+include_once __DIR__ . '/../../../../engulfing/engulfing-generated/classes/things/Things_Generated.php';
+include_once __DIR__ . '/../../../../engulfing/engulfing-generated/classes/web/Web_Generated.php';
 
 include_once ("WebsiteScript.php");
 include_once ("WebsiteNavigation.php");

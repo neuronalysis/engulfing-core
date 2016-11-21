@@ -185,15 +185,15 @@ trait WebsiteNavigation {
 			$sitemap = json_decode($this->siteMapDefinition);
 			
 			
-			foreach($sitemap->pages[0]->pages as $page_item) {
+			foreach($sitemap->Pages[0]->Pages as $page_item) {
 				
-				if (isset($page_item->pages)) {
+				if (isset($page_item->Pages)) {
 					$html .= '
 						<li class="dropdown active">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">' . $page_item->name . '<span class="caret"></span></a>
 							<ul class="dropdown-menu" role="menu">';
 					
-					foreach($page_item->pages as $subpage_item) {
+					foreach($page_item->Pages as $subpage_item) {
 						if (isset($subpage_item->urlPartName)) {
 							$html .= '<li><a href="' . $home_url . strtolower($subpage_item->urlPartName) . '">' . $subpage_item->name . '</a></li>
 						';

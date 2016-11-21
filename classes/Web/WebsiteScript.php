@@ -5,7 +5,7 @@ trait WebsiteScript {
 	
 	function __construct() {
 	}
-	function renderHTMLScripts($auth) {
+	function renderHTMLScripts() {
 		$topdomain = $this->getTopDomain();
 		
 		$scope = $this->getScopeName();
@@ -594,8 +594,6 @@ trait WebsiteScript {
 		$scopeDepth = $this->getScopeDepth();
 		$objectName = $this->getRefererScopeName($scope);
 		
-		//echo "scope: " . $scope . "; " . $scopeDepth . "; " . $objectName . "\n";
-		
 		$html = "";
 		
 		
@@ -618,16 +616,16 @@ trait WebsiteScript {
 			 		';
 				} else if ($scopeDepth == 2) {
 					$html .= '
-		<script src="' . $this->getScriptSource($scope, 'js/main_' . $objectName . '.js') . '"></script>
+		<script src="' . $this->getScriptSource($scope, 'js/main_' . $this->singularize(strtolower($objectName)) . '.js') . '"></script>
 			 		';
 				}
 			}
-			/*if ($this->siteMapDefinition) {
+			if ($this->siteMapDefinition) {
 				$onPage = false;
 				
 				$sitemap = json_decode($this->siteMapDefinition);
 				
-				foreach($sitemap->pages[0]->pages as $page_item) {
+				foreach($sitemap->Pages[0]->Pages as $page_item) {
 					if (strpos($this->website_url, strtolower($page_item->name)) !== false  ) {
 						$html .= '
 		<script src="/js/main_' . $this->singularize(strtolower($page_item->name)) . '.js"></script>
@@ -653,7 +651,7 @@ trait WebsiteScript {
 			 		';
 					}
 				}
-			}*/
+			}
 			
 		}
 		
@@ -704,7 +702,7 @@ trait WebsiteScript {
 			if ($this->siteMapDefinition) {
 				$sitemap = json_decode($this->siteMapDefinition);
 			
-				foreach($sitemap->pages[0]->pages as $page_item) {
+				foreach($sitemap->Pages[0]->Pages as $page_item) {
 					if (file_exists($this->desc['ontology']['js'] . 'js/models/model_' . $this->singularize(strtolower($page_item->name)) . '.js')) {
 						$html .= '<script src="' . $this->desc['ontology']['js'] . 'js/models/model_' . $this->singularize(strtolower($page_item->name)) . '.js"></script>
     							';
