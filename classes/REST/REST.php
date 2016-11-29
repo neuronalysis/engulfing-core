@@ -120,11 +120,15 @@ class REST {
 		
 		$limit = null;
 		
-		if (isset($_GET['limit'])) {
+		/*if (isset($_GET['limit'])) {
 			$limit = $_GET['limit'];
-		}
+		}*/
 	
-		$observations = $this->orm->getByNamedFieldValues($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID"), array($id), false, null, false, false, null, "date DESC", $limit);
+		if ($ontologyClassName === "indicator") {
+			$observations = $this->orm->getByNamedFieldValues($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID", "date"), array($id, "2014-01-01"), false, null, false, false, null, "date ASC", $limit, array(lcfirst($ontologyClassName) . "ID" => "=", "date" => ">="));
+		} else if ($ontologyClassName === "instrument") {
+			$observations = $this->orm->getByNamedFieldValues($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID", "date"), array($id, "2015-01-01"), false, null, false, false, null, "date ASC", $limit, array(lcfirst($ontologyClassName) . "ID" => "=", "date" => ">="));
+		}
 		
 		foreach($observations as $item) {
 			unset($item->id);

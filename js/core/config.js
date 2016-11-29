@@ -18,7 +18,7 @@ if (window.location.href.indexOf("localhost") === -1) {
 		var apiHost = "http://localhost.ontologydriven/api/";
 	} else {
 		var kmapiHost = "http://localhost.ontologydriven/api/";
-		var apiHost = "http://localhost.generated/api/";
+		var apiHost = "http://localhost.ontologydriven/api/";
 	}
 	
 	var odBase = "http://localhost.ontologydriven/";

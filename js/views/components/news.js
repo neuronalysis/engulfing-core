@@ -6,16 +6,34 @@ window.NewsView = Backbone.View.extend({
 		this.options = options;
 	},
 	render : function() {
-		if (this.collection.at(0) == null)
-			return false;
+		var titleHTML = '';
+		titleHTML += '<h2>' + this.options.objectName + '</h2>';
 		
-		$(this.el).append('<h2>' + this.options.objectName + '</h2>');
-				
-		_.each(this.collection.models, function(object) {
-			$(this.el).append(new NewsItemView({
-				model : object
-			}).render().el);
-		}, this);
+		this.$el.append(titleHTML);
+		
+		var newsCollection = this.collection;
+		
+		newsPromise = newsCollection.fetch({reset: true});
+		
+		var self = this;
+		
+		var spinnerHTML = '';
+		spinnerHTML += '<div class="spinner-div">' +
+	      '<span class="glyphicon glyphicon-refresh spin"></span>';
+		spinnerHTML += '</div>';
+		
+		self.$el.append(spinnerHTML);
+		
+		$.when(newsPromise).then(function() {
+			self.$("div.spinner-div").remove();
+
+			
+			_.each(newsCollection.models, function(object) {
+				$(self.el).append(new NewsItemView({
+					model : object
+				}).render().el);
+			}, self);
+		});
 		
 		
 		return this;

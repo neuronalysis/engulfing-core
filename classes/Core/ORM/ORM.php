@@ -59,7 +59,7 @@ class ORM {
 		if (!$noPaging) $sql_paging = $this->getPaging($object_name, $orderby, $limit);
 		
 		if ($explicitFields) {
-			$sql_select_fields = implode(",", $explicitFields );
+			$sql_select_fields = "*, " . implode(",", $explicitFields );
 		} else {
 			$sql_select_fields = "*";
 		}
@@ -67,6 +67,7 @@ class ORM {
 		$sql = "SELECT " . $sql_select_fields . " FROM " . $tableName . " " . $sql_paging;
 		
 		$objects = $this->executeQuery($sql, $object_name, null, true, $explicitFields, $includingProtected);
+		
 		
 		if (!$explicitFields || $this->convert) {
 			$objects = $this->convertStdClassesToObjects($objects, $object_name, $explicitFields);
@@ -89,7 +90,7 @@ class ORM {
 		
 		return $objects;
 	}
-	function getByNamedFieldValues($object_name, $fields, $values = null, $like = false, $paging = null, $eager = false, $noPaging = false, $cascades = null, $order = null, $limit = null) {
+	function getByNamedFieldValues($object_name, $fields, $values = null, $like = false, $paging = null, $eager = false, $noPaging = false, $cascades = null, $order = null, $limit = null, $keyOperators = null) {
 		$keyValues = $this->mergeFieldsAndValues($fields, $values);
 		$keyValues = $this->filterPersistableKeyValues($keyValues);
 		
@@ -102,7 +103,7 @@ class ORM {
 		$fields = array_keys($keyValues);
 		$values = array_values($keyValues);
 		
-		$sql .= $this->buildWhereClause($keyValues, $noPaging, $order, $object_name, $limit, $like);
+		$sql .= $this->buildWhereClause($keyValues, $noPaging, $order, $object_name, $limit, $like, $keyOperators);
 		
 		if ($this->debug) echo "getbynamedfield-sql: " . $sql . "\n";
 		

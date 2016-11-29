@@ -160,7 +160,7 @@ trait QueryBuilder {
 		
 		return $keyValues;
 	}
-	function buildWhereClause($keyValues, $noPaging, $order, $object_name, $limit, $like) {
+	function buildWhereClause($keyValues, $noPaging, $order, $object_name, $limit, $like, $keyOperators) {
 		$sql = "";
 		
 		$a=0;
@@ -168,6 +168,8 @@ trait QueryBuilder {
 			$sql_add = "";
 			
 			foreach($keyValues as $field_name => $value) {
+				//echo $field_name . " : " . $value . "\n";
+				
 				if ($field_name !== "order" && $field_name !== "sort_by" && $field_name !== "page" && $field_name !== "per_page" && (isset($value))) {
 					if ($a > 0) $sql_add .= " AND ";
 						
@@ -178,7 +180,12 @@ trait QueryBuilder {
 							$sql_add .= "DATEDIFF(" . $field_name . ",:" . $field_name . ") = 0";
 						}
 					} else {
-						$sql_add .= $field_name . "=:" . $field_name;
+						if ($keyOperators) {
+							$sql_add .= $field_name . $keyOperators[$field_name] . ":" . $field_name;
+						} else {
+							$sql_add .= $field_name . "=:" . $field_name;
+						}
+						
 					}
 						
 					$a++;
@@ -204,6 +211,8 @@ trait QueryBuilder {
 		if ($limit) {
 			$sql .= " LIMIT " . $limit;
 		}
+		
+		//echo $sql . "\n";
 		
 		return $sql;
 	}

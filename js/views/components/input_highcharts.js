@@ -25,6 +25,13 @@ var HighChartsView = InputView.extend({
 		
 		this.$el.html(this.template(data));
 		
+		var spinnerHTML = '';
+		spinnerHTML += '<div class="spinner-div" style="vertical-align: top;">' +
+	      '<span class="glyphicon glyphicon-refresh spin" style="vertical-align: top;"></span>';
+		spinnerHTML += '</div>';
+		
+		this.$(".form-group").append(spinnerHTML);
+		
 		if (model_observations === undefined || model_observations.length == 0) {
 			model_observations = new ObservationCollection();
 			
@@ -58,6 +65,8 @@ var HighChartsView = InputView.extend({
 			
 			model_observations.fetch({
 				success : function(model_observations) {
+					this.$(".spinner-div").remove();
+					
 					var series_data = new Array;
 					
 					for (var i = 0; i < model_observations.models.length; i++) {
@@ -69,9 +78,6 @@ var HighChartsView = InputView.extend({
 						);
 					}
 					
-					/*console.log({
-				            	y: series_data[0][1],
-				            	segmentColor: 'red'});*/
 					
 					this.$("#" + getPlural(model_observations.type)).highcharts({
 				        chart: {
@@ -125,18 +131,7 @@ var HighChartsView = InputView.extend({
 				            pointInterval: 24 * 3600 * 1000,
 				            pointStart: Date.UTC(1906, 0, 1),
 				            data: series_data
-				        }/*, {
-				            type: 'coloredline',
-				            data: [{
-				                    x: series_data[series_data.length-2][0],
-				                    y: series_data[series_data.length-2][1],
-				                    segmentColor: 'red'
-				            },{
-				            		x: series_data[series_data.length-1][0],
-			                    	y: series_data[series_data.length-2][1],
-				                    segmentColor: 'red'
-				            }]
-				        }*/]
+				        }]
 			        });
 				}
 			});

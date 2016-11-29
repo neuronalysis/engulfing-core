@@ -10,38 +10,35 @@ window.OntologyTeaserView = Backbone.View.extend({
 		var titleHTML = '';
 		titleHTML += '<h2>Economics</h2>';
 		
-		var subtitleHTML = '';
-		subtitleHTML += '<div class="media-body">' +
-	      '<h4 class="media-heading">' + '<a href="' + this.model.getUrl() + '">' + this.model.get('name') + '</a>' + ' last updated on ' + new Date(this.model.get('lastIndicatorObservationDate')).format() + '</h4>';
+		this.$el.append(titleHTML);
 		
-		subtitleHTML += '</div>';
+		var teaserModel = this.model;
 		
+		teaserModelPromise = teaserModel.fetch({reset: true});
 		
+		var self = this;
 		
-		var chartsView = new HighChartsView({model : this.model, observationsLimit : 60});
-		chartsView.withLabel = false;
-		chartsView.field = 'IndicatorObservations';
+		var spinnerHTML = '';
+		spinnerHTML += '<div class="economics-spinner-div">' +
+	      '<span class="glyphicon glyphicon-refresh spin"></span>';
+		spinnerHTML += '</div>';
 		
+		self.$el.append(spinnerHTML);
 		
-		//teaserHTML += economicsView.render().el.html;
+		//this.$el.append(titleHTML).append(subtitleHTML).append(chartsView.render().$el);
+		$.when(teaserModelPromise).then(function() {
+			self.$("div.economics-spinner-div").replaceWith(
+					'<h4 class="media-heading">' + '<a href="' + teaserModel.getUrl() + '">' + teaserModel.get('name') + '</a>' + ' last updated on ' + new Date(teaserModel.get('lastIndicatorObservationDate')).format() + '</h4>'
+					);
+			
+			var chartsView = new HighChartsView({model : teaserModel, observationsLimit : 60});
+			chartsView.withLabel = false;
+			chartsView.field = 'IndicatorObservations';
+			
+			self.$el.append(chartsView.render().$el);
+		});
 		
-		//this.$el.html(this.template(data));
-    	
-		
-		//$(this.el).append('<h2>' + this.options.objectName + '</h2>');
-				
-		/*_.each(this.options.summaryData.get('AccessDestinations').models, function(object) {
-			newsHTML += '<li class="list-group-item">' +
-			  '<span class="badge">' + object.get('visits') + '</span>' +
-			  '<a href="' + object.get('url') + '">' + object.get('title') + '</a>' +
-			  '</li>';
-		}, this);
-		*/
-		
-		
-		this.$el.append(titleHTML).append(subtitleHTML).append(chartsView.render().$el);
-		
-		
+
 		return this;
 	}
 });
@@ -58,35 +55,33 @@ window.FinancialMarketsTeaserView = Backbone.View.extend({
 		var titleHTML = '';
 		titleHTML += '<h2>Financial Markets</h2>';
 		
-		var subtitleHTML = '';
-		subtitleHTML += '<div class="media-body">' +
-	      '<h4 class="media-heading">' + '<a href="' + this.model.getUrl() + '">' + this.model.get('name') + '</a>' + ' last updated on ' + new Date(this.model.get('lastInstrumentObservationDate')).format() + '</h4>';
+		this.$el.append(titleHTML);
 		
-		subtitleHTML += '</div>';
+		var teaserModel = this.model;
 		
+		financialmarketsTeaserPromise = teaserModel.fetch({reset: true});
 		
+		var self = this;
 		
-		var chartsView = new HighChartsView({model : this.model, observationsLimit : 250});
-		chartsView.withLabel = false;
-		chartsView.field = 'InstrumentObservations';
+		var spinnerHTML = '';
+		spinnerHTML += '<div class="spinner-div">' +
+	      '<span class="glyphicon glyphicon-refresh spin"></span>';
+		spinnerHTML += '</div>';
 		
-		//teaserHTML += economicsView.render().el.html;
+		self.$el.append(spinnerHTML);
 		
-		//this.$el.html(this.template(data));
-    	
-		
-		//$(this.el).append('<h2>' + this.options.objectName + '</h2>');
-				
-		/*_.each(this.options.summaryData.get('AccessDestinations').models, function(object) {
-			newsHTML += '<li class="list-group-item">' +
-			  '<span class="badge">' + object.get('visits') + '</span>' +
-			  '<a href="' + object.get('url') + '">' + object.get('title') + '</a>' +
-			  '</li>';
-		}, this);
-		*/
-		
-		
-		this.$el.append(titleHTML).append(subtitleHTML).append(chartsView.render().$el);
+		//this.$el.append(titleHTML).append(subtitleHTML).append(chartsView.render().$el);
+		$.when(financialmarketsTeaserPromise).then(function() {
+			self.$("div.spinner-div").replaceWith(
+					'<h4 class="media-heading">' + '<a href="' + teaserModel.getUrl() + '">' + teaserModel.get('name') + '</a>' + ' last updated on ' + new Date(teaserModel.get('lastInstrumentObservationDate')).format() + '</h4>'
+					);
+			
+			var chartsView = new HighChartsView({model : teaserModel, observationsLimit : 250});
+			chartsView.withLabel = false;
+			chartsView.field = 'InstrumentObservations';
+			
+			self.$el.append(chartsView.render().$el);
+		});
 		
 		
 		return this;

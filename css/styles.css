@@ -58,6 +58,40 @@ body {
     }
 }
 
+/* Glyphicon Spinner Rotate */
+.spin{
+     -webkit-transform-origin: 50% 50%;
+     transform-origin:50% 50%;
+     -ms-transform-origin:50% 50%; /* IE 9 */
+     -webkit-animation: spin .8s infinite linear;
+     -moz-animation: spin .8s infinite linear;
+     -o-animation: spin .8s infinite linear;
+     animation: spin .8s infinite linear;
+}
+@-moz-keyframes spin {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* Custom page CSS
 -------------------------------------------------- */
