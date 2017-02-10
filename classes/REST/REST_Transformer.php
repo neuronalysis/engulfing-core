@@ -2,15 +2,21 @@
 class REST_Transformer {
 	use Helper;
 	
+	var $baseClass;
+	var $namespace;
+	
 	function __construct() {
 	}
-	function deserialize_JSON($json, $class_name = null, $sticktoclass = false) {
+	function deserialize_JSON($json, $class_name = null, $sticktoclass = false, $namespace = null) {
+		$this->baseClass = $class_name;
+		$this->namespace = $namespace;
+		
 		$data = json_decode($json, TRUE);
 		
 		if (isset($data[0])) {
-			$object = $this->mapDataToObject($data[0], $class_name);
+			$object = $this->mapDataToObject($data[0], $class_name, $namespace);
 		} else {
-			$object = $this->mapDataToObject($data, $class_name);
+			$object = $this->mapDataToObject($data, $class_name, $namespace);
 		}
 		
 		return $object;
@@ -19,7 +25,18 @@ class REST_Transformer {
 		if (class_exists($class_name)) {
 			$object = new $class_name;
 		} else {
-			$object = new stdClass();
+			if (class_exists($this->baseClass . $class_name)) {
+				$object_based = $this->baseClass . $class_name;
+				$object = new $object_based;
+			} else {
+				if (class_exists("\\" . $this->namespace . "\\" . $class_name)) {
+					$object_based = "\\" . $this->namespace . "\\" . $class_name;
+					$object = new $object_based;
+				} else {
+					$object = new stdClass();
+				}
+			}
+			
 		}
 		
 		if (is_array($data)) {

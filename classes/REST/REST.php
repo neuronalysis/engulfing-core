@@ -11,6 +11,8 @@ class REST {
 		$this->orm = new ORM();
 	}
 	function get($id = null, $app = null) {
+		$this->orm->db_scope = $this->getScopeName();
+		
 		$ontologyClassName = $this->orm->getOntologyClassName();
 		
 		if ($app) {
@@ -95,6 +97,7 @@ class REST {
 		} else {
 			if ($id) {
 				$obj = new $ontologyClassName();
+				
 				if ($ontologyClassName === "indicator") {
 					$result = $this->orm->getById($ontologyClassName, $id);
 						
@@ -102,6 +105,18 @@ class REST {
 					unset($result->Release->ReleasePublications);
 				} else if ($ontologyClassName === "instrument") {
 					$result = $this->orm->getById("Instrument", $id);
+				} else if ($ontologyClassName === "\\OCR\\Document") {
+					$result = $this->orm->getById("\\OCR\\Document", $id);
+					
+					$doc = new DOMDocument();
+					$doc->loadXML($result->Pages[0]->altoXML);
+						
+					
+					$xmlconv = new XMLConverter("ALTO", "/Page[ID='" . $id . "']");
+					$alto = $xmlconv->convertToObjectTree($doc);
+					$result->Pages[0]->ALTO = $alto;
+					
+					unset($result->Pages[0]->altoXML);
 				} else {
 					$result = $this->orm->getById($ontologyClassName, $id);
 				}
@@ -260,32 +275,6 @@ class REST {
 
 		return $output;
 	}
-	function getScopeName($path = null) {
-		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
-		
-		if ($path) {
-			$pathToUse = str_ireplace("http://", "", $path);
-		} else {
-			$pathToUse = $url_parsed ['path'];
-		}
-		
-		$levels = explode ( "/", $pathToUse );
-
-		if ($pathToUse === "?login=failed") return null;
-		
-		if (!isset($levels[1])) return null;
-		
-		if (strpos($pathToUse, "localhost") !== false) {
-			$scopename = $levels[1];
-		} else if (strpos($pathToUse, "/api/") !== false) {
-			$apiIndex = array_search("api", $levels);
-			$scopename = $levels[$apiIndex+1];
-		} else {
-			$scopename = $levels[1];
-		}
-		
-		return $scopename;
-	}
 	function getScopeObjectName($path = null) {
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
 	
@@ -311,7 +300,7 @@ class REST {
 	
 		return $this->singularize($objectname);
 	}
-	function loadRoutes($app) {
+	function loadRoutes($app, $ressourceRoot = null) {
 		$scopeName = $this->getScopeName();
 	
 		if (strlen($scopeName) < 3) {
@@ -320,20 +309,23 @@ class REST {
 			$classScopeName = ucfirst($scopeName);
 		}
 		
-		
 		if ($scopeName !== "") {
-			if (file_exists(__DIR__ . '/../../../../engulfing/engulfing-core/classes/' . $classScopeName . '/')) {
-				require_once __DIR__ . '/../../../../engulfing/engulfing-core/classes/' . $classScopeName . '/' . $classScopeName . '.php';
-			} else if (file_exists(__DIR__ . '/../../../../engulfing/engulfing-extensions/classes/' . $classScopeName . '/')) {
-				require_once __DIR__ . '/../../../../engulfing/engulfing-extensions/classes/' . $classScopeName . '/' . $classScopeName . '.php';
-			} else {
-				if (file_exists(__DIR__ . '/../../../../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/')) {
-					require_once __DIR__ . '/../../../../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/' . $classScopeName . '.php';
-				}
+			if (!$ressourceRoot) {
+				$ressourceRoot = __DIR__;
 			}
 			
-			$contents = glob(__DIR__  . '/../../../../api/ressources/' . $scopeName . '/' . '*.*');
-			
+			if (file_exists($ressourceRoot . '/../../../../engulfing/engulfing-core/classes/' . $classScopeName . '/')) {
+				require_once $ressourceRoot . '/../../../../engulfing/engulfing-core/classes/' . $classScopeName . '/' . $classScopeName . '.php';
+			} else if (file_exists($ressourceRoot . '/../../../../engulfing/engulfing-extensions/classes/' . $classScopeName . '/')) {
+				require_once $ressourceRoot . '/../../../../engulfing/engulfing-extensions/classes/' . $classScopeName . '/' . $classScopeName . '.php';
+			} else {
+				if (file_exists($ressourceRoot . '/../../../../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/')) {
+					require_once $ressourceRoot . '/../../../../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/' . $classScopeName . '.php';
+				}
+			}
+				
+			$contents = glob($ressourceRoot  . '/ressources/' . $scopeName . '/' . '*.*');
+				
 			foreach ($contents as $file_name) {
 				if (strpos($file_name, "task_") === false) {
 					require_once $file_name;

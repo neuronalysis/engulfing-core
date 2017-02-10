@@ -49,8 +49,6 @@ trait WebsiteNavigation {
 		
 		
 		
-		
-		
 		$html .= '
 					<a class="navbar-brand" href="' . $home_url . '">' . $this->getHomeTitle() . '</a>';
 	

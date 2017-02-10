@@ -149,16 +149,88 @@ var SingleObjectView = BaseView.extend({
 		
 		return false;
 	},
-	getFieldViews : function() {
+	getFieldViews : function(model) {
+		if (model === undefined) {
+			model = this.model;
+		}
+		
 		var fieldViews = [];
 		
-		for(field in this.model.attributes) {
-			if (field !== "id" && field.slice(-2) !== "ID" && !this.model.isProtected(field)) {
-				if (field.substring(0, 8) !== "Relation" && field.slice(-12) !== "Observations" && !this.isGroupFieldView(field)) {
+		for(field in model.attributes) {
+			if (field !== "id" && field !== "name" && field.slice(-2) !== "ID" && !model.isProtected(field)) {
+				if (field.substring(0, 3) !== "Rel") {
 					fieldView = this.createFieldView(field);
 					
 					fieldViews.push(fieldView);
 				}
+			}
+		}
+		
+		if (!model.isConcrete()) {
+			var relations_ococ = model.get('OntologyClass').get('RelationOntologyClassOntologyClasses');
+			
+			for (var i=0; i < relations_ococ.length; i++) {
+				if (relations_ococ.models[i].get('OntologyRelationType').get('name') !== "extends" && relations_ococ.models[i].get('OntologyRelationType').get('name') !== "hasMany") {
+					if (!relations_ococ.models[i].get('IncomingOntologyClass').isFieldGroup()) {
+						var entityFieldName = relations_ococ.models[i].get('IncomingOntologyClass').get('name');
+						
+						var hasEntity = false;
+						for (var j=0; j < this.model.get('RelationOntologyClassOntologyClassEntities').models.length; j++) {
+							if (model.get('RelationOntologyClassOntologyClassEntities').models[j].get('IncomingOntologyClassEntity').get('OntologyClass').get('name') === entityFieldName) {
+								hasEntity = true;
+							}
+						}
+						
+						if (!hasEntity) {
+							var classEntity = window["IncomingOntologyClassEntity"].findOrCreate({
+								id : null,
+								OntologyClass : relations_ococ.models[i].get('IncomingOntologyClass')
+							});
+							
+							var relClassEntity = window["RelationOntologyClassOntologyClassEntity"].findOrCreate({
+								id : null,
+								IncomingOntologyClassEntity : classEntity,
+								OntologyRelationType : relations_ococ.models[i].get('OntologyRelationType')
+							});
+							
+							this.model.get('RelationOntologyClassOntologyClassEntities').models.push(relClassEntity);
+						}
+						
+						fieldView = this.createEntityFieldView(entityFieldName);
+						
+						fieldViews.push(fieldView);
+					}
+				}
+			}
+			
+			var relations_ocop = this.model.get('OntologyClass').get('RelationOntologyClassOntologyProperties');
+			
+			for (var i=0; i < relations_ocop.length; i++) {
+				var entityFieldName = relations_ocop.models[i].get('OntologyProperty').get('name');
+				
+				var hasEntity = false;
+				for (var j=0; j < this.model.get('RelationOntologyClassOntologyPropertyEntities').models.length; j++) {
+					if (this.model.get('RelationOntologyClassOntologyPropertyEntities').models[j].get('OntologyPropertyEntity').get('OntologyProperty').get('name') === entityFieldName) {
+						hasEntity = true;
+					}
+				}
+				if (!hasEntity) {
+					var propertyEntity = window["OntologyPropertyEntity"].findOrCreate({
+						id : null,
+						OntologyProperty : relations_ocop.models[i].get('OntologyProperty')
+					});
+					
+					var relPropertyEntity = window["RelationOntologyClassOntologyPropertyEntity"].findOrCreate({
+						id : null,
+						OntologyPropertyEntity : propertyEntity
+					});
+					
+					this.model.get('RelationOntologyClassOntologyPropertyEntities').models.push(relPropertyEntity);
+				}
+				
+				fieldView = this.createEntityFieldView(entityFieldName);
+				
+				fieldViews.push(fieldView);
 			}
 		}
 		
@@ -173,7 +245,7 @@ var SingleObjectView = BaseView.extend({
 			var entityFieldName = relations[i].related.type;
 			
 			if (entityFieldName === groupName) {
-				
+				fieldViews = this.getFieldViews(this.model.getOntologyClassEntityByName(groupName));
 			} else if ("ImpactFunctions" === groupName && entityFieldName == "ImpactFunction") {
 				var groupClassEntities = this.model.getEntities(entityFieldName);
 				
@@ -230,10 +302,19 @@ var SingleObjectView = BaseView.extend({
 				}
 			} else if (getPlural(entityFieldName) === groupName) {
 				if (groupName.indexOf("Observations") !== -1) {
-					var chartsView = new HighChartsView({model : this.model, observationsLimit: 250});
-					chartsView.field = groupName;
-					
-					fieldViews.push(chartsView);
+					if (this.model.isConcrete()) {
+						var chartsView = new HighChartsView({model : this.model, observationsLimit: 250});
+						chartsView.field = groupName;
+						
+						fieldViews.push(chartsView);
+					} else {
+						var groupClassEntities = this.model.getEntities(entityFieldName);
+						
+						var chartsView = new HighChartsView({model : this.model, observationsLimit : 250});
+						chartsView.field = groupName;
+						
+						fieldViews.push(chartsView);
+					}
 				} else {
 					var groupClassEntities = this.model.getEntities(entityFieldName);
 					

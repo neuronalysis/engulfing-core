@@ -30,6 +30,8 @@ trait ObjectHelper {
 	}
 	function getPersistanceClassName($objectName) {
 		$persistanceClassName = "";
+		
+		
 		if (class_exists($objectName)) {
 			if (substr(get_parent_class($objectName), -10, 10) === "_Generated") {
 				$persistanceClassName = $objectName;
@@ -44,7 +46,23 @@ trait ObjectHelper {
 			$persistanceClassName = $objectName;
 		}
 		
+		$persistanceClassName = $this->getNameWithoutNamespace($persistanceClassName);
+		
 		return $persistanceClassName;
+	}
+	function getNameWithoutNamespace($objectName) {
+		$nsSplit = explode("\\", $objectName);
+		
+		return $nsSplit[count($nsSplit)-1];
+	}
+	function getNamespaceByObjectName($objectName) {
+		$nsSplit = explode("\\", $objectName);
+	
+		if (count($nsSplit) > 1) {
+			return $nsSplit[1];
+		}
+		
+		return null;
 	}
 	function setModificationInfo($object) {
 		if (!property_exists($object, 'createdBy')) return null;
@@ -93,6 +111,7 @@ trait ObjectHelper {
 		if ($objectName . "_Generated" !== get_parent_class($objectName)) {
 			$checkExistance = true;
 		}
+		
 		
 		if ($checkExistance) {
 			$persistanceClassName = $this->getPersistanceClassName($objectName);
@@ -241,24 +260,32 @@ trait ObjectHelper {
 					}
 					$referencedObjects[$key] = $refObject;
 				} else if ($relationshipType == "toMany") {
-					$idFieldname = lcfirst($object_name) . "ID";
+					$idFieldname = lcfirst($this->getNameWithoutNamespace($object_name)) . "ID";
 					
 					$refObjectsTotalAmount = $this->getTotalAmount($this->singularize($key));
 					
 					$refObjectName = $this->singularize($key);
 					
-					if ($refObjectsTotalAmount > 15 && class_exists($refObjectName)) {
-						$refObject = new $refObjectName();
-								
-						$refObjects = $this->getByNamedFieldValues($this->singularize($key), array($idFieldname), array($stdClass->id), false, null, false, true, null, $refObject->getDefaultOrder(), 10);
+					if (class_exists($refObjectName)) {
+						if ($refObjectsTotalAmount > 15) {
+							$refObject = new $refObjectName();
+							
+							$refObjects = $this->getByNamedFieldValues($refObjectName, array($idFieldname), array($stdClass->id), false, null, false, true, null, $refObject->getDefaultOrder(), 10);
+						}
 					} else {
-						$refObjects = $this->getByNamedFieldValues($this->singularize($key), array($idFieldname), array($stdClass->id), false, null, false, true);
+						$ns = $this->getNamespaceByObjectName($object_name);
+						if ($ns) {
+							$refObjectName = "\\" . $ns . "\\" . $refObjectName;
+						}
+						
+						$refObjects = $this->getByNamedFieldValues($refObjectName, array($idFieldname), array($stdClass->id), false, null, false, true);
 					}
 					
 					$manyObjects = array();
 				
 					foreach($refObjects as $refObjectItem) {
 						$pulled = $this->getById(get_class($refObjectItem), $refObjectItem->id, true, array($object_name));
+						
 						array_push($manyObjects, $pulled);
 					}
 					
@@ -303,7 +330,6 @@ trait ObjectHelper {
 			}
 		}
 		
-		//echo $key . ": " . $relationshipType . "\n";
 		return $relationshipType;
 	}
 	function getOntologyClassName($object = null) {
@@ -342,6 +368,10 @@ trait ObjectHelper {
 			$OntologyClassname = $this->singularize($OntologyClassname);
 			
 			if (class_exists($OntologyClassname)) $OntologyClassname = get_class(new $OntologyClassname());
+		}
+		
+		if (class_exists("\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname)) {
+			$OntologyClassname = "\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname;
 		}
 		
 		return $OntologyClassname;

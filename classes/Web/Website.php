@@ -113,7 +113,7 @@ class Website extends Website_Generated {
     	if (!$this->title) {
     		$this->title = str_replace("Website_", "", get_class($this));
     	}
-    	
+    	 
     	return $this->title;
     }
     function getHomeUrl() {
@@ -211,6 +211,8 @@ class Website extends Website_Generated {
        	}
     }
     function loadOntologiesFromSiteMap($siteMap) {
+    	if (!isset($siteMap->Ontologies)) return;
+    	
     	$ontologies = $siteMap->Ontologies;
     	 
     	foreach($ontologies as $ontology) {

@@ -21,6 +21,8 @@ tpl = {
 				'../../components/backgrid',
 				'../../components/backgrid_actions',
 
+				'../../components/editor',
+				
 				'../../components/input_datepicker',
 				'../../components/input_textarea',
 				'../../components/input_text',
@@ -455,6 +457,11 @@ function getSubDomain() {
 		}
 	} else if (subdomain.indexOf("km") > -1) {
 		var checkSplit = subdomain.split("km/");
+		if (checkSplit[1].length > 0) {
+			subdomain += "../";
+		}
+	} else if (subdomain.indexOf("kokos") > -1) {
+		var checkSplit = subdomain.split("kokos/");
 		if (checkSplit[1].length > 0) {
 			subdomain += "../";
 		}

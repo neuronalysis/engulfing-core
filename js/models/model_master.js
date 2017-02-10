@@ -37,6 +37,7 @@ window.Master = Backbone.RelationalModel.extend({
     	
     	return url;
     },
+    
     getRelatedObjects: function () {
     	if (this.isConcrete()) {
     		if (this.type !== "ReleasePublication") {

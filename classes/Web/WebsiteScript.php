@@ -285,16 +285,18 @@ trait WebsiteScript {
 				null)
 		;
 		
-		foreach (array('km', 'nlp', 'codegeneration', 'edi', 'wiki', 'admin') as $scopeItem) {
-			$html .= $this->renderHTMLScriptByDirectory(
-					$scopeItem,
-					"js",
-					"ontologydriven." . $scopeItem . ".min.js",
-					null,
-					array("app.min.js", "ontologydriven." . $scopeItem . ".min.js","main", "config", "utils")
-					);
+		
+		if (!in_array($scope, array("kokos"))) {
+			foreach (array('km', 'nlp', 'codegeneration', 'edi', 'wiki', 'admin') as $scopeItem) {
+				$html .= $this->renderHTMLScriptByDirectory(
+						$scopeItem,
+						"js",
+						"ontologydriven." . $scopeItem . ".min.js",
+						null,
+						array("app.min.js", "ontologydriven." . $scopeItem . ".min.js","main", "config", "utils")
+						);
+			}
 		}
-
 		
 		return $html;
 	}
@@ -642,7 +644,11 @@ trait WebsiteScript {
 				
 				
 			} else {
-				if ($this->getScopeObjectName() === "monitoring") {
+				if ($this->getScopeObjectName() === "editor") {
+					$html .= '
+		<script src="' . $this->getScriptSource($scope, 'js/main_editor.js') . '"></script>
+			 		';
+				} else if ($this->getScopeObjectName() === "monitoring") {
 					
 				} else {
 					if (!$this->activescope_usermanagement) {

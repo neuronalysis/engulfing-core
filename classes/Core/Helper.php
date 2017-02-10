@@ -65,10 +65,16 @@ trait Helper {
 						case 'g':
 							$plural = $singular.'s';
 							break;
+						case 'k':
+							$plural = $singular.'s';
+							break;
 						case 'm':
 							$plural = $singular.'s';
 							break;
 						case 'n':
+						case 'p':
+							$plural = $singular.'s';
+							break;
 						case 'r':
 						case 't':
 							$plural = $singular.'s';
@@ -239,19 +245,35 @@ trait Helper {
 		$chr = mb_substr ($str, $offset, 1, "UTF-8");
 		return mb_strtolower($chr, "UTF-8") != $chr;
 	}
-	function getScopeName() {
+	function getScopeName($path = null) {
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
-		$levels = explode ( "/", $url_parsed ['path'] );
 		
-		if (strpos($url_parsed ['path'], "localhost") !== false) {
-			$scopename = $levels[1];
-		} else if (strpos($url_parsed ['path'], "/api/") !== false) {
-			$apiPos = array_search("api", $levels);
-			$scopename = $this->singularize($levels[$apiPos+1]);
+		if ($path) {
+			$pathToUse = str_ireplace("http://", "", $path);
+		} else {
+			$pathToUse = $url_parsed ['path'];
+		}
+		
+		$levels = explode ( "/", $pathToUse );
+		
+		if ($pathToUse === "?login=failed") return null;
+		
+		if (!isset($levels[1])) return null;
+		
+		if ($this->isLocalRequest()) {
+			if (strpos($pathToUse, "/api/") !== false) {
+				$apiIndex = array_search("api", $levels);
+				$scopename = $levels[$apiIndex+1];
+			} else {
+				$scopename = $levels[1];
+			}
+		} else if (strpos($pathToUse, "/api/") !== false) {
+			$apiIndex = array_search("api", $levels);
+			$scopename = $levels[$apiIndex+1];
 		} else {
 			$scopename = $levels[1];
 		}
-	
+		
 		return $scopename;
 	}
 	function getScopeObjectName() {
@@ -295,7 +317,9 @@ trait Helper {
 			if ($this->generated) {
 				$topdomain = "generated/" . strtolower($this->title);
 			} else {
-				$ontology = new $this->activescope_Ontology->name;
+				if(class_exists($this->activescope_Ontology->name)) {
+					$ontology = new $this->activescope_Ontology->name;
+				}
 				if (isset($ontology->topdomain)) {
 					$topdomain = $ontology->topdomain;
 				} else {

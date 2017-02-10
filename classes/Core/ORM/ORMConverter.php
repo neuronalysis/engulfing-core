@@ -16,6 +16,7 @@ trait ORMConverter {
 			}
 			
 		}
+		
 		if (class_exists($object_name) && isset($stdClass)) {
 			foreach($stdClass as $key => $value) {
 				$corrected = $key;

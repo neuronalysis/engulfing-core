@@ -90,7 +90,7 @@ class ORM {
 		
 		return $objects;
 	}
-	function getByNamedFieldValues($object_name, $fields, $values = null, $like = false, $paging = null, $eager = false, $noPaging = false, $cascades = null, $order = null, $limit = null, $keyOperators = null) {
+	function getByNamedFieldValues($object_name, $fields, $values = null, $like = false, $paging = null, $eager = false, $noPaging = false, $cascades = null, $order = null, $limit = null, $keyOperators = null, $explicitFields = null) {
 		$keyValues = $this->mergeFieldsAndValues($fields, $values);
 		$keyValues = $this->filterPersistableKeyValues($keyValues);
 		
@@ -98,7 +98,13 @@ class ORM {
 		
 		$db_scope = $this->getOntologyScope($object_name);
 		
-		$sql = "SELECT * FROM " . $this->getTableNameByObjectName($object_name);
+		if ($explicitFields) {
+			$sql_select_fields = "*, " . implode(",", $explicitFields );
+		} else {
+			$sql_select_fields = "*";
+		}
+		
+		$sql = "SELECT " . $sql_select_fields . " FROM " . $this->getTableNameByObjectName($object_name);
 		
 		$fields = array_keys($keyValues);
 		$values = array_values($keyValues);
@@ -124,12 +130,27 @@ class ORM {
 			$stmt->execute();
 			
 			$stdObjects = $stmt->fetchAll(PDO::FETCH_OBJ);
-			
+				
 			if (class_exists($object_name)) {
 				$objects = $this->convertStdClassesToObjects($stdObjects, $object_name);
-			
 			} else {
 				$objects = $stdObjects;
+			}
+			
+			for($i=0; $i<count($objects); $i++) {
+				if(isset($cascades) && isset($explicitFields)) {
+					$j=0;
+					
+					foreach($cascades as $cascade) {
+						$explicitField = $explicitFields[$j];
+						
+						$objects[$i]->$cascade = $this->getById($cascade, $stdObjects[$i]->$explicitField);
+						
+						$j++;
+					}
+					
+					
+				}
 			}
 			
 			$db = null;
@@ -144,7 +165,7 @@ class ORM {
 	function getById($object_name, $id, $eager = true, $excludes = array()) {
 		$this->startLoading($object_name, $id);
 		if ($object = $this->isLoadedObject($object_name, $id)) return $object;
-		
+			
 		if (!$this->isPersistableObject($object_name)) return $this->loadNonPersistableObject($object_name, $id);
 		
 		$sql = "SELECT * FROM " . $this->getTableNameByObjectName($object_name) . " WHERE id=:id";
@@ -163,30 +184,34 @@ class ORM {
 			if (isset($objects[0])) {
 				$object = $objects[0];
 				
+				if ($object_name == "RelationIndicatorImpactFunction") {
+					$indicator = $this->getById("Indicator", $object->indicatorID, false);
+						
+					if (isset($objects[0]->impactFunctionID)) {
+						$impactfunctions = $this->executeQuery(
+								"SELECT * FROM impactfunctions WHERE id=:id",
+								"ImpactFunction", array("id" => $objects[0]->impactFunctionID));
+							
+						$instrument = $this->getById("Instrument", $impactfunctions[0]->instrumentID, false);
+							
+						$impactFunction = $this->convertStdClassToObject($impactfunctions, "ImpactFunction");
 					
-				if ($object_name !== "RelationIndicatorImpactFunction") {
+						$impactFunction->Instrument = $instrument;
+					
+						$object->ImpactFunction = $impactFunction;
+					}
+						
+					$object->Indicator = $indicator;
+				} else if ($object_name == "Underlying") {
+					$sector = $this->getById("Sector", $object->sectorID, false);
+					
+					$object->Sector = $sector;
+				} else {
 					$referencedObjects = $this->loadReferencedObjects($object, $object_name, $excludes);
-					
+						
 					foreach($referencedObjects as $nestedToOneObjectKey => $nestedToOneObjectValue) {
 						$object->$nestedToOneObjectKey = $nestedToOneObjectValue;
 					}
-				} else {
-					
-					$indicator = $this->getById("Indicator", $object->indicatorID, false);
-					
-					$impactfunctions = $this->executeQuery(
-							"SELECT * FROM impactfunctions WHERE id=:id",
-							"ImpactFunction", array("id" => $objects[0]->impactFunctionID));
-					
-					$instrument = $this->getById("Instrument", $impactfunctions[0]->instrumentID, false);
-					
-					$impactFunction = $this->convertStdClassToObject($impactfunctions, "ImpactFunction");
-						
-					$impactFunction->Instrument = $instrument;
-					
-					$object->Indicator = $indicator;
-					$object->ImpactFunction = $impactFunction;
-					
 				}
 			} else {
 				$object = null;

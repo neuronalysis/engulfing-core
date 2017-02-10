@@ -1,13 +1,20 @@
 <?php
 trait TransactionManager {
+	var $db_scope;
+	
+	function __construct($db_scope = null) {
+		if ($db_scope) {
+			$this->db_scope = $db_scope;
+		}
+	}
 	function executeQuery($query, $object_name, $bindings = null) {
-		$db_scope = $this->getOntologyScope($object_name);
+		$this->db_scope = $this->getOntologyScope($object_name);
 		
 		$queryType = $this->getQueryType($query);
 		if ($this->debug) echo "sql: " . $query . "\n";
 	
 		try {
-			$db = $this->openConnection($db_scope);
+			$db = $this->openConnection($this->db_scope);
 			$stmt = $db->prepare($query);
 	
 			if (isset($bindings)) {

@@ -94,6 +94,8 @@ function getOntology(objectName) {
 		ontologyShortName = "lms";
 	} else if (objName == "pillowcase" || objName == "pillowfilling") {
 		ontologyShortName = "kissenstern";
+	} else if (objName == "editor") {
+		ontologyShortName = "kokos";
 	}
 	
 	return ontologyShortName;
