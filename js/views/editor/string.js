@@ -8,20 +8,20 @@ var StringView = BaseView.extend({
 		"input" : "changeValue"
 	},
 	changeValue : function(item) {
-		this.model.set('content', item.target.textContent);
-		this.render();
+		this.model.set('CONTENT', item.target.textContent);
+		//this.render();
 	},
 	render : function() {
 		this.$el.empty();
 		
-		this.$el.html(this.model.get('content'));
+		this.$el.html(this.model.get('CONTENT'));
 
 		var css = {
 				'position'          : 'absolute',	
-				'width' : this.model.get('width') / 3 + 'px',
-				'height' : this.model.get('height') / 3 + 'px',
-				'left' : this.model.get('hpos') / 3 + 'px',
-				'top' : this.model.get('vpos') / 3 + 'px',
+				'width' : this.model.get('WIDTH') / 3 + 'px',
+				'height' : this.model.get('HEIGHT') / 3 + 'px',
+				'left' : this.model.get('HPOS') / 3 + 'px',
+				'top' : this.model.get('VPOS') / 3 + 'px',
 				'white-space' : 'nowrap'
 			};
 

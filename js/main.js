@@ -120,6 +120,7 @@ var BaseRouter = Backbone.Router.extend({
 		}
 	},
 	singleObject : function(id) {
+		alert(id);
 		if (this.isAuthorized('single')) {
 			var object = window[this.objectName].findOrCreate({
 				id : id

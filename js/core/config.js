@@ -10,7 +10,7 @@ if (window.location.href.indexOf("localhost") === -1) {
 	}
 	
 	var odBase = "http://www.ontologydriven.com/";
-	var engulfingBase = "http://www.engulfing.com/";
+	var engulfingBase = "http://www.engulfing.com/engulfing/";
 	var neuroBase = "http://www.neuronalysis.com/";
 } else {
 	if (referrer.indexOf("generated") === -1) {

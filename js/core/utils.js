@@ -10,30 +10,30 @@ tpl = {
 	loadTemplates : function(templates, callback) {
 		var that = this;
 
-		var names = [ '../../layouts/objectlist',
-		        '../../layouts/entitylist',
-		        '../../layouts/singleobject',
-		        '../../layouts/ontologyinformation',
-		        '../../layouts/concreteinformation',
+		var names = [ 'layouts/objectlist',
+			'layouts/entitylist',
+			'layouts/singleobject',
+			'layouts/ontologyinformation',
+			'layouts/concreteinformation',
 
-				'../../components/accordiongroup',
-				'../../components/accordionitem',
-				'../../components/backgrid',
-				'../../components/backgrid_actions',
+			'components/accordiongroup',
+			'components/accordionitem',
+			'components/backgrid',
+			'components/backgrid_actions',
 
-				'../../components/editor',
+			'components/editor',
 				
-				'../../components/input_datepicker',
-				'../../components/input_textarea',
-				'../../components/input_text',
-				'../../components/input_image',
-				'../../components/input_tags',
-				'../../components/input_file',
-				'../../components/input_highcharts',
-				'../../components/input_select',
-				'../../components/input_locationmap',
-				'../../components/input_datepicker',
-				'../../components/input_checkbox'
+			'components/input_datepicker',
+			'components/input_textarea',
+			'components/input_text',
+			'components/input_image',
+			'components/input_tags',
+			'components/input_file',
+			'components/input_highcharts',
+			'components/input_select',
+			'components/input_locationmap',
+			'components/input_datepicker',
+			'components/input_checkbox'
 				];
 
 		names = names.concat(templates)
@@ -43,10 +43,8 @@ tpl = {
 			var desc = '';
 			var subDomain = '';
 			
-			if (name.indexOf("../../") > -1) {
-				name = name.replace("../../", "");
-
-				$.get(engulfingBase + 'engulfing-core/templates/' + name
+			if (templates.indexOf(name) > -1) {
+				$.get(appHost + '/templates/' + name
 						+ '.html', function(data) {
 					that.templates[name] = data;
 					index++;
@@ -57,9 +55,7 @@ tpl = {
 					}
 				});
 			} else {
-				subDomain = getSubDomain();
-				
-				$.get(subDomain + 'templates/' + name
+				$.get(engulfingBase + '/engulfing-core/templates/' + name
 						+ '.html', function(data) {
 					that.templates[name] = data;
 					index++;
@@ -70,6 +66,7 @@ tpl = {
 					}
 				});
 			}
+			
 		};
 		
 		if (names.length > 0)

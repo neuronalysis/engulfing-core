@@ -1,7 +1,5 @@
 <?php
 trait WebsiteNavigation {
-	function __construct() {
-	}
 	function renderHTMLNavigation_Search() {
 		$html = '
 		<div class="col-sm-3 col-md-3 pull-right" style="padding-top: 10px; padding-right: 0px; text-align: right;">
@@ -219,12 +217,14 @@ trait WebsiteNavigation {
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">' . $this->activescope_Ontology->name . '<span class="caret"></span></a>
 							<ul class="dropdown-menu" role="menu">';
 					
-					foreach($this->Ontologies as $Ontology_item) {
-						if ($this->isAllowed($Ontology_item)) {
-							if (isset($Ontology_item) && $Ontology_item->isFinal) {
-								if ($Ontology_item->name !== $this->activescope_Ontology->name) {
-									$html .= '
+					if(isset($this->Ontologies)) {
+						foreach($this->Ontologies as $Ontology_item) {
+							if ($this->isAllowed($Ontology_item)) {
+								if (isset($Ontology_item) && $Ontology_item->isFinal) {
+									if ($Ontology_item->name !== $this->activescope_Ontology->name) {
+										$html .= '
 									<li><a href="' . $home_url . strtolower($Ontology_item->name) . '/">' . $Ontology_item->name . '</a></li>';
+									}
 								}
 							}
 						}
@@ -254,29 +254,28 @@ trait WebsiteNavigation {
 							</ul>
 						</li>';
 				}
-				
 			} else {
 				if($this->auth->isLogged()) {
-					foreach($this->Ontologies as $Ontology_item) {
-						if ($this->isAllowed($Ontology_item)) {
-							if (isset($Ontology_item) && $Ontology_item->isFinal) {
-								$html .= '<li><a href="' . $home_url . strtolower($Ontology_item->name) . '/">' . $Ontology_item->name . '</a></li>';
+					if (isset($this->Ontologies)) {
+						foreach($this->Ontologies as $Ontology_item) {
+							if ($this->isAllowed($Ontology_item)) {
+								if (isset($Ontology_item) && $Ontology_item->isFinal) {
+									$html .= '<li><a href="' . $home_url . strtolower($Ontology_item->name) . '/">' . $Ontology_item->name . '</a></li>';
+								}
 							}
 						}
 					}
-					
-					//echo "role: " . $_COOKIE['UserRoleID'] . "\n";
 				} else {
-					foreach($this->Ontologies as $Ontology_item) {
-						if ($this->isAllowed($Ontology_item)) {
-							if (isset($Ontology_item) && $Ontology_item->isFinal) {
-								$html .= '<li><a href="' . $home_url . strtolower($Ontology_item->name) . '/">' . $Ontology_item->name . '</a></li>';
+					if(isset($this->Ontologies)) {
+						foreach($this->Ontologies as $Ontology_item) {
+							if ($this->isAllowed($Ontology_item)) {
+								if (isset($Ontology_item) && $Ontology_item->isFinal) {
+									$html .= '<li><a href="' . $home_url . strtolower($Ontology_item->name) . '/">' . $Ontology_item->name . '</a></li>';
+								}
 							}
 						}
 					}
 				}
-					
-				
 			}
 		}
 		
@@ -378,7 +377,7 @@ trait WebsiteNavigation {
 		
 		return $html;
 	}
-	function renderHTMLNavigation_Authentication() {
+	function renderHTMLNavigation_Authentication($auth_url = null) {
 		$topdomain = $this->getTopDomain();
 		
 		$html = "";
@@ -386,21 +385,24 @@ trait WebsiteNavigation {
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
 		$levels = explode ( "/", $url_parsed ['path'] );
 		
-		if ($this->isLocalRequest()) {
-			$auth_url = "";
-			if ($this->generated) {
-				$auth_url = "http://localhost.generated/api/authentication";
+		if (!$auth_url) {
+			if ($this->isLocalRequest()) {
+				$auth_url = "";
+				if ($this->generated) {
+					$auth_url = "http://localhost.generated/api/authentication";
+				} else {
+					$auth_url = "http://localhost.ontologydriven/api/authentication";
+				}
 			} else {
-				$auth_url = "http://localhost.ontologydriven/api/authentication";
-			}
-		} else {
-			$auth_url = "";
-			if ($this->generated) {
-				$auth_url = "http://www.ontologydriven.com/api/authentication";
-			} else {
-				$auth_url = "http://www.ontologydriven.com/api/authentication";
+				$auth_url = "";
+				if ($this->generated) {
+					$auth_url = "http://www.ontologydriven.com/api/authentication";
+				} else {
+					$auth_url = "http://www.ontologydriven.com/api/authentication";
+				}
 			}
 		}
+		
 		
 		if ($this->isLocalRequest()) {
 			$home_url = "";

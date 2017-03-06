@@ -644,12 +644,18 @@ trait WebsiteScript {
 				
 				
 			} else {
-				if ($this->getScopeObjectName() === "editor") {
+				$scopeObjectName = $this->getScopeObjectName();
+				
+				if ($scopeObjectName === "editor") {
 					$html .= '
 		<script src="' . $this->getScriptSource($scope, 'js/main_editor.js') . '"></script>
 			 		';
-				} else if ($this->getScopeObjectName() === "monitoring") {
+				} else if ($scopeObjectName === "monitoring") {
 					
+				} else if ($scopeObjectName === "admin") {
+					$html .= '
+		<script src="' . $this->getScriptSource($scope, 'js/main_admin.js') . '"></script>
+					';
 				} else {
 					if (!$this->activescope_usermanagement) {
 						$html .= '

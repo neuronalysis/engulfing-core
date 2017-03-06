@@ -7,10 +7,10 @@ var ScanImageView = BaseView.extend({
 	render : function() {
 		this.$el.css({
 			'position'          : 'absolute',
-			'left'          : this.model.get('width')
+			'left'          : this.model.get('WIDTH')
 			});
 		
-		this.$el.html('<image src="' + this.model.get('filePath') + '" height="' + this.model.get('height') + '"></image>');
+		this.$el.html('<image src="' + this.model.get('filePath') + '" height="' + this.model.get('HEIGHT') + '"></image>');
 
 		return this;
 	}

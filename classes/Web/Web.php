@@ -5,17 +5,14 @@ include_once __DIR__ . '/../Core/Helper.php';
 include_once __DIR__ . '/../REST/REST.php';
 include_once __DIR__ . '/../Authentication/Authentication.php';
 
-include_once __DIR__ . '/../../../../engulfing/engulfing-generated/classes/things/Things_Generated.php';
-include_once __DIR__ . '/../../../../engulfing/engulfing-generated/classes/web/Web_Generated.php';
+include_once __DIR__ . '/WebsiteScript.php';
+include_once __DIR__ . '/WebsiteNavigation.php';
+include_once __DIR__ . '/Webpage.php';
+include_once __DIR__ . '/Website.php';
+include_once __DIR__ . '/Websites/Website_Grid.php';
+include_once __DIR__ . '/Websites/Website_ConvertedPDF.php';
 
-include_once ("WebsiteScript.php");
-include_once ("WebsiteNavigation.php");
-include_once ('Webpage.php');
-include_once ("Website.php");
-include_once ('Websites/Website_Grid.php');
-include_once ("Websites/Website_ConvertedPDF.php");
-
-class Web extends Web_Generated {
+class Web {
 	use Helper;
 	
 	var $classes = array("Website", "Webpage", "Ontology");

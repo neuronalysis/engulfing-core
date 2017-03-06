@@ -360,7 +360,7 @@ class ORM {
 	function getTotalAmount($object_name, $whereKeyValue = null) {
 		$tableName = $this->getTableNameByObjectName($object_name, false);
 		
-		$sql = "SELECT COUNT(*) as totalAmount FROM " . $this->pluralize($object_name);
+		$sql = "SELECT COUNT(*) as totalAmount FROM " . $tableName;
 		
 		if ($whereKeyValue) {
 			foreach($whereKeyValue as $key => $value) {

@@ -276,7 +276,7 @@ trait Helper {
 		
 		return $scopename;
 	}
-	function getScopeObjectName() {
+	function getScopeObjectName($reference = null) {
 		$scopename = "";
 		 
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
@@ -289,9 +289,15 @@ trait Helper {
 		} else {
 			if (isset($levels[2])) {
 				$scopename = $levels[2];
+				
+				if (isset($levels[3])) {
+					if ($scopename == $reference) {
+						$scopename = $levels[3];
+					}
+				}
 			}
 		}
-	
+		
 		return $scopename;
 	}
 	function getScopeDepth() {

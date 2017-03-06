@@ -13,8 +13,8 @@ var PageView = BaseView.extend({
 		
 		this.$el.css({
 			'position'          : 'absolute',
-			'width'         	: this.model.get('width') / 3 + 'px',
-			'height'        	: this.model.get('height') / 3 + 'px',
+			'width'         	: this.model.get('WIDTH') / 3 + 'px',
+			'height'        	: this.model.get('HEIGHT') / 3 + 'px',
 			'border'			: '1px solid black'
 			});
 

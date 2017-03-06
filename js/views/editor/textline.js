@@ -5,8 +5,8 @@ var TextLineView = BaseView.extend({
 	render : function() {
 		this.$el.empty();
 		
-		if (this.model.get('stylerefs')) {
-			var fontId =  this.model.get('stylerefs').split(" ")[1];
+		if (this.model.get('STYLEREFS')) {
+			var fontId =  this.model.get('STYLEREFS').split(" ")[1];
 			
 			var textStyle = window['TextStyle'].findOrCreate({
 				id : fontId
@@ -14,12 +14,12 @@ var TextLineView = BaseView.extend({
 			
 			this.$el.css({
 				'position'          : 'absolute',
-				'font-size'		: textStyle.get('fontsize') + 'px',
-				'font-family'	: textStyle.get('fontfamily'),
-				'width'         : this.model.get('width') / 3 + 'px',
-				'height'        : this.model.get('height') / 3 + 'px',
-				'left'          : this.model.get('hpos') / 3 + 'px',
-				'top'           : this.model.get('vpos') / 3 + 'px'
+				'font-size'		: textStyle.get('FONTSIZE') + 'px',
+				'font-family'	: textStyle.get('FONTFAMILY'),
+				'width'         : this.model.get('WIDTH') / 3 + 'px',
+				'height'        : this.model.get('HEIGHT') / 3 + 'px',
+				'left'          : this.model.get('HPOS') / 3 + 'px',
+				'top'           : this.model.get('VPOS') / 3 + 'px'
 			    });
 		}
 			

@@ -1,11 +1,14 @@
 <?php
 //XXX clean up class
-class Website extends Website_Generated {
+class Website {
 	use Helper;
 	use DOMHelper;
 	
 	use WebsiteScript;
 	use WebsiteNavigation;
+	
+	var $name;
+	var $siteMapDefinition;
 	
 	var $website_url;
     var $website_source;
@@ -65,8 +68,6 @@ class Website extends Website_Generated {
 		return false;
 	}
 	function getDescription() {
-    	
-    	
     	$scopename = $this->getScopeName();
     	if ($scopename === "") {
     		$exploded = explode("/", $_SERVER ['DOCUMENT_ROOT']);
@@ -269,20 +270,24 @@ class Website extends Website_Generated {
     	$this->init_activeScope_OntologyClass();
     }
     function init_activeScope_Ontology() {
-    	foreach($this->Ontologies as $Ontology_item) {
-    		if (isset($Ontology_item)) {
-    			if (strpos($this->website_url, strtolower($Ontology_item->name)) !== false) {
-    				$this->activescope_Ontology = $Ontology_item;
+    	if (isset($this->Ontologies)) {
+    		foreach($this->Ontologies as $Ontology_item) {
+    			if (isset($Ontology_item)) {
+    				if (strpos($this->website_url, strtolower($Ontology_item->name)) !== false) {
+    					$this->activescope_Ontology = $Ontology_item;
+    				}
     			}
     		}
-		}
+    	}
     	if (!$this->activescope_Ontology) {
-    		foreach($this->Ontologies as $Ontology_item) {
-    			if (isset($Ontology_item->OntologyClasses)) {
-    				foreach($Ontology_item->OntologyClasses as $OntologyClass_item) {
-    					foreach ($this->levels as $level_item) {
-    						if ($level_item == strtolower($OntologyClass_item->name) || $level_item == $this->pluralize(strtolower($OntologyClass_item->name))) {
-    							$this->activescope_Ontology = $OntologyClass_item->Ontology;
+    		if (isset($this->Ontologies)) {
+    			foreach($this->Ontologies as $Ontology_item) {
+    				if (isset($Ontology_item->OntologyClasses)) {
+    					foreach($Ontology_item->OntologyClasses as $OntologyClass_item) {
+    						foreach ($this->levels as $level_item) {
+    							if ($level_item == strtolower($OntologyClass_item->name) || $level_item == $this->pluralize(strtolower($OntologyClass_item->name))) {
+    								$this->activescope_Ontology = $OntologyClass_item->Ontology;
+    							}
     						}
     					}
     				}
@@ -299,27 +304,30 @@ class Website extends Website_Generated {
     	}
     }
     function init_activeScope_OntologyClass() {
-    	foreach($this->Ontologies as $Ontology_item) {
-    		if (isset($Ontology_item)) {
-    			if (isset($Ontology_item->OntologyClasses)) {
-	    			foreach($Ontology_item->OntologyClasses as $OntologyClass_item) {
-	    				foreach ($this->levels as $level_item) {
-	    					if ($level_item == strtolower($OntologyClass_item->name) || $level_item == $this->pluralize(strtolower($OntologyClass_item->name))) {
-	    						$this->activescope_OntologyClass = $OntologyClass_item;
-	    					}
-	    				}
-	    			}
-	    		}
-	    		
-	    		foreach($this->usedOntologyClasses as $ocName) {
-    				foreach ($this->levels as $level_item) {
-    					if ($level_item == strtolower($ocName) || $level_item == $this->pluralize(strtolower($ocName))) {
-    						$this->activescope_OntologyClass = $ocName;
+    	if (isset($this->Ontologies)) {
+    		foreach($this->Ontologies as $Ontology_item) {
+    			if (isset($Ontology_item)) {
+    				if (isset($Ontology_item->OntologyClasses)) {
+    					foreach($Ontology_item->OntologyClasses as $OntologyClass_item) {
+    						foreach ($this->levels as $level_item) {
+    							if ($level_item == strtolower($OntologyClass_item->name) || $level_item == $this->pluralize(strtolower($OntologyClass_item->name))) {
+    								$this->activescope_OntologyClass = $OntologyClass_item;
+    							}
+    						}
     					}
     				}
-				}
-	    	}
+    				 
+    				foreach($this->usedOntologyClasses as $ocName) {
+    					foreach ($this->levels as $level_item) {
+    						if ($level_item == strtolower($ocName) || $level_item == $this->pluralize(strtolower($ocName))) {
+    							$this->activescope_OntologyClass = $ocName;
+    						}
+    					}
+    				}
+    			}
+    		}
     	}
+    	
     	
     	if (!isset($this->activescope_OntologyClass)) {
     		foreach ($this->levels as $level_item) {

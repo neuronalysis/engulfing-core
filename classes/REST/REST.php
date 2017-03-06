@@ -106,15 +106,16 @@ class REST {
 				} else if ($ontologyClassName === "instrument") {
 					$result = $this->orm->getById("Instrument", $id);
 				} else if ($ontologyClassName === "\\OCR\\Document") {
-					$result = $this->orm->getById("\\OCR\\Document", $id);
+					$result = $this->orm->getById("\\OCR\\Document", $id, false);
 					
 					$doc = new DOMDocument();
 					$doc->loadXML($result->Pages[0]->altoXML);
 						
-					
-					$xmlconv = new XMLConverter("ALTO", "/Page[ID='" . $id . "']");
+					$xmlconv = new XMLConverter("ALTO");
 					$alto = $xmlconv->convertToObjectTree($doc);
 					$result->Pages[0]->ALTO = $alto;
+					
+					//print_r($result);
 					
 					unset($result->Pages[0]->altoXML);
 				} else {

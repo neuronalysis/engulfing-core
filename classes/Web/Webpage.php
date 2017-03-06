@@ -1,9 +1,5 @@
 <?php
-class Webpage extends Webpage_Generated {
-	
-	function __construct() {
-	}
-	
+class Webpage {
 }
 class HTML_Website extends Element {
 	var $xpath_self = 'html';
