@@ -1,0 +1,8 @@
+{
+	"databases": [{
+		"name": "engulfin_km",
+		"host": "localhost",
+		"username": "root",
+		"password": ""
+	}]
+}

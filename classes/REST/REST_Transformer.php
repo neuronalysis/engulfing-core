@@ -1,6 +1,4 @@
 <?php
-use ForceUTF8\Encoding;
-
 class REST_Transformer {
 	use Helper;
 	

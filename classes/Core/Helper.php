@@ -3,6 +3,18 @@ trait Helper {
 	
 	function Helper() {
 	}
+	function getConfig() {
+		if ($this->isLocalRequest()) {
+			if (file_exists(__DIR__ . '/../../config/dev-config.json')){
+				$config = json_decode(file_get_contents(__DIR__ . '/../../config/dev-config.json'));
+			} else{
+			}
+		} else {
+			
+		}
+		
+		return $config;
+	}
 	function isLocalRequest() {
 		$whitelist = array(
 				'127.0.0.1',

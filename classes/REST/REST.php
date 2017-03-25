@@ -69,7 +69,6 @@ class REST {
 				$result->items = $result_paged;
 				$result->total_count = $this->orm->getTotalAmount($ontologyClassName);
 			} else {
-					
 				if (isset($_GET['name'])) {
 					$result = $this->orm->getByNamedFieldValues($ontologyClassName, array("name"), array($_GET['name']));
 					$result = $this->orm->getById($ontologyClassName, $result[0]->id);
@@ -328,7 +327,7 @@ class REST {
 			$contents = glob($ressourceRoot  . '/ressources/' . $scopeName . '/' . '*.*');
 				
 			foreach ($contents as $file_name) {
-				if (strpos($file_name, "task_") === false) {
+				if (strpos($file_name, "task_") === false && strpos($file_name, ".json") === false) {
 					require_once $file_name;
 				}
 			}

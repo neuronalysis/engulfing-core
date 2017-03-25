@@ -156,6 +156,8 @@ var SingleObjectView = BaseView.extend({
 		
 		var fieldViews = [];
 		
+		if (!model) return fieldViews;
+		
 		for(field in model.attributes) {
 			if (field !== "id" && field !== "name" && field.slice(-2) !== "ID" && !model.isProtected(field)) {
 				if (field.substring(0, 3) !== "Rel") {
@@ -245,6 +247,7 @@ var SingleObjectView = BaseView.extend({
 			var entityFieldName = relations[i].related.type;
 			
 			if (entityFieldName === groupName) {
+				
 				fieldViews = this.getFieldViews(this.model.getOntologyClassEntityByName(groupName));
 			} else if ("ImpactFunctions" === groupName && entityFieldName == "ImpactFunction") {
 				var groupClassEntities = this.model.getEntities(entityFieldName);

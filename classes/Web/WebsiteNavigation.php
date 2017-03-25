@@ -180,7 +180,6 @@ trait WebsiteNavigation {
 		if ($this->siteMapDefinition) {
 			$sitemap = json_decode($this->siteMapDefinition);
 			
-			
 			foreach($sitemap->Pages[0]->Pages as $page_item) {
 				
 				if (isset($page_item->Pages)) {
@@ -429,7 +428,7 @@ trait WebsiteNavigation {
 							<a class="dropdown-toggle" href="#" data-toggle="dropdown">Sign In <strong class="caret"></strong></a>
 							<div class="dropdown-menu" style="padding: 15px; padding-bottom: 10px;">
 								<form method="post" action="' . $auth_url . '/login" accept-charset="UTF-8">
-									<input style="margin-bottom: 15px;" type="text" placeholder="UserName" id="loginName" name="LoginUserName" /><br>
+									<input style="margin-bottom: 15px;" type="text" placeholder="UserName" id="loginName" name="LoginUserName" autocapitalize="none" /><br>
 									<input style="margin-bottom: 15px;" type="password" placeholder="Password" id="loginPassword" name="LoginUserPassword" /><br>
 									<input type="hidden" id="referer" name="refererURL" />
 									<input style="float: left; margin-right: 10px;" type="checkbox" name="user_remember_me" id="user_remember_me" value="1" />

@@ -9,7 +9,6 @@ trait TransactionManager {
 	}
 	function executeQuery($query, $object_name, $bindings = null) {
 		$this->db_scope = $this->getOntologyScope($object_name);
-		
 		$queryType = $this->getQueryType($query);
 		if ($this->debug) echo "sql: " . $query . "\n";
 	

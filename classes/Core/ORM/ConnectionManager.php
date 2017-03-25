@@ -11,6 +11,10 @@ trait ConnectionManager {
 	function openConnection($ontologyName = null) {
 		if (!$ontologyName) return null;
 		
+		//$config = $this->getConfig();
+		
+		//print_r($config);
+		
 		if (isset($this->databaseConnections[$ontologyName])) {
 			if (is_object($this->databaseConnections[$ontologyName])) {
 				return $this->databaseConnections[$ontologyName];
