@@ -347,7 +347,12 @@ trait Helper {
 		} else {
 			if ($this->generated) {
 				if ($this->isLocalRequest()) {
-					$topdomain = "generated/" . strtolower($this->title);
+					if (strtolower($this->title) == "neuronalysis") {
+						$topdomain = strtolower($this->title);
+					} else {
+						$topdomain = "generated/" . strtolower($this->title);
+					}
+					
 				} else {
 					$topdomain = strtolower($this->title);
 				}

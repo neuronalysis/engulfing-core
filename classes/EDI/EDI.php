@@ -1,15 +1,8 @@
 <?php
-$desc = "";
-if (!file_exists("../engulfing/")) {
-	$desc = "../";
-	if (!file_exists($desc . "../engulfing/")) {
-		$desc .= "../";
-	}
-}
-include_once ($desc . "../engulfing/engulfing-generated/classes/things/Things_Generated.php");
-include_once ($desc . "../engulfing/engulfing-generated/classes/edi/EDI_Generated.php");
-include_once ($desc . "../engulfing/engulfing-core/classes/Core/FileIO.php");
-
+include_once (__DIR__ . "/../../../engulfing-generated/classes/things/Things_Generated.php");
+include_once (__DIR__ . "/../../../engulfing-generated/classes/edi/EDI_Generated.php");
+include_once (__DIR__ . "/../../../engulfing-core/classes/Core/Helper.php");
+include_once (__DIR__ . "/../../../engulfing-core/classes/Core/FileIO.php");
 
 include_once ('DataService.php');
 include_once ('EDI_Relations.php');

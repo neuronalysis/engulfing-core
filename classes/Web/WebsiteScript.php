@@ -176,7 +176,8 @@ trait WebsiteScript {
 					$source = $desc . $scope . "/" . $scriptPath;
 				}
 				
-			} else if (in_array($scope, array("releases", "indicators", "releasepublications", "pillowcases", "pillowfillings"))) {
+			//TODO
+			} else if (in_array($scope, array("releases", "indicators", "instruments", "releasepublications", "pillowcases", "pillowfillings"))) {
 				$desc .= "../";
 				
 				$source = $desc . $scriptPath;
@@ -409,7 +410,17 @@ trait WebsiteScript {
 						if (file_exists ( "../" . $scope . "/" . $scriptSource )) {
 							$path = "../" . $scope . "/" . $scriptSource;
 						} else {
-								
+							if (file_exists ( $scope . "/" . $scriptSource )) {
+								$path = $scope . "/" . $scriptSource;
+							} else {
+								if (file_exists ( "../" . $scriptSource )) {
+									$path = "../" . $scriptSource;
+								} else {
+									if (file_exists ( $scriptSource )) {
+										$path = $scriptSource;
+									}
+								}
+							}	
 						}	
 					}
 				}
@@ -598,8 +609,8 @@ trait WebsiteScript {
 		
 		$html = "";
 		
-		
 		if (isset($this->activescope_OntologyClass)) {
+			echo "activescope set\n";
 			if (isset($this->activescope_OntologyClass->name)) {
 				$html .= '
 		<script src="' . $this->getScriptSource($scope, 'js/main_' . strtolower($this->activescope_OntologyClass->name) . '.js') . '"></script>
@@ -622,6 +633,7 @@ trait WebsiteScript {
 			 		';
 				}
 			}
+			
 			if ($this->siteMapDefinition) {
 				$onPage = false;
 				
@@ -634,6 +646,19 @@ trait WebsiteScript {
 			 ';
 						$onPage = true;
 					}
+					if(isset($page_item->Pages)) {
+						foreach($page_item->Pages as $subpage_item) {
+							if (strpos($this->website_url, strtolower($subpage_item->name)) !== false  ) {
+								$html .= '
+		<script src="/js/main_' . $this->singularize(strtolower($subpage_item->name)) . '.js"></script>
+			 ';
+								$onPage = true;
+							}
+							
+							
+						}
+					}
+					
 				}
 				
 				if (!$onPage) {

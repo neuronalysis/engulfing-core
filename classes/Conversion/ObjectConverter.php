@@ -182,10 +182,13 @@ class ObjectConverter extends Converter {
 						$oce->setRelatedClassEntity($sub_oces[0], "hasOne");
 					} else if (isset($item_object->$iocNamePluralized)) {
 						$sub_oces = $this->convertToOntologyClassEntities($item_object->$iocNamePluralized);
-							
-						foreach($sub_oces as $subOceItem) {
-							$oce->setRelatedClassEntity($subOceItem, "hasOne");
+						
+						if (isset($sub_oces)) {
+							foreach($sub_oces as $subOceItem) {
+								$oce->setRelatedClassEntity($subOceItem, "hasOne");
+							}
 						}
+						
 					}
 				}
 	

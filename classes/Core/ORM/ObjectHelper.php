@@ -283,10 +283,12 @@ trait ObjectHelper {
 					
 					$manyObjects = array();
 				
-					foreach($refObjects as $refObjectItem) {
-						$pulled = $this->getById(get_class($refObjectItem), $refObjectItem->id, true, array($object_name));
-						
-						array_push($manyObjects, $pulled);
+					if (isset($refObjects)) {
+						foreach($refObjects as $refObjectItem) {
+							$pulled = $this->getById(get_class($refObjectItem), $refObjectItem->id, true, array($object_name));
+							
+							array_push($manyObjects, $pulled);
+						}
 					}
 					
 					$referencedObjects[$key] = $manyObjects;
@@ -364,13 +366,13 @@ trait ObjectHelper {
 			$OntologyClassname = $levels[1];
 		}
 	
-		if (!class_exists($OntologyClassname)) {
+		if (!class_exists($OntologyClassname, false)) {
 			$OntologyClassname = $this->singularize($OntologyClassname);
 			
-			if (class_exists($OntologyClassname)) $OntologyClassname = get_class(new $OntologyClassname());
+			if (class_exists($OntologyClassname, false)) $OntologyClassname = get_class(new $OntologyClassname());
 		}
 		
-		if (class_exists("\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname)) {
+		if (class_exists("\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname, false)) {
 			$OntologyClassname = "\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname;
 		}
 		

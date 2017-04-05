@@ -388,7 +388,12 @@ trait WebsiteNavigation {
 			if ($this->isLocalRequest()) {
 				$auth_url = "";
 				if ($this->generated) {
-					$auth_url = "http://localhost.generated/api/authentication";
+					if ($topdomain == "neuronalysis") {
+						$auth_url = "http://localhost.neuronalysis/api/authentication";
+					} else {
+						$auth_url = "http://localhost.generated/api/authentication";
+					}
+					
 				} else {
 					$auth_url = "http://localhost.ontologydriven/api/authentication";
 				}

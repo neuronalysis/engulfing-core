@@ -10,13 +10,16 @@ class REST {
 	function __construct() {
 		$this->orm = new ORM();
 	}
+	//TODO
 	function get($id = null, $app = null) {
 		$this->orm->db_scope = $this->getScopeName();
 		
 		$ontologyClassName = $this->orm->getOntologyClassName();
 		
 		if ($app) {
+			
 			if (isset($_GET['page'])) {
+				
 				$namedfieldParameters = $_GET;
 				unset($namedfieldParameters['page']);
 				unset($namedfieldParameters['per_page']);
@@ -94,6 +97,7 @@ class REST {
 			}
 		
 		} else {
+			
 			if ($id) {
 				$obj = new $ontologyClassName();
 				
@@ -102,8 +106,19 @@ class REST {
 						
 					unset($result->Release->Indicators);
 					unset($result->Release->ReleasePublications);
-				} else if ($ontologyClassName === "instrument") {
+				} else if ($ontologyClassName === "Instrument") {
 					$result = $this->orm->getById("Instrument", $id);
+					
+					$result->ImpactFunctions = $this->orm->getByNamedFieldValues("ImpactFunction", array("instrumentID"), array($result->id));
+					foreach($result->ImpactFunctions as $if_item) {
+						$if_item->RelationIndicatorImpactFunctions = $this->orm->getByNamedFieldValues("RelationIndicatorImpactFunction", array("impactFunctionID"), array($if_item->id), false, null, false, false, null, null, null, null, array("indicatorID"));
+						
+						foreach($if_item->RelationIndicatorImpactFunctions as $rel_item) {
+							print_r($rel_item);
+							$rel_item->Indicator = $this->orm->getByNamedFieldValues("Indicator", array("id"), array($rel_item->indicatorID));
+						}
+					}
+					
 				} else if ($ontologyClassName === "\\OCR\\Document") {
 					$result = $this->orm->getById("\\OCR\\Document", $id, false);
 					
@@ -309,7 +324,8 @@ class REST {
 			$classScopeName = ucfirst($scopeName);
 		}
 		
-		if ($scopeName !== "") {
+		if ($scopeName !== "" && !in_array(strtolower($scopeName), array("edi"))) {
+			
 			if (!$ressourceRoot) {
 				$ressourceRoot = __DIR__;
 			}
@@ -327,6 +343,7 @@ class REST {
 			$contents = glob($ressourceRoot  . '/ressources/' . $scopeName . '/' . '*.*');
 				
 			foreach ($contents as $file_name) {
+				//echo $file_name . "\n";
 				if (strpos($file_name, "task_") === false && strpos($file_name, ".json") === false) {
 					require_once $file_name;
 				}

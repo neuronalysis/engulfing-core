@@ -490,11 +490,13 @@ var SingleObjectView = BaseView.extend({
 		}
 		
 		for (var i=1; i < this.fieldGroups.length; i++) {
-			fieldGroupTab = '<li role="presentation" class=""><a href="#' + this.fieldGroups[i].name.toLowerCase() + '" id="' + this.fieldGroups[i].name.toLowerCase() + '-tab" role="tab" data-toggle="tab" aria-controls="' + this.fieldGroups[i].name.toLowerCase() + '" aria-expanded="true">' + this.fieldGroups[i].name + '</a></li>';
+			fieldGroupName = this.fieldGroups[i].name.toLowerCase();
+			
+			fieldGroupTab = '<li role="presentation" class=""><a href="#' + fieldGroupName + '" id="' + fieldGroupName + '-tab" role="tab" data-toggle="tab" aria-controls="' + fieldGroupName + '" aria-expanded="true">' + this.fieldGroups[i].name + '</a></li>';
 			this.$("#object-tag-navigation").append(fieldGroupTab);
 			
 			for (var j = 0; j< this.fieldGroups[i].fieldViews.length; j++) {
-				this.$('#' + this.fieldGroups[i].name.toLowerCase() ).append(this.fieldGroups[i].fieldViews[j].render().el);
+				this.$('#' + fieldGroupName ).append(this.fieldGroups[i].fieldViews[j].render().el);
 				this.fieldGroups[i].fieldViews[j].delegateEvents();
 			}
 		}
