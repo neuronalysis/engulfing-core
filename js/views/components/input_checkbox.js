@@ -1,6 +1,8 @@
 var InputCheckBoxView = InputView.extend({
 	
 	initialize : function() {
+		InputCheckBoxView.__super__.initialize.apply(this, arguments);
+		
 		this.template = _.template(tpl.get('components/input_checkbox'));
 	},
 	events : {

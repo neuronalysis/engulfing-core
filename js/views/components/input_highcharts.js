@@ -1,5 +1,7 @@
 var HighChartsView = InputView.extend({
 	initialize : function(options) {
+		HighChartsView.__super__.initialize.apply(this, arguments);
+		
 		this.template = _.template(tpl.get('components/input_highcharts'));
 		this.withLabel = true;
 		this.withCell = false;
@@ -14,8 +16,12 @@ var HighChartsView = InputView.extend({
 	},
 	changeValue : function(item) {
 	},
+	//TODO wtf observation should be assumed to be available. if not. the componentent/view should not be candidate for rendering
+	//TODO fetch should not be controlled/triggered out of render. controller should do the fetch and trigger the render depending on availability of inputdata
 	render : function() {
 		var model_observations = this.model.get(this.field);
+		
+		if (this.label === undefined) this.label = 'Chart';
 		
 		if (model_observations !== undefined) {
 			var data = {"object_name": this.model.type.toLowerCase(), "field_name": this.field, "label": this.label, "field_value": model_observations.getString(), "withCell" : this.withCell, "withLabel" : this.withLabel, "chart_height" : "250px"};

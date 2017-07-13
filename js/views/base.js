@@ -69,45 +69,23 @@ var BaseView = Backbone.View.extend({
 			}
 		}
 	},
-	createFieldViewByModel : function(model, field, withCell, reference) {
-		if (field == "CourseDocument") {
-			var value = model;
-			var value_type = typeof value;
-			if (value_type === "object" && value) {
-				if (value.models) {
-					value.type = getSingular(field);
-				} else {
-					value.type = field;
-				}
+	createFieldViewByModel : function(model, field, withCell, reference, compact) {
+		var value = model.get(field);
+		var value_type = typeof value;
+		if (value_type === "object" && value) {
+			if (value.models) {
+				value.type = getSingular(field);
 			} else {
-				if (value === null) {
-					if (field[0] === field[0].toUpperCase()) {
-						value = new window[field];
-						value.type = field;
-						model.set(field, value);
-					} else {
-						value_type = "string";
-					}
-				}
+				value.type = field;
 			}
 		} else {
-			var value = model.get(field);
-			var value_type = typeof value;
-			if (value_type === "object" && value) {
-				if (value.models) {
-					value.type = getSingular(field);
-				} else {
+			if (value === null) {
+				if (field[0] === field[0].toUpperCase()) {
+					value = new window[field];
 					value.type = field;
-				}
-			} else {
-				if (value === null) {
-					if (field[0] === field[0].toUpperCase()) {
-						value = new window[field];
-						value.type = field;
-						model.set(field, value);
-					} else {
-						value_type = "string";
-					}
+					model.set(field, value);
+				} else {
+					value_type = "string";
 				}
 			}
 		}
@@ -161,39 +139,28 @@ var BaseView = Backbone.View.extend({
 		}
 		
 		if (value_type === "string" || value_type === "number") {
+			//TODO kick out domainspecific shit
 			if (field !== "id" && field.slice(-2) !== "ID" && field !== "DataServices" && field !== "CourseDocument") {
 				if (field.slice(-2) == "At" || field.slice(-4) == "Date") {
-					var fieldView = new DatePickerView({model: model});
-					fieldView.field = field;
+					var fieldView = new DatePickerView({model: model, field: field});
 					
 					return fieldView;
 				} else if (field.slice(-10) == "Definition") {
-					var fieldView = new InputTextAreaView({model: model});
-					fieldView.field = field;
+					var fieldView = new InputTextAreaView({model: model, field: field});
 					
 					return fieldView;
 				} else {
-					var fieldView = new InputTextView({model: model});
-					fieldView.field = field;
-					if (field === "name") {
-						if (typeof model.type === 'undefined') {
-							model.type = model.collection.type;
-						}
-						fieldView.url = '../' + getPlural(model.type).toLowerCase() + '/#' + model.id;
-					}
+					var fieldView = new InputTextView({model: model, field: field});
 					
 					return fieldView;
 				}
 			}
 		} else if (value_type === "boolean") {
-			fieldView = new InputCheckBoxView({model: model});
-			fieldView.field = field;
+			fieldView = new InputCheckBoxView({model: model, field: field});
 			
 			return fieldView;
 		} else if (value_type === "enumeration") {
-			var fieldView = new InputSelectView({model: model, withCell: withCell});
-			fieldView.field = field;
-			fieldView.options = enumeration;
+			var fieldView = new InputSelectView({model: model, field: field, enumeration: enumeration, withCell: withCell});
 			
 			return fieldView;
 		} else if (value !== null) {
@@ -201,32 +168,32 @@ var BaseView = Backbone.View.extend({
 				
 				if (value.models) {
 					if (field.indexOf("Relation") !== -1) {
-						var fieldView = new AccordionGroupView({collection : model.get(field)});
-						fieldView.field = field;
+						var fieldView = new AccordionGroupView({collection : model.get(field), field: field, baseModel : model});
 						
 						return fieldView;
 					} else if (field.indexOf("Observations") !== -1) {
-						var fieldView = new HighChartsView({model : model, observationsLimit: 250});
-						fieldView.field = field;
+						var fieldView = new HighChartsView({model : model, field: field, observationsLimit: 250});
 						
 						return fieldView;
 					} else {
-						var fieldView = new InputTagsView({model: model});
-						fieldView.field = field;
+						var fieldView = new InputTagsView({model: model, field: field});
 						
 						return fieldView;
 					}
 					
 				} else {
+					//TODO kick out domainspecific shit
 					if (field == "CourseDocument") {
-						var fieldView = new FileUploadView({model: model, withCell: withCell, referencingObject: reference});
-						fieldView.field = field;
+						var fieldView = new FileUploadView({model: model, field: field, withCell: withCell, referencingObject: reference});
+						
+						return fieldView;
+					} else if (field == "ImpactFunction") {
+						var fieldView = new ImpactFunctionView({model: model, field: field, withCell: withCell, withLabel: false});
 						
 						return fieldView;
 					} else {
-						var fieldView = new InputSelectView({model: model, withCell: withCell});
+						var fieldView = new InputSelectView({model: model, field: field, withCell: withCell});
 						//var fieldView = new InputSelectView({model: this.model, tagName: tagName});
-						fieldView.field = field;
 						
 						return fieldView;
 					}
@@ -238,7 +205,10 @@ var BaseView = Backbone.View.extend({
 		return false;
 	},
 	createFieldView : function(field, withCell) {
-		return this.createFieldViewByModel(this.model, field, withCell);
+		return this.createFieldViewByModel(this.model, field, withCell, false);
+	},
+	createCompactFieldView : function(field, withCell) {
+		return this.createFieldViewByModel(this.model, field, withCell, true);
 	},
 	assign : function (selector, view) {
 	    var selectors;
@@ -263,7 +233,12 @@ var BaseView = Backbone.View.extend({
 			if (this.options) {
 				$("#title").html(getPlural(this.options.objectName));
 			} else if (this.model) {
-				$("#title").html(this.model.type + ": " + this.model.get('name'));
+				if (this.model.isConcrete()) {
+					$("#title").html(this.model.type + ": " + this.model.get('name'));
+				} else {
+					$("#title").html(this.model.get('OntologyClass').get('name') + ": " + this.model.getNameProperty().get('name'));
+				}
+				
 			} else {
 				$("#title").html(getSiteMapTitle());
 			}

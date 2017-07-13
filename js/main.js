@@ -125,8 +125,11 @@ var BaseRouter = Backbone.Router.extend({
 				id : id
 			});
 			
-			var dataservices = new DataServiceCollection();
-			dataservicesPromise = dataservices.fetch();
+			if (typeof DataServiceCollection != "undefined") {
+				var dataservices = new DataServiceCollection();
+				dataservicesPromise = dataservices.fetch();
+			}
+			
 
 			accessMode = "read";
 			
@@ -177,11 +180,14 @@ var BaseRouter = Backbone.Router.extend({
 					
 					app.activeView = objectView;
 					
-					var ontologyClass = new OntologyClass();
+					if (typeof DataServiceCollection != "undefined") {
+						var ontologyClass = new OntologyClass();
+						
+						ontologyClass.urlRoot = ontologyClass.urlRoot + "?name=" + object.type;
+						
+						ontologyClassPromise = ontologyClass.fetch();
+					}
 					
-					ontologyClass.urlRoot = ontologyClass.urlRoot + "?name=" + object.type;
-					
-					ontologyClassPromise = ontologyClass.fetch();
 					
 					$.when(ontologyClassPromise).then(function() {
 						var ontologyInformationView = new OntologyInformationView({
@@ -219,7 +225,7 @@ var BaseRouter = Backbone.Router.extend({
 			
 			object.fetch({
 				success : function() {
-					var objectView = new SingleEntityView({
+					var objectView = new SingleObjectView({
 						el : $('#content'),
 						model : object
 					});
@@ -303,7 +309,7 @@ var BaseRouter = Backbone.Router.extend({
 			
 			accessMode = "edit";
 			
-			var objectView = new SingleEntityView({
+			var objectView = new SingleObjectView({
 				el : $('#content'),
 				model : object
 			});

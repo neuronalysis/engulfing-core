@@ -70,6 +70,10 @@ window.BackGridTableView = BaseView.extend({
 		this.$el.html(this.template());
 
 		
+		//TODO!!!!! needs valid backbone-model definition
+		//			including defaults. otherwise set-function not working
+		//			proper error handling missing
+		
 		// Set up a grid to use the pageable collection
 		var pageableGrid = new Backgrid.Grid({
 			columns : this.columns,

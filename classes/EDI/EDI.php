@@ -13,8 +13,6 @@ include_once ('Ressource.php');
 include_once ('DataSource.php');
 include_once ('DataProvider.php');
 include_once ('ImportProcess.php');
-include_once ('ImportEntity.php');
-include_once ('ImportHelper.php');
 
 
 
@@ -77,24 +75,26 @@ class EDI extends EDI_Generated {
 		
 		$pendings = $economics->getPendings($type);
 	}
-	function importObjects($objects, $schema) {
+	function importObjects($objects, $schema, $internalKeys) {
 		$UserID = isLogged();
 		
-		$imphelper = new ImportHelper();
-		
 		$km = new KM();
-		$km->setDataBaseConnections($this->databaseConnections);
+		$rest = new REST();
 		
-		$ontologyClass = $km->getOntologyClassByName(get_class($objects[0]), true);
+		$entities = array();
+		$entityClasses = array();
+		$entityProperties = array();
+		
+		$bulkValues = array();
+		$bulkFields = array();
+		
+		$ontologyClass = $objects[0]->OntologyClass;
 		
 		if (isset($ontologyClass)) {
-			$ontologyClass->RelationOntologyClassOntologyProperties = $ontologyClass->getRelationOntologyClassOntologyProperties();
-			$ontologyClass->RelationOntologyClassOntologyClasses = $ontologyClass->getRelationOntologyClassOntologyClasses(false, true);
-		
-			array_push($imphelper->entityClasses, $ontologyClass);
-		
+			array_push($entityClasses, $ontologyClass);
+			
 			foreach($ontologyClass->RelationOntologyClassOntologyProperties as $rocop) {
-				array_push($imphelper->entityProperties, $rocop->OntologyProperty);
+				array_push($entityProperties, $rocop->OntologyProperty);
 			}
 			
 			foreach($ontologyClass->RelationOntologyClassOntologyClasses as $rococ) {
@@ -106,7 +106,7 @@ class EDI extends EDI_Generated {
 						$op = new OntologyProperty();
 						$op->name = $ocNameIdied;
 							
-						array_push($imphelper->entityProperties, $op);
+						array_push($entityProperties, $op);
 					} else {
 						//echo $ocName . "; fuuuck\n";
 						//print_r($objects[0]);
@@ -116,42 +116,50 @@ class EDI extends EDI_Generated {
 				
 			}
 			
-			$imphelper->OntologyClass = $ontologyClass;
-		
 			foreach($objects as $objectItem) {
-				$entity = new ImportEntity();
-				$entity->entityClassName = $ontologyClass->name;
-				$entity->entityOntologyName = $ontologyClass->Ontology->name;
+				$entity = new stdClass();
 					
 				foreach($ontologyClass->RelationOntologyClassOntologyProperties as $rocop) {
 					$opName = $rocop->OntologyProperty->name;
-		
+					
 					$entity->$opName = $objectItem->$opName;
 					
-					if ($UserID) {
+					//TODO modification info missing on observations?
+					/*if ($UserID) {
 						$entity->setModificationInfo($UserID);
 					} else {
 						$entity->setModificationInfo(23);
-					}
+					}*/
 				}
 				
 				foreach($ontologyClass->RelationOntologyClassOntologyClasses as $rococ) {
 					if ($rococ->OntologyRelationType->name === "hasOne") {
 						$ocName = $rococ->IncomingOntologyClass->name;
+						
 						$ocNameIdied = lcfirst($ocName) . "ID";
 				
 				
-						$entity->$ocNameIdied = $objectItem->$ocName->id;
+						$entity->$ocNameIdied = $internalKeys[$ocNameIdied];
 					}
 				}
 							
-				array_push($imphelper->entities, $entity);
+				array_push($entities, $entity);
 			}
 		}
 		
-		//print_r($imphelper->entities[0]);
+		foreach($entityProperties as $entityPropertyItem) {
+			$keyName = $entityPropertyItem->name;
+			array_push($bulkFields, $keyName);
+		}
+			
+		foreach($entities as $entityItem) {
+			foreach($entityProperties as $entityPropertyItem) {
+				$keyName = $entityPropertyItem->name;
+				array_push($bulkValues, $entityItem->$keyName);
+			}
+		}
 		
-		$imphelper->bulkInsert_ImportEntities($imphelper->entities, true);
+		$rest->orm->insertArrayBulk($bulkValues, $ontologyClass->name, $bulkFields);
 	}
 	function importDataServiceEntities($dataserviceentities) {
 		if (!$UserID = isLogged()) {
@@ -282,6 +290,7 @@ class EDI extends EDI_Generated {
 	}
 	function importXMLFile($filename, $objectName, $xPathQuery, $scope = null) {
 		$doc = new DOMDocument();
+		
 		$doc->loadXML(file_get_contents($filename));
 		
 		$baseDoc = clone $doc;

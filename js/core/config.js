@@ -23,7 +23,7 @@ if (window.location.href.indexOf("localhost") === -1) {
 	
 	var odBase = "http://localhost.ontologydriven/";
 	var engulfingBase = "http://localhost.engulfing/";
-	var neuroBase = "http://localhost.generated/neuronalysis/";
+	var neuroBase = "http://localhost.neuronalysis/";
 	
 	
 }

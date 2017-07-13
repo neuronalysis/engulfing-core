@@ -90,6 +90,8 @@ class ORM {
 		
 		return $objects;
 	}
+	//TODO reduce amount of parameters
+	//TODO document cascade/explicitFields processing
 	function getByNamedFieldValues($object_name, $fields, $values = null, $like = false, $paging = null, $eager = false, $noPaging = false, $cascades = null, $order = null, $limit = null, $keyOperators = null, $explicitFields = null) {
 		$keyValues = $this->mergeFieldsAndValues($fields, $values);
 		$keyValues = $this->filterPersistableKeyValues($keyValues);
@@ -97,7 +99,6 @@ class ORM {
 		if ($objects = $this->isLoadedObjectsArray($object_name, $keyValues)) return $objects;
 		
 		$db_scope = $this->getOntologyScope($object_name);
-		
 		if ($explicitFields) {
 			$sql_select_fields = "*, " . implode(",", $explicitFields );
 		} else {
@@ -148,8 +149,6 @@ class ORM {
 						
 						$j++;
 					}
-					
-					
 				}
 			}
 			
@@ -184,9 +183,9 @@ class ORM {
 			if (isset($objects[0])) {
 				$object = $objects[0];
 				
+				//TODO Evil
 				if ($object_name == "RelationIndicatorImpactFunction") {
 					$indicator = $this->getById("Indicator", $object->indicatorID, false);
-						
 					if (isset($objects[0]->impactFunctionID)) {
 						$impactfunctions = $this->executeQuery(
 								"SELECT * FROM impactfunctions WHERE id=:id",
@@ -202,6 +201,38 @@ class ORM {
 					}
 						
 					$object->Indicator = $indicator;
+				} else if ($object_name == "Indicator") {
+					$referencedObjects = $this->loadReferencedObjects($object, $object_name, $excludes);
+					
+					foreach($referencedObjects as $nestedToOneObjectKey => $nestedToOneObjectValue) {
+						$object->$nestedToOneObjectKey = $nestedToOneObjectValue;
+						
+						/*if ($nestedToOneObjectKey == "Release") {
+							foreach($object->$nestedToOneObjectKey->Indicators as $releaseIndicator) {
+								unset($releaseIndicator->RelationIndicatorImpactFunctions);
+							}
+						}*/
+						
+					}
+					
+					$relationimpactfunctions = $this->executeQuery(
+							"SELECT * FROM relationindicatorimpactfunctions WHERE indicatorID=:indicatorID",
+							"RelationIndicatorImpactFunction", array("indicatorID" => $object->id));
+					
+					foreach($relationimpactfunctions as $relationImpactFunctionItem) {
+						$relImpFunction = $this->getById("RelationIndicatorImpactFunction", $relationImpactFunctionItem->id);
+						
+						$ImpFunction = $this->getById("ImpactFunction", $relationImpactFunctionItem->impactfunctionID);
+						unset($ImpFunction->RelationIndicatorImpactFunctions);
+						$relImpFunction->ImpactFunction = $ImpFunction;
+						$relImpFunction->ImpactFunction->name = $relImpFunction->ImpactFunction->formula;
+						
+						unset($relImpFunction->Indicator);
+						
+						array_push($object->RelationIndicatorImpactFunctions, $relImpFunction);
+					}
+					
+					
 				} else if ($object_name == "Underlying") {
 					$sector = $this->getById("Sector", $object->sectorID, false);
 					
@@ -333,7 +364,7 @@ class ORM {
 	}
 	function insertArrayBulk($array, $table, $fields) {
 		try {
-			$db_scope = strtolower($this->getOntologyScope($rest->singularize($table)));
+			$db_scope = strtolower($this->getOntologyScope($this->singularize($table)));
 				
 			$db = $this->openConnection($db_scope);
 	
@@ -344,8 +375,9 @@ class ORM {
 	
 			$question_marks = array_fill(0, count($array) / count($fields), $qm);
 	
-			$sql = "INSERT IGNORE INTO " . $rest->pluralize($table) . " (" . implode(",", $fields ) . ") VALUES " . implode(',', $question_marks);
+			$sql = "INSERT IGNORE INTO " . $this->pluralize($table) . " (" . implode(",", $fields ) . ") VALUES " . implode(',', $question_marks);
 	
+			echo $sql . "\n";
 			
 			$stmt = $db->prepare ($sql);
 	

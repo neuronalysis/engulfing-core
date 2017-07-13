@@ -70,31 +70,31 @@ class ImportProcess extends ImportProcess_Generated {
 		
 		return array_slice($request_urls, 4, 10);
 	}
-	function importObjects($objects) {
+	function importObjects($objects, $internalKeys) {
 		$km = new KM();
-		$km->setDataBaseConnections($this->databaseConnections);
-		
 		$iex = new Extraction();
-		$iex->setDataBaseConnections($this->databaseConnections);
 		$edi = new EDI();
-		$edi->setDataBaseConnections($this->databaseConnections);
 		
 		$edi->userID = 23;
 			
 		$ontologyClass = $km->getOntologyClassByName(get_class($objects[0]), true);
+		
 		$objects[0]->OntologyClass = $ontologyClass;
-		$edi->importObjects($objects, $this->DataService->schemaDefinition);
+		$edi->importObjects($objects, $this->DataService->schemaDefinition, $internalKeys);
 	}
 	function getUrl($internalKey = null, $explicitParameterKeyValues = null) {
+		$rest = new REST();
+		
 		$parameters = "";
 		$apiKeyParameter = "";
 		$urlString = $this->DataService->url;
 		
 		$schema = json_decode($this->DataService->schemaDefinition);
+		
 		$schemavars = get_object_vars($schema);
 		 
 		if (isset($schemavars['parameters'][0]->ontologyClass)) {
-			$ontologyName = $this->getOntologyName($schemavars['parameters'][0]->ontologyClass);
+			$ontologyName = $rest->orm->getOntologyName($schemavars['parameters'][0]->ontologyClass);
 				
 			$ontologyClasses = $rest->orm->getByNamedFieldValues("OntologyClass", array("name"), array($schemavars['parameters'][0]->ontologyClass));
 			
@@ -126,7 +126,12 @@ class ImportProcess extends ImportProcess_Generated {
 		
 		if ($explicitParameterKeyValues) {
 			foreach($explicitParameterKeyValues as $key => $value) {
-				$parameters .= "&" . $key . "=" . $value;
+				if (strpos($this->DataService->url, "{" . $key. "}") !== false) {
+					$urlString = str_ireplace("{" . $key. "}", $value, $urlString);
+				} else {
+					$parameters .= "&" . $key . "=" . $value;
+				}
+				
 			}
 		}
 		if ($parameters) {
@@ -168,11 +173,6 @@ class ImportProcess extends ImportProcess_Generated {
 		$schema = json_decode($this->DataService->schemaDefinition);
 			
 		$converted = $edi->convertJSONToObjectsBySchema($result, $schema);
-			
-		
-			
-		
-		
 		
 		return $converted;
 	}

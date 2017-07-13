@@ -51,12 +51,12 @@ class REST_Transformer {
 			}
 		}
 		
-		
 		if (is_array($data)) {
 			foreach($data as $key => $value) {
 				if ((class_exists($key)) || (class_exists("\\" . $this->namespace . "\\" . $key))) {
 					$object->$key =  $this->mapDataToObject($value, $key);
 				} else {
+					if ($key == "Strings") $key = "ALTOStrings";
 					if (is_array($value)) {
 						if ($this->isAssoc($value)) {
 							foreach($value as $itemKey => $itemValue) {
@@ -65,14 +65,27 @@ class REST_Transformer {
 						} else {
 							$array = array();
 							
-							foreach($value as $item) {
-								array_push($array, $this->mapDataToObject($item, $this->singularize($key)));
+							if (count($value) > 0) {
+								foreach($value as $item) {
+									array_push($array, $this->mapDataToObject($item, $this->singularize($key)));
+								}
+								
+								$object->$key = $array;
 							}
 								
-							$object->$key = $array;
+							
 						}
 					} else {
-						$object->$key = $value;
+						if (property_exists($class_name, $key) || property_exists("\\" . $this->namespace . "\\" . $class_name, $key)) {
+							$rp = new ReflectionProperty($object,$key);
+							if ($rp->isProtected()) {
+								$setterMethodName = "set" . ucfirst($key);
+								
+								if (method_exists($object, $setterMethodName) || property_exists($object, $setterMethodName)) $object->$setterMethodName($value);
+							} else {
+								$object->$key = $value;
+							}
+						}
 					}
 				}
 			}

@@ -1,5 +1,7 @@
 var InputTextView = InputView.extend({
-	initialize : function() {
+	initialize : function(options) {
+		InputTextView.__super__.initialize.apply(this, arguments);
+		
 		this.template = _.template(tpl.get('components/input_text'));
 	},
 	events : {
@@ -19,26 +21,26 @@ var InputTextView = InputView.extend({
 			this.model.type = 'ReleasePublication';
 		}
     		
-		
-		if (this.model.type === "OntologyPropertyEntity") {
-			if (this.url) {
-				if (accessMode == "edit") {
-					field_value += this.model.get('name');
-				} else {
+		if (accessMode == "edit") {
+			field_value += this.model.get('name');
+		} else {
+			if (this.model.type === "OntologyPropertyEntity") {
+				if (this.url) {
 					field_value += '<a href="' + this.url + '">' + this.model.get('name') + '</a>';
+				} else {
+					field_value += this.model.get('name');
 				}
 			} else {
-				field_value += this.model.get('name');
-			}
-		} else {
-			if (this.url) {
-				field_value += '<a href="' + this.url + '">' + this.model.get(this.field) + '</a>';
-			} else {
-				field_value += this.model.get(this.field);
+				if (this.url) {
+					field_value += '<a href="' + this.url + '">' + this.model.get(this.field) + '</a>';
+				} else {
+					field_value += this.model.get(this.field);
+				}
 			}
 		}
 		
-		var data = {"object_name": this.model.type.toLowerCase(), "field_name": this.field, "field_value": field_value};
+		
+		var data = {"object_name": this.model.type.toLowerCase(), "field_name": this.field, "field_value": field_value, "withLabel" : this.withLabel, "labelName" : this.labelName};
 
 		this.$el.html(this.template(data));
 		

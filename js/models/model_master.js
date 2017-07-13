@@ -45,9 +45,14 @@ window.Master = Backbone.RelationalModel.extend({
     		}
     	
     		for (var i=0; i < relations.length; i++) {
-    			if (typeof relations[i].related.type === 'undefined') {
-    				relations[i].related.type = relations[i].options.relatedModel;
+    			if (!relations[i].related) {
+    				//relations[i].related.type = relations[i].options.relatedModel;
+    			} else {
+    				if (typeof relations[i].related.type === 'undefined') {
+        				relations[i].related.type = relations[i].options.relatedModel;
+        			}
     			}
+    			
     		}
 
     	} else {
@@ -131,12 +136,24 @@ window.Master = Backbone.RelationalModel.extend({
 		
 		return false;
     },
+    getModelByGroupName: function(groupName) {
+    	if (this.isConcrete()) {
+    		model = this.get(groupName);
+    	} else {
+    		model = this.getOntologyClassEntityByName(getSingular(groupName));
+    	}
+    	
+    	return model;
+    },
     isConcrete: function () {
     	if (this.type === "OntologyClassEntity" && this.get('OntologyClass')) {
     		return false;
     	}
     	
     	return true;
+    },
+    getFieldGroupNameByModel(model) {
+    	
     },
     getFieldGroups: function () {
     	var fieldGroups = [];
@@ -149,21 +166,7 @@ window.Master = Backbone.RelationalModel.extend({
     				if (this.__proto__.relations[i].key === getPlural(this.__proto__.relations[i].relatedModel) && this.__proto__.relations[i].key !== "Lexemes") {
     					var fieldGroupName = this.__proto__.relations[i].relatedModel;
         				
-    					if (fieldGroupName.substr(0, 8) === "Relation") {
-    						var relations_inout = this.get(this.__proto__.relations[i].key);
-    			        	
-    						var collectionModelAttributes = this.get('RelationIndicatorImpactFunctions').getModelAttributes();
-    						
-    						for (var j=0; j < collectionModelAttributes.length; j++) {
-    							if (collectionModelAttributes[j] === this.type) {
-    							} else {
-    								var fieldGroupName = collectionModelAttributes[j];
-    							}
-    						}
-    						
-    					}
-    				
-        				fieldGroups.push({"name" : getPlural(fieldGroupName), "fieldViews" : []} );
+    					fieldGroups.push({"name" : getPlural(fieldGroupName), "fieldViews" : []} );
     				}
     			}
     		} else {
@@ -309,6 +312,15 @@ window.MasterCollection = Backbone.PageableCollection.extend({
     getFieldName : function() {
 		return getPlural(this.model.prototype.relations[1].relatedModel);
 	},
+	hasRelation : function() {
+		var modelAttributes = this.getModelAttributes();
+		
+		for (var i = 0; i < modelAttributes.length; i++) {
+			if (modelAttributes[i].indexOf("Relation") !== -1) return modelAttributes[i];
+		}
+		
+		return false;
+	},
     getModelAttributes : function() {
     	var attributes = [];
     	
@@ -317,6 +329,13 @@ window.MasterCollection = Backbone.PageableCollection.extend({
     	}
     	
 		return attributes;
+	},
+	isConcrete : function() {
+		if (this.type === "OntologyClassEntity" && this.get('OntologyClass')) {
+    		return false;
+    	}
+    	
+    	return true;
 	},
 	getString : function() {
 		var collectionString = "";

@@ -27,9 +27,12 @@ class REST {
 				unset($namedfieldParameters['total_entries']);
 					
 				$oclass = null;
+				//TODO
+				
 				if (class_exists("KM")) {
 					$km = new KM();
-						
+					//TODO
+					
 					if (isset($namedfieldParameters['ontologyClassID'])) {
 						if ($namedfieldParameters['ontologyClassID']) {
 							$oclass = $km->getOntologyClassById($namedfieldParameters['ontologyClassID']);
@@ -60,6 +63,7 @@ class REST {
 						}
 					}
 				} else {
+					//TODO
 					if ($ontologyClassName === "ReleasePublication") {
 						$economics = new Economics();
 						$result_paged = $economics->getNextReleasePublications();
@@ -76,6 +80,8 @@ class REST {
 					$result = $this->orm->getByNamedFieldValues($ontologyClassName, array("name"), array($_GET['name']));
 					$result = $this->orm->getById($ontologyClassName, $result[0]->id);
 				} else {
+					//TODO
+					
 					if ($ontologyClassName === "releasepublication") {
 						$result_paged = $this->orm->getAllByName($ontologyClassName, false, null, null, array("releaseID"));
 						
@@ -100,10 +106,11 @@ class REST {
 			
 			if ($id) {
 				$obj = new $ontologyClassName();
+				//TODO
 				
 				if ($ontologyClassName === "indicator") {
 					$result = $this->orm->getById($ontologyClassName, $id);
-						
+					
 					unset($result->Release->Indicators);
 					unset($result->Release->ReleasePublications);
 				} else if ($ontologyClassName === "Instrument") {
@@ -111,25 +118,37 @@ class REST {
 					
 					$result->ImpactFunctions = $this->orm->getByNamedFieldValues("ImpactFunction", array("instrumentID"), array($result->id));
 					foreach($result->ImpactFunctions as $if_item) {
-						$if_item->RelationIndicatorImpactFunctions = $this->orm->getByNamedFieldValues("RelationIndicatorImpactFunction", array("impactFunctionID"), array($if_item->id), false, null, false, false, null, null, null, null, array("indicatorID"));
+						$if_item->name = $if_item->formula;
+						
+						$if_item->RelationIndicatorImpactFunctions = $this->orm->getByNamedFieldValues("RelationIndicatorImpactFunction", array("impactFunctionID"), array($if_item->id), false, null, false, false, array("Indicator"), null, null, null, array("indicatorID"));
 						
 						foreach($if_item->RelationIndicatorImpactFunctions as $rel_item) {
-							print_r($rel_item);
-							$rel_item->Indicator = $this->orm->getByNamedFieldValues("Indicator", array("id"), array($rel_item->indicatorID));
+							unset($rel_item->ImpactFunction);
+							
+							unset($rel_item->Indicator->Release);
+							unset($rel_item->Indicator->Frequency);
+							unset($rel_item->Indicator->IndicatorObservations);
+							unset($rel_item->Indicator->Country);
+							
+							unset($rel_item->Indicator->RelationIndicatorImpactFunctions);
 						}
+						
+						unset($if_item->Instrument);
 					}
 					
 				} else if ($ontologyClassName === "\\OCR\\Document") {
-					$result = $this->orm->getById("\\OCR\\Document", $id, false);
+					$result = $this->orm->getById("\\OCR\\Document", $id, true);
+					
+					//print_r($result);
 					
 					$doc = new DOMDocument();
 					$doc->loadXML($result->Pages[0]->altoXML);
-						
-					$xmlconv = new XMLConverter("ALTO");
-					$alto = $xmlconv->convertToObjectTree($doc);
-					$result->Pages[0]->ALTO = $alto;
 					
-					//print_r($result);
+					
+					$xmlconv = new XMLConverter("alto");
+					$alto = $xmlconv->convertToObjectTree($doc);
+					$result->Pages[0]->alto= $alto;
+					
 					
 					unset($result->Pages[0]->altoXML);
 				} else {
@@ -315,6 +334,7 @@ class REST {
 	
 		return $this->singularize($objectname);
 	}
+	//TODO gebastel. mix aus generalisierung und spezialfällen...
 	function loadRoutes($app, $ressourceRoot = null) {
 		$scopeName = $this->getScopeName();
 	
@@ -324,8 +344,8 @@ class REST {
 			$classScopeName = ucfirst($scopeName);
 		}
 		
-		if ($scopeName !== "" && !in_array(strtolower($scopeName), array("edi"))) {
-			
+		//if ($scopeName !== "" && !in_array(strtolower($scopeName), array("edi"))) {
+		if ($scopeName !== "") {
 			if (!$ressourceRoot) {
 				$ressourceRoot = __DIR__;
 			}
@@ -339,11 +359,10 @@ class REST {
 					require_once $ressourceRoot . '/../../../../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/' . $classScopeName . '.php';
 				}
 			}
-				
+			
 			$contents = glob($ressourceRoot  . '/ressources/' . $scopeName . '/' . '*.*');
 				
 			foreach ($contents as $file_name) {
-				//echo $file_name . "\n";
 				if (strpos($file_name, "task_") === false && strpos($file_name, ".json") === false) {
 					require_once $file_name;
 				}
@@ -358,12 +377,14 @@ class REST {
 			if ($ontology) {
 					
 				$scope = strtolower($ontology->name);
-					
+
 				if ($scope !== "news") {
 			
 					$classes = $km->getOntologyClassesByOntologyId($ontology->id);
 						
 					foreach ($classes as $class) {
+						//echo $scope . ": " . $class->name . "\n";
+						
 						$ressourceName = strtolower($this->pluralize($class->name));
 			
 						$app->get('/' . $scope . '/' . $ressourceName . '/:id',	'get');
@@ -391,6 +412,7 @@ class REST {
 				}
 			}
 		}
+		
 		
 		if (isset($scope)) {
 			if ($scope === "wiki") {

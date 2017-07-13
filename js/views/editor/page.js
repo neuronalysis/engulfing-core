@@ -7,6 +7,10 @@ var PageView = BaseView.extend({
 	render : function() {
 		this.$el.empty();
 		
+		$(this.el).append(new TopMarginView({
+			model : this.model.get('TopMargin')
+		}).render().el);
+		
 		$(this.el).append(new PrintSpaceView({
 			model : this.model.get('PrintSpace')
 		}).render().el);

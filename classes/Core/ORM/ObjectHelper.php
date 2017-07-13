@@ -365,7 +365,7 @@ trait ObjectHelper {
 		} else {
 			$OntologyClassname = $levels[1];
 		}
-	
+		
 		if (!class_exists($OntologyClassname, false)) {
 			$OntologyClassname = $this->singularize($OntologyClassname);
 			
@@ -408,11 +408,15 @@ trait ObjectHelper {
 		return $ontologyName;
 	}
 	function getOntologyScope($object_name) {
-		if (is_object($object_name)) $object_name = get_class($object_name);
+		if (is_object($object_name)) {
+			$object_name = get_class($object_name);
+		}
 		
-		if (class_exists($object_name)) {
+		if (class_exists($object_name) && $object_name !== "stdClass") {
 			$reflection = new ReflectionClass($object_name);
 			$directory = dirname($reflection->getFileName());
+			
+			//echo $object_name . ": " . $directory . "\n";
 			
 			if (strpos($directory, "\\") !== false) {
 				$directoryArray = explode("\\", $directory);
@@ -422,18 +426,21 @@ trait ObjectHelper {
 			
 			$scope = end($directoryArray);
 		} else {
-			$km = new KM();
-			
-			$ontologyClass = $km->getOntologyClassByName($object_name, true);
-			
-			if (isset($ontologyClass)) {
-				if ($ontologyClass->Ontology) {
-					$scope = $ontologyClass->Ontology->name;
+			if (class_exists("KM")) {
+				$km = new KM();
+				
+				$ontologyClass = $km->getOntologyClassByName($object_name, true);
+				
+				if (isset($ontologyClass)) {
+					if ($ontologyClass->Ontology) {
+						$scope = $ontologyClass->Ontology->name;
+					}
+				} else {
+					$scope = $this->getScopeName();
 				}
 			} else {
 				$scope = $this->getScopeName();
 			}
-			
 		}
 		
 		return strtolower($scope);

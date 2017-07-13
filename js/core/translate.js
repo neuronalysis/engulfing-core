@@ -75,6 +75,7 @@ function getPlural(singular) {
 	
 	return null;
 }
+//TODO vomit
 function getOntology(objectName) {
 	var objName = '';
 	objName = objName + objectName;
@@ -89,12 +90,12 @@ function getOntology(objectName) {
 	} else if (objName == "role" || objName == "user" || objName == "owner") {
 		ontologyShortName = "usermanagement";
 	} else if (objName == "instrument" || objName == "indicator" || objName == "release" || objName == "impactfunction") {
-		ontologyShortName = "neuronalysis";
+		ontologyShortName = "";
 	} else if (objName == "course" || objName == "module" || objName == "courseevent") {
 		ontologyShortName = "lms";
 	} else if (objName == "pillowcase" || objName == "pillowfilling") {
 		ontologyShortName = "kissenstern";
-	} else if (objName == "editor") {
+	} else if (objName == "editor" || objName == "document" || objName == "page") {
 		ontologyShortName = "kokos";
 	}
 	

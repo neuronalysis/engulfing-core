@@ -1,5 +1,11 @@
 var InputTagsView = InputView.extend({
 	initialize : function() {
+		InputTagsView.__super__.initialize.apply(this, arguments);
+		
+		if(typeof this.caption  === 'undefined') {
+			this.caption = 'name';
+    	}
+				
 		this.template = _.template(tpl.get('components/input_tags'));
 	},
 	events : {
@@ -40,16 +46,17 @@ var InputTagsView = InputView.extend({
 	    	
 	    	var tags = [];
 			
+	    	
 			for (var i = 0; i < model_tags.models.length; i++) {
 				if (typeof model_tags.models[i].attributes.language !== 'undefined') {
 					tags.push({
 						id : model_tags.models[i].id,
-						text : model_tags.models[i].get('name') + " [" + model_tags.models[i].get('Language').get('isoCode') + "]"
+						text : model_tags.models[i].get(this.caption) + " [" + model_tags.models[i].get('Language').get('isoCode') + "]"
 					});
 				} else {
 					tags.push({
 						id : model_tags.models[i].id,
-						text : model_tags.models[i].get('name')
+						text : model_tags.models[i].get(this.caption)
 					});
 				}
 			}
@@ -59,9 +66,22 @@ var InputTagsView = InputView.extend({
 			var tags = [];
 			
 			var object_string = "";
+			//TODO 	needs support for sub-page
+			//		currently workaround with explicit specific overwrite
+			if(typeof this.routeContext  !== 'undefined') {
+				pathRoute = getOntology(getSingular(this.field.toLowerCase())) + '/' + this.routeContext + '/' + getPlural(this.field.toLowerCase()) + '/';
+			} else {
+				pathRoute = getOntology(getSingular(this.field.toLowerCase())) + '/' + getPlural(this.field.toLowerCase()) + '/#';
+			}
 			
 			for (var i = 0; i < model_tags.models.length; i++) {
-				object_string += '<a href="../../' + getOntology(getSingular(this.field.toLowerCase())) + '/' + getPlural(this.field.toLowerCase()) + '/#' + model_tags.models[i].get('id') + '">' + model_tags.models[i].get('name') + '</a>';
+				if(typeof this.valueField  !== 'undefined') {
+					entityRoute = model_tags.models[i].get(this.valueField);
+				} else {
+					entityRoute = model_tags.models[i].get('id');
+				}
+				
+				object_string += '<a href="../../' + pathRoute + entityRoute + '">' + model_tags.models[i].get(this.caption) + '</a>';
 				
 				if (i < model_tags.models.length - 1) {
 					object_string += ', ';

@@ -28,14 +28,7 @@ var SingleObjectView = BaseView.extend({
 		} else {
 			this.hasFieldGroups = false;
 			
-			for(field in this.model.__proto__.defaults) {
-				if (field !== "id" && field.slice(-2) !== "ID" && field !== "DataServices") {
-					fieldView = this.createFieldView(field);
-					if (fieldView) {
-						this.fieldViews.push(fieldView);
-					}
-				}
-			}
+			this.fieldViews = this.getFieldViews();
 		}
 		
 		this.contextButtonViews = [];
@@ -51,6 +44,7 @@ var SingleObjectView = BaseView.extend({
 	events : {
 		"click #btn_save" : "saveObject",
 		"click #btn_edit" : "editObject",
+		"click #btn_addField" : "addField",
 		"click #btn_endpoint" : "endpoint",
 		"click #btn_entityList" : "entityList",
 		"click #btn_endpoint" : "endpoint",
@@ -74,6 +68,43 @@ var SingleObjectView = BaseView.extend({
 
     	window.location = url + '/endpoint';
  	},
+ 	//singleentity.js leftover
+ 	addField : function() {
+		var ontologyProperty = window["OntologyProperty"].findOrCreate({
+			id : null,
+			name : null
+		});
+		var relOCOP = window["RelationOntologyClassOntologyProperty"].findOrCreate({
+			id : null,
+			OntologyClass : null,
+			OntologyProperty : ontologyProperty
+		});
+		
+		var ontologyPropertyEntity = window["OntologyPropertyEntity"].findOrCreate({
+			id : null,
+			name : null,
+			OntologyProperty : ontologyProperty
+		});
+		var relOCOPEntity = window["RelationOntologyClassOntologyPropertyEntity"].findOrCreate({
+			id : null,
+			OntologyClassEntity : null,
+			OntologyPropertyEntity : ontologyPropertyEntity
+		});
+		
+		this.model.get('RelationOntologyClassOntologyPropertyEntities').models.push(relOCOPEntity);
+		
+		this.model.get('OntologyClass').get('RelationOntologyClassOntologyProperties').models.push(relOCOP);
+		
+		var entityFieldName = 'name';
+		
+		var newfieldView = this.createAdditionalFieldView(entityFieldName);
+		
+		this.fieldViews.push(newfieldView);
+		
+		this.render();
+		
+		return false;
+	},
 	watchObject : function() {
 		if (app.activeView.model.id == this.model.id) {
 			this.model.watch();
@@ -108,7 +139,7 @@ var SingleObjectView = BaseView.extend({
 	importProcessing : function(item) {
 		var targetID = parseInt(item.currentTarget.attributes.targetid.nodeValue);
 		
-		this.importProcesses[targetID].start();
+		this.importProcesses[targetID].start(this.model.id);
 		
 		return false;
 	},
@@ -141,6 +172,8 @@ var SingleObjectView = BaseView.extend({
     	window.location = url + '/entities';
 	},
 	isGroupFieldView : function(fieldName) {
+		if (this.fieldGroups === undefined) return false;
+		
 		for (var i = 0; i < this.fieldGroups.length; i++) {
 			if (this.fieldGroups[i].name === fieldName) {
 				return true;
@@ -158,17 +191,41 @@ var SingleObjectView = BaseView.extend({
 		
 		if (!model) return fieldViews;
 		
-		for(field in model.attributes) {
-			if (field !== "id" && field !== "name" && field.slice(-2) !== "ID" && !model.isProtected(field)) {
-				if (field.substring(0, 3) !== "Rel") {
-					fieldView = this.createFieldView(field);
+		//TODO for dashboard/overview fields from separate tabs/fieldgroups need to be prepared condensed or completely avoided
+		if (model.isConcrete()) {
+			if (model instanceof Backbone.Collection && model.length > 0) {
+				if (model.type.substr(0, 8) === "Relation") {
+					var subModelView = this.createFieldViewByModel(this.model, getPlural(model.type));
+					fieldViews.push(subModelView);
+				} else {
+					if (relationName = model.hasRelation()) {
+						for (var i=0; i < model.length; i++) {
+							
+							var subModelView = this.createFieldViewByModel(model.models[i], getPlural(relationName));
+							fieldViews.push(subModelView);
+						}
+					} else {
+						var subModelView = this.createFieldViewByModel(this.model, getPlural(model.type));
+						fieldViews.push(subModelView);
+					}
 					
-					fieldViews.push(fieldView);
+				}
+			} else if (model instanceof Backbone.Collection && model.length == 0) {
+				fieldView = this.createFieldViewByModel(this.model, getPlural(model.type));
+				
+				fieldViews.push(fieldView);
+			} else {
+				for(field in model.attributes) {
+					if (field !== "id" && field !== "name" && field.slice(-2) !== "ID" && !model.isProtected(field)) {
+						if (!this.isGroupFieldView(field) && field !== this.model.type) {
+							fieldView = this.createFieldViewByModel(model, field);
+							
+							fieldViews.push(fieldView);
+						}
+					}
 				}
 			}
-		}
-		
-		if (!model.isConcrete()) {
+		} else {
 			var relations_ococ = model.get('OntologyClass').get('RelationOntologyClassOntologyClasses');
 			
 			for (var i=0; i < relations_ococ.length; i++) {
@@ -202,7 +259,17 @@ var SingleObjectView = BaseView.extend({
 						
 						fieldViews.push(fieldView);
 					}
+				//TODO special concrete information - model not available; root-cause needs to be resolved with clientside abstract2concrete converter
+				/*} else if (relations_ococ.models[i].get('OntologyRelationType').get('name') === "hasMany") {
+					var entityFieldName = relations_ococ.models[i].get('IncomingOntologyClass').get('name');
+					
+					if (entityFieldName === "InstrumentObservation") {
+						var fieldView = new HighChartsView({model : null, field: "InstrumentObservations", observationsLimit: 250, modelID : this.model.id});
+						
+						fieldViews.push(fieldView);
+					}*/
 				}
+					
 			}
 			
 			var relations_ocop = this.model.get('OntologyClass').get('RelationOntologyClassOntologyProperties');
@@ -238,139 +305,13 @@ var SingleObjectView = BaseView.extend({
 		
 		return fieldViews;
 	},
+	//TODO remove redundant code
 	getGroupFieldViews : function (groupName) {
-		var fieldViews = [];
-		
 		var relations = this.model.getRelatedObjects();
 		
-		for (var i=0; i < relations.length; i++) {
-			var entityFieldName = relations[i].related.type;
-			
-			if (entityFieldName === groupName) {
-				
-				fieldViews = this.getFieldViews(this.model.getOntologyClassEntityByName(groupName));
-			} else if ("ImpactFunctions" === groupName && entityFieldName == "ImpactFunction") {
-				var groupClassEntities = this.model.getEntities(entityFieldName);
-				
-				for (var e=0; e < groupClassEntities.length; e++) {
-					
-					var impactFunctionName = groupClassEntities[e].get('name');
-					
-					var indicatorsNames = "";
-					
-					fieldView = this.createFieldViewByModel(groupClassEntities[e], 'RelationIndicatorImpactFunctions', false);
-					fieldViews.push(fieldView);
-				}
-			} else if ("Indicators" === groupName && entityFieldName == "RelationIndicatorImpactFunction") {
-				var groupClassEntities = this.model.getEntities(entityFieldName);
-				
-				for (var e=0; e < groupClassEntities.length; e++) {
-					for(field in groupClassEntities[e].attributes) {
-						if (!this.model.isProtected(field) && (field === "name" || field === "date" || field === "Indicator")) {
-							if (field.substring(0, 3) !== "Rel") {
-								fieldView = this.createFieldViewByModel(groupClassEntities[e], field);
-								
-								fieldViews.push(fieldView);
-							}
-						}
-					}
-				}
-			} else if ("ImpactFunctions" === groupName && entityFieldName == "RelationIndicatorImpactFunction") {
-				var groupClassEntities = this.model.getEntities(entityFieldName);
-				
-				for (var e=0; e < groupClassEntities.length; e++) {
-					for(field in groupClassEntities[e].attributes) {
-						if (!this.model.isProtected(field) && (field === "name" || field === "date" || field === "ImpactFunction")) {
-							if (field.substring(0, 3) !== "Rel") {
-								fieldView = this.createFieldViewByModel(groupClassEntities[e], field);
-								
-								fieldViews.push(fieldView);
-							}
-						}
-					}
-				}
-			} else if ("CourseDocuments" === groupName && entityFieldName == "CourseDocument") {
-				var groupClassEntities = this.model.getEntities(entityFieldName);
-				
-				if (groupClassEntities.length == 0) {
-					fieldView = this.createFieldViewByModel(new CourseDocument(), entityFieldName, false, this.model);
-					
-					fieldViews.push(fieldView);
-				} else {
-					for (var e=0; e < groupClassEntities.length; e++) {
-						fieldView = this.createFieldViewByModel(groupClassEntities[e], entityFieldName, false, this.model);
-						
-						fieldViews.push(fieldView);
-					}
-				}
-			} else if (getPlural(entityFieldName) === groupName) {
-				if (groupName.indexOf("Observations") !== -1) {
-					if (this.model.isConcrete()) {
-						var chartsView = new HighChartsView({model : this.model, observationsLimit: 250});
-						chartsView.field = groupName;
-						
-						fieldViews.push(chartsView);
-					} else {
-						var groupClassEntities = this.model.getEntities(entityFieldName);
-						
-						var chartsView = new HighChartsView({model : this.model, observationsLimit : 250});
-						chartsView.field = groupName;
-						
-						fieldViews.push(chartsView);
-					}
-				} else {
-					var groupClassEntities = this.model.getEntities(entityFieldName);
-					
-					if (groupClassEntities.length == 1) {
-						for (var e=0; e < groupClassEntities.length; e++) {
-							for(field in groupClassEntities[e].attributes) {
-								if (field !== "id" && field !== "name" && field.slice(-2) !== "ID" && !this.model.isProtected(field)) {
-									if (field.substring(0, 3) !== "Rel") {
-										fieldView = this.createFieldViewByModel(groupClassEntities[e], field);
-										
-										fieldViews.push(fieldView);
-									}
-								}
-							}
-						}
-					} else {
-						if (this.model.isConcrete()) {
-							for (var e=0; e < groupClassEntities.length; e++) {
-								for(field in groupClassEntities[e].attributes) {
-									if (!this.model.isProtected(field) && (field === "name" || field === "date")) {
-										if (field.substring(0, 3) !== "Rel") {
-											fieldView = this.createFieldViewByModel(groupClassEntities[e], field);
-											
-											fieldViews.push(fieldView);
-										}
-									}
-								}
-							}
-						} else {
-							for (var e=0; e < groupClassEntities.length; e++) {
-								
-								var relOCOC_Properties = relations[i].get('IncomingOntologyClass').get('RelationOntologyClassOntologyProperties');
-								for (var j=0; j < relOCOC_Properties.length; j++) {
-									var groupClassPropertyName = relOCOC_Properties.models[j].get('OntologyProperty').get('name');
-									
-									if (relations[i].get('OntologyRelationType').get('name') === 'hasMany') {
-										if (groupClassPropertyName === 'name') {
-											fieldView = this.createEntityGroupFieldView(groupClassPropertyName, groupClassEntities[e]);
-											
-											fieldViews.push(fieldView);
-										}
-									} else {
-										fieldView = this.createEntityGroupFieldView(groupClassPropertyName, groupClassEntities[e]);
-										
-										fieldViews.push(fieldView);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		groupModel = this.model.getModelByGroupName(groupName);
+		
+		fieldViews = this.getFieldViews(groupModel);
 		
 		return fieldViews;
 	},
@@ -470,16 +411,11 @@ var SingleObjectView = BaseView.extend({
 	renderFieldGroups : function() {
 		var fieldGroupTab = '';
 		var tabContainerItem = '';
+		var fieldGroupTabCaption = '';
 		
 		tabContainerItem = '<div role="tabpanel" class="tab-pane active" id="dashboard"></div>';
 		
 		this.$("#tab-container").html(tabContainerItem);
-		
-		for (var i=1; i < this.fieldGroups.length; i++) {
-			tabContainerItem = '<div role="tabpanel" class="tab-pane" id="' + this.fieldGroups[i].name.toLowerCase() + '"></div>';
-			this.$("#tab-container").append(tabContainerItem);
-		}
-		
 		
 		fieldGroupTab = '<li role="presentation" class="active"><a href="#dashboard" id="dashboard-tab" role="tab" data-toggle="tab" aria-controls="dashboard" aria-expanded="true">Overview</a></li>';
 		
@@ -489,17 +425,30 @@ var SingleObjectView = BaseView.extend({
 			this.fieldGroups[0].fieldViews[j].delegateEvents();
 		}
 		
+		
 		for (var i=1; i < this.fieldGroups.length; i++) {
-			fieldGroupName = this.fieldGroups[i].name.toLowerCase();
+			fieldGroupName = this.fieldGroups[i].name;
+			if (fieldGroupName.substr(0, 8) === "Relation") {
+				fieldGroupTabCaption = fieldGroupName.replace('Relation', '').replace(this.model.type, '');
+			} else {
+				fieldGroupTabCaption = fieldGroupName;
+			}
 			
-			fieldGroupTab = '<li role="presentation" class=""><a href="#' + fieldGroupName + '" id="' + fieldGroupName + '-tab" role="tab" data-toggle="tab" aria-controls="' + fieldGroupName + '" aria-expanded="true">' + this.fieldGroups[i].name + '</a></li>';
+			tabContainerItem = '<div role="tabpanel" class="tab-pane" id="' + fieldGroupTabCaption.toLowerCase() + '"></div>';
+			this.$("#tab-container").append(tabContainerItem);
+			
+			fieldGroupTab = '<li role="presentation" class=""><a href="#' + fieldGroupTabCaption.toLowerCase() + '" id="' + fieldGroupTabCaption.toLowerCase() + '-tab" role="tab" data-toggle="tab" aria-controls="' + fieldGroupTabCaption.toLowerCase() + '" aria-expanded="true">' + fieldGroupTabCaption + '</a></li>';
 			this.$("#object-tag-navigation").append(fieldGroupTab);
 			
 			for (var j = 0; j< this.fieldGroups[i].fieldViews.length; j++) {
-				this.$('#' + fieldGroupName ).append(this.fieldGroups[i].fieldViews[j].render().el);
+				this.$('#' + fieldGroupTabCaption.toLowerCase() ).append(this.fieldGroups[i].fieldViews[j].render().el);
 				this.fieldGroups[i].fieldViews[j].delegateEvents();
 			}
 		}
+		
+		
+		
+
 	},
 	renderImportProcessingButton : function (name, importProcessID) {
 		var importProcessingButton = new ButtonView({id: "btn_importProcessing", targetID: importProcessID});
@@ -509,6 +458,7 @@ var SingleObjectView = BaseView.extend({
 		this.$("#sidebar").append('<br /><br /><br /><br />').append(importProcessingButton.render().el);
 		importProcessingButton.delegateEvents();
 	},
+	//TODO renderButtons is ugly
 	renderButtons : function() {
 		if (Cookie.get("UserID")) {
 			if (accessMode == "read") {
@@ -535,6 +485,11 @@ var SingleObjectView = BaseView.extend({
 				
 				this.$("#sidebar").append('<br /><br />').append(entitiesButton.render().el);
 				entitiesButton.delegateEvents();
+			} else if (this.model.type === "Instrument" || this.model.type === "Indicator") {
+				var entitiesImportButton = new ButtonView({id: "btn_entityImport"});
+				
+				this.$("#sidebar").append('<br /><br /><br /><br />').append(entitiesImportButton.render().el);
+				entitiesImportButton.delegateEvents();
 			}
 			
 			if (this.model.isWatched) {

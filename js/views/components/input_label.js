@@ -1,5 +1,7 @@
 var InputLabelView = InputView.extend({
 	initialize : function() {
+		InputLabelView.__super__.initialize.apply(this, arguments);
+		
 		this.template = _.template(tpl.get('components/input_label'));
 	},
 	events : {

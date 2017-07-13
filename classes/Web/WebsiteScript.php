@@ -78,6 +78,7 @@ trait WebsiteScript {
 		
 		$scope = str_ireplace(".com", "", $scope);
 		
+		//echo $scope . "; " . $refererScopeName. "\n";
 		if ($scope !== $refererScopeName) {
 			if ($this->isLocalRequest()) {
 				if ($this->generated) {
@@ -116,9 +117,11 @@ trait WebsiteScript {
 				} else {
 					if (file_exists($scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
 						$source = $scope . "/" . $scriptPath;
+						
 					} else {
 						if (file_exists("../" . $scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
 							$source = "../" . $scope . "/" . $scriptPath;
+							
 						} else {
 							if (file_exists("../../" . $scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
 								$source = "../../" . $scope . "/" . $scriptPath;
@@ -126,7 +129,12 @@ trait WebsiteScript {
 								if (file_exists("../../../" . $scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
 									$source = "../../../" . $scope . "/" . $scriptPath;
 								} else {
-									$source = "http://localhost." . $scope . "/" . $scriptPath;
+									if (file_exists("../../../../" . $scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
+										$source = "../../../../" . $scope . "/" . $scriptPath;
+									} else {
+										
+										$source = "http://localhost." . $scope . "/" . $scriptPath;
+									}
 								}
 							}
 						}
@@ -239,9 +247,10 @@ trait WebsiteScript {
 	function renderHTMLScripts_Base($scope) {
 		$html = "";
 		
-		/*$files = array();
+		$files = array();
 		
-		array_push($files, new File (null, 'vendor/jquery/jquery-2.1.3.min.js'));
+		
+		/*array_push($files, new File (null, 'vendor/jquery/jquery-2.1.3.min.js'));
 		array_push($files, new File (null, 'vendor/moment/moment.min.js'));
 		array_push($files, new File (null, 'vendor/twbs/bootstrap/dist/js/bootstrap.min.js'));
 		array_push($files, new File (null, 'vendor/twbs/bootstrap/dist/js/ie10-viewport-bug-workaround.js'));
@@ -265,11 +274,12 @@ trait WebsiteScript {
 		array_push($files, new File (null, 'vendor/various/js/cookie.js'));
 		array_push($files, new File (null, 'vendor/various/js/scripts.js'));
 		array_push($files, new File (null, 'vendor/various/js/inflection.js'));
+
 		
-		$js = $this->combineJS($files, "../engulfing/", "engulfing.vendor.min.js");
-		if (file_exists("../engulfing/vendor")) {
+		$js = $this->combineJS($files, "../engulfing/engulfing-core/", "engulfing.vendor.min.js");
+		if (file_exists("../engulfing/engulfing-core/vendor")) {
 			$fio = new FileIO();
-			$fio->saveStringToFile($js, "../engulfing/vendor" . "/" . "engulfing.vendor.min.js" );
+			$fio->saveStringToFile($js, "../engulfing/engulfing-core/vendor" . "/" . "engulfing.vendor.min.js" );
 		}*/
 		
 		
@@ -610,7 +620,6 @@ trait WebsiteScript {
 		$html = "";
 		
 		if (isset($this->activescope_OntologyClass)) {
-			echo "activescope set\n";
 			if (isset($this->activescope_OntologyClass->name)) {
 				$html .= '
 		<script src="' . $this->getScriptSource($scope, 'js/main_' . strtolower($this->activescope_OntologyClass->name) . '.js') . '"></script>
@@ -641,8 +650,11 @@ trait WebsiteScript {
 				
 				foreach($sitemap->Pages[0]->Pages as $page_item) {
 					if (strpos($this->website_url, strtolower($page_item->name)) !== false  ) {
+//						$html .= '
+//		<script src="/js/main_' . $this->singularize(strtolower($page_item->name)) . '.js"></script>
+//			 ';
 						$html .= '
-		<script src="/js/main_' . $this->singularize(strtolower($page_item->name)) . '.js"></script>
+		<script src="' . $this->getScriptSource($scope, 'js/main_' . $this->singularize(strtolower($page_item->name)) . '.js') . '"></script>
 			 ';
 						$onPage = true;
 					}
@@ -650,7 +662,7 @@ trait WebsiteScript {
 						foreach($page_item->Pages as $subpage_item) {
 							if (strpos($this->website_url, strtolower($subpage_item->name)) !== false  ) {
 								$html .= '
-		<script src="/js/main_' . $this->singularize(strtolower($subpage_item->name)) . '.js"></script>
+		<script src="' . $this->getScriptSource($scope, 'js/main_' . $this->singularize(strtolower($subpage_item->name)) . '.js') . '"></script>
 			 ';
 								$onPage = true;
 							}
@@ -669,11 +681,16 @@ trait WebsiteScript {
 				
 				
 			} else {
+				//TODO can be improved by depending fully on siteMap definition.
 				$scopeObjectName = $this->getScopeObjectName();
 				
 				if ($scopeObjectName === "editor") {
 					$html .= '
 		<script src="' . $this->getScriptSource($scope, 'js/main_editor.js') . '"></script>
+			 		';
+				} else if ($scopeObjectName === "documents") {
+					$html .= '
+		<script src="' . $this->getScriptSource($scope, 'js/main_document.js') . '"></script>
 			 		';
 				} else if ($scopeObjectName === "monitoring") {
 					

@@ -1,5 +1,6 @@
 var TextLineView = BaseView.extend({
 	initialize : function() {
+		this.fontSize = this.model.getFontSize();
 		//this.template = _.template(tpl.get('components/editor'));
 	},
 	render : function() {
@@ -12,7 +13,7 @@ var TextLineView = BaseView.extend({
 				id : fontId
 			});
 			
-			this.$el.css({
+			/*this.$el.css({
 				'position'          : 'absolute',
 				'font-size'		: textStyle.get('FONTSIZE') + 'px',
 				'font-family'	: textStyle.get('FONTFAMILY'),
@@ -20,16 +21,20 @@ var TextLineView = BaseView.extend({
 				'height'        : this.model.get('HEIGHT') / 3 + 'px',
 				'left'          : this.model.get('HPOS') / 3 + 'px',
 				'top'           : this.model.get('VPOS') / 3 + 'px'
-			    });
+			    });*/
 		}
 			
 		
-		
-		
 		_.each(this.model.get('Strings').models, function(object) {
-			$(this.el).append(new StringView({
-				model : object
-			}).render().el);
+			var stringView = new StringView({
+				model : object,
+				parent : this
+			});
+			$(this.el).append(stringView.render().el);
+			
+			if (object.get('CONTENT') == 'WIRTSCHAFTSRE6I0NEN') {
+				//alert ($(stringView.el).clientWidth);
+			}
 		}, this);
 		
 		_.each(this.model.get('SPs').models, function(object) {

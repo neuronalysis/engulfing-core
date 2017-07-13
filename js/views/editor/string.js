@@ -1,8 +1,8 @@
 var StringView = BaseView.extend({
 	tagName : 'span',
 	
-	initialize : function() {
-		//this.template = _.template(tpl.get('components/editor'));
+	initialize : function(options) {
+		this.parent = options.parent;
 	},
 	events : {
 		"input" : "changeValue"
@@ -15,7 +15,7 @@ var StringView = BaseView.extend({
 		this.$el.empty();
 		
 		this.$el.html(this.model.get('CONTENT'));
-
+		
 		var css = {
 				'position'          : 'absolute',	
 				'width' : this.model.get('WIDTH') / 3 + 'px',
@@ -35,6 +35,27 @@ var StringView = BaseView.extend({
 			} else {
 				css['font-style'] = style;
 			}
+		} else {
+			css['font-family'] = 'Arial';
+			css['font-size'] = this.parent.fontSize;
+			
+			
+			/*var textsize = get_text_size(this.model.get('CONTENT'), css['font-size'] + " " + css['font-family']);
+			
+			var heightDif = parseInt((this.model.get('HEIGHT') / 3) - textsize['height']);
+			if (this.model.get('CONTENT') == 'vertreten.') {
+				alert (this.parent.model.get('BASELINE'));
+				alert (parseInt(heightDif));
+			}
+			
+			if (heightDif == 0) {
+				if (textsize['width'] > (this.model.get('WIDTH') / 3)) {
+					//css['font-family'] = 'Arial Narrow';
+				}
+			} else {
+				css['font-size'] = (14 + heightDif) + 'px';
+			}*/
+			
 		}
 		
 		if (accessMode == "edit") {
@@ -45,8 +66,6 @@ var StringView = BaseView.extend({
 		
 		
 		this.$el.css(css);
-		
-		
 		
 		return this;
 	}

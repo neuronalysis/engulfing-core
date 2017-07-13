@@ -1,5 +1,7 @@
 var InputTextAreaView = InputView.extend({
-	initialize : function() {
+	initialize : function(options) {
+		InputTextAreaView.__super__.initialize.apply(this, arguments);
+		
 		this.template = _.template(tpl.get('components/input_textarea'));
 	},
 	events : {

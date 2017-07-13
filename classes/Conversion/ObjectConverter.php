@@ -14,17 +14,18 @@ class ObjectConverter extends Converter {
 		return $dom;
 	}
 	function convertToElement($object, $dom, $stickToClass) {
-		//echo get_class($object) . "\n";
-		if (strlen(get_class($object)) > 4 && substr(get_class($object), 0, 4) == "Alto") {
-			$className = str_replace("Alto", "", get_class($object));
+		/*if (strlen(get_class($object)) > 4 && substr(get_class($object), 0, 4) == "ALTO") {
+			$className = str_replace("ALTO", "", get_class($object));
 		} else {
 			$className = get_class($object);
-		}
+		}*/
+		$className = get_class($object);
+		
+		$classNameWithoutNS = $this->getNameWithoutNamespace(get_class($object));
+		//echo $classNameWithoutNS. "\n";
 		
 		
-		$classNameWithoutNS = $this->getNameWithoutNamespace($className);
-		
-		if($className == "ALTO\\ALTOString") {
+		if($classNameWithoutNS == "ALTOString") {
 			$element = $dom->createElement("String");
 		} else {
 			$element = $dom->createElement($classNameWithoutNS);
@@ -34,43 +35,92 @@ class ObjectConverter extends Converter {
 		if ($stickToClass) {
 			$reflection = new ReflectionClass($className);
 			$classvars = $reflection->getDefaultProperties();
-				
+			
+			$tidied = null;
+			
+			if ($reflection->hasMethod("tidy")) {
+				$tidied = $object->tidy();
+			}
 			//print_r($classvars);
 			
-			foreach($classvars as $key => $value) {
-				str_ireplace("XML", "", $key, $rplCount);
-				if ($rplCount == 1) $key = strtoupper($key);
-				
-				if (isset($object->$key)) {
-					//$sKey = $this->singularize($key);
-					//echo $key . "; " . $sKey . "\n";
-					if (is_object($object->$key)) {
-						$childElement = $this->convertToElement($object->$key, $dom, $stickToClass);
-			
-						$element->appendChild($childElement);
-					} else if (is_string($object->$key)) {
-						if (class_exists("ALTO\\" . $key)) {
-							$childElement = $dom->createElement($key, $object->$key);
-								
-							$element->appendChild($childElement);
-						} else {
-							if (class_exists($key)) {
-								$childElement = $dom->createElement($key, $object->$key);
-									
-								$element->appendChild($childElement);
-							} else {
-								$element->setAttribute($key, $object->$key);
-							}
-						}
-					} else if (is_array($object->$key)) {
-						foreach($object->$key as $item) {
-							$childElement = $this->convertToElement($item, $dom, $stickToClass);
+			if ($tidied) {
+				foreach($classvars as $key => $value) {
+					if (is_string($object->$key)) {
+						$element->setAttribute($key, $object->$key);
+					}
+				}
+				foreach($tidied as $key => $value) {
+					$childElement = $this->convertToElement($value, $dom, $stickToClass);
+					
+					$element->appendChild($childElement);
+				}
+			} else {
+				foreach($classvars as $key => $value) {
+					if ($key == "Strings") {
+						$readKey = "ALTOStrings";
+					} else {
+						$readKey = $key;
+					}
+					
+					str_ireplace("XML", "", $key, $rplCount);
+					if ($rplCount == 1) $key = strtoupper($key);
+					
+					$sKey = $this->singularize($key);
+					
+					if (isset($object->$readKey)) {
+						if (is_object($object->$readKey)) {
+							$childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass);
 							
 							$element->appendChild($childElement);
+						} else if (is_string($object->$readKey)) {
+							if (class_exists("ALTO\\" . $key)) {
+								$childElement = $dom->createElement($key, $object->$readKey);
+								
+								$element->appendChild($childElement);
+							} else {
+								if (class_exists($readKey)) {
+									$childElement = $dom->createElement($key, $object->$readKey);
+									
+									$element->appendChild($childElement);
+								} else {
+									$element->setAttribute($key, $object->$readKey);
+								}
+							}
+						} else if (is_array($object->$readKey)) {
+							//echo $key . "; " . $sKey . "\n";
+							
+							foreach($object->$readKey as $item) {
+								$childElement = $this->convertToElement($item, $dom, $stickToClass);
+								
+								$element->appendChild($childElement);
+							}
+						} else {
+							echo "fuck\n";
 						}
+					} else {
+						$sKey = $this->singularize($key);
+						
+						if (class_exists("ALTO\\" . $sKey)) {
+							$childElement = $dom->createElement($sKey, null);
+							
+							//$element->appendChild($childElement);
+						} else {
+							if (class_exists($readKey)) {
+								$childElement = $dom->createElement($key, null);
+								
+								//$element->appendChild($childElement);
+							} else {
+								if ($key == "ID") {
+									//$element->setAttribute($key, null);
+								}
+							}
+						}
+						//echo "fuck : " . $className . " - > " . $key . "; " . $sKey . "\n";
+						//print_r($object);
 					}
 				}
 			}
+			
 		}
 		
 		return $element;

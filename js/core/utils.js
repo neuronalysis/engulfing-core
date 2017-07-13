@@ -30,6 +30,7 @@ tpl = {
 			'components/input_tags',
 			'components/input_file',
 			'components/input_highcharts',
+			'components/input_pagination',
 			'components/input_select',
 			'components/input_locationmap',
 			'components/input_datepicker',
@@ -151,7 +152,7 @@ select2Config = {
 	objectName : "",
 	allowClear : true,
 	placeholder : "Search",
-	width : "100%",
+	width : "180px",
 	minimumInputLength : 2,
 	ajax : { // instead of writing the function to execute the request we use
 		// Select2's convenient helper
@@ -321,6 +322,7 @@ select2QSConfig = {
 			};
 		}
 	},
+	//TODO
 	initSelection : function(item, callback) {
 		var object = $(item).val();
 
@@ -421,6 +423,7 @@ select2QSConfig = {
 	} // we do not want to escape markup since we are displaying html in
 // results
 };
+//TODO
 function getSubDomain() {
 	var subdomain = "";
 	
@@ -470,6 +473,25 @@ function getBaseTemplatesRoot() {
 
 	return root;
 }
+function getKeysOfTypeObject(object, withoutRelations = true) {
+	var keysOfType = [];
+	var keys = Object.keys(object);
+	
+	for (var i = 0; i < keys.length; i++) {
+		if (keys[i][0].toUpperCase() == keys[i][0]) {
+			if (withoutRelations) {
+				if (keys[i].indexOf("Relation") == -1) {
+					keysOfType.push(keys[i]);
+				}
+			} else {
+				keysOfType.push(keys[i]);
+			}
+			
+		}
+	}
+
+	return keysOfType;
+}
 function loadMaps() {
 	// Create Google map instance
 	var places = new Backbone.GoogleMaps.LocationCollection([ {
@@ -494,4 +516,35 @@ function loadMaps() {
 		map : map
 	});
 	markerCollectionView.render();
+}
+function get_text_size(text, font) {
+    this.element = document.createElement('canvas');
+    this.context = this.element.getContext("2d");
+    this.context.font = font;
+    
+    var tsize = {'width':this.context.measureText(text).width, 'height':parseInt(this.context.font)};
+    
+    return tsize;
+}
+function beyondBaseline(text) {
+	var pattern = /[g|j|p|q|y]/;
+	
+	if (text) {
+		if(text.match(pattern)) {
+		    return true;
+		}
+	}
+	
+	
+	return false;
+}
+function hasCapitalLetters(text) {
+	if (text == text.toUpperCase()) {
+		 return true;
+	}
+	
+	return false;
+}
+function pageClickAll(pageNumber) {
+    $("#page-number-all").text(pageNumber);
 }

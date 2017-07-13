@@ -143,4 +143,14 @@ class FileIO {
 	    }
 	}
 }
+class File {
+	var $path;
+	var $name;
+	var $content;
+	
+	function __construct($base = null, $path = null, $name = null) {
+		$this->path = $path;
+		$this->name = $name;
+	}
+}
 ?>

@@ -104,6 +104,10 @@ class Website {
     		
     		if (file_exists("../" . strtolower($scopename) . "/data/ontology.json")) {
     			$ontologyJSON = file_get_contents ( "../" . strtolower($scopename) . "/data/ontology.json" );
+    		} else {
+    			if (file_exists("../../" . strtolower($scopename) . "/data/ontology.json")) {
+    				$ontologyJSON = file_get_contents ( "../../" . strtolower($scopename) . "/data/ontology.json" );
+    			}
     		}
     		
     		$ontologyData = json_decode($ontologyJSON);
@@ -543,7 +547,7 @@ class Website {
     	$html .= '
 		<footer class="footer">
 			<div class="container">
-				<p class="text-muted text-center">&copy; 2015-2016 Ontology Driven - Zurich, Switzerland - <a href="mailto:info@ontologydriven.com"><span class="glyphicon glyphicon-envelope" /></a></p>
+				<p class="text-muted text-center">&copy; 2015-' . date("Y") .  ' Ontology Driven - Zurich, Switzerland - <a href="mailto:info@ontologydriven.com"><span class="glyphicon glyphicon-envelope" /></a></p>
 			</div>
 		</footer>';
   		

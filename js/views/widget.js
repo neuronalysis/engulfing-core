@@ -1,6 +1,6 @@
 var WidgetView = SingleObjectView.extend({
 	initialize : function() {
-		SingleEntityView.__super__.initialize.apply(this, arguments);
+		SingleObjectView.__super__.initialize.apply(this, arguments);
 	},
 	events : {
 	},

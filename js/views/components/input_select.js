@@ -1,9 +1,11 @@
 var InputSelectView = InputView.extend({
 	
 	initialize : function(options) {
+		InputSelectView.__super__.initialize.apply(this, arguments);
+		
 		this.template = _.template(tpl.get('components/input_select'));
 		
-		this.labelName = this.field;
+		/*this.labelName = this.field;
 		
 		this.withLabel = true;
 		
@@ -11,7 +13,7 @@ var InputSelectView = InputView.extend({
 			this.withCell = options.withCell;
 		} else {
 			this.withCell = false;
-		}
+		}*/
 		
 	},
 	events : {
@@ -67,7 +69,6 @@ var InputSelectView = InputView.extend({
 			this.labelName = this.field;
 		}
 		
-		
 		var data = {"object_name": this.model.type.toLowerCase(), "field_name": this.field, "field_value": this.model.get(this.field), "withCell" : this.withCell, "withLabel" : this.withLabel, "labelName" : this.labelName};
 		
 		var model_select = this.model.get(this.field);
@@ -82,8 +83,6 @@ var InputSelectView = InputView.extend({
 		}
 		if (accessMode == "edit") {
 			this.$el.html(this.template(data));
-			
-			
 			
 			var object = this.model.get(this.field);
 			
@@ -135,7 +134,12 @@ var InputSelectView = InputView.extend({
 								if (this.field === "IncomingOntologyClass") {
 									object_string += '<a href="../../km/ontologyclasses/#' + object.get('id') + '">' + object.get('name') + '</a>';
 								} else {
-									object_string += '<a href="../../' + getOntology(getSingular(this.field.toString().toLowerCase())) + '/' + getPlural(this.field).toLowerCase() + '/#' + object.get('id') + '">' + object.get('name') + '</a>';
+									ontologyName = getOntology(getSingular(this.field.toString().toLowerCase()));
+									if (ontologyName !== "") {
+										object_string += '<a href="../../' + ontologyName + '/' + getPlural(this.field).toLowerCase() + '/#' + object.get('id') + '">' + object.get('name') + '</a>';
+									} else {
+										object_string += '<a href="../../' + getPlural(this.field).toLowerCase() + '/#' + object.get('id') + '">' + object.get('name') + '</a>';
+									}
 								}
 							} else {
 								if (object.get('text')) {
@@ -151,8 +155,6 @@ var InputSelectView = InputView.extend({
 							data.field_id = object.id;
 							data.field_value = object_string;
 						}
-						
-						
 					} else {
 						data.field_id = null;
 						data.field_value = null;

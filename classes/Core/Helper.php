@@ -182,6 +182,9 @@ trait Helper {
 			foreach($objects as $object) {
 				if (is_array($object)) {
 					foreach($object as $key => $value) {
+						if ($key == "ALTOStrings") {
+							//echo $key . "\n";
+						}
 						if (is_array($value) || is_object($value)) {
 							$this->cleanObjects($value);
 						} else {
@@ -217,6 +220,11 @@ trait Helper {
 			
 			foreach($objects as $key => $value) {
 				if (is_array($value)) {
+					if ($key == "ALTOStrings") {
+						$objects->Strings = $objects->ALTOStrings;
+						unset($objects->ALTOStrings);
+						$key = "Strings";
+					}
 					if (count($value) == 0) {
 						unset($objects->$key);
 					} else {
@@ -227,7 +235,7 @@ trait Helper {
 						}
 					}
 				} else if (is_object($value)) {
-					//$this->cleanObjects($value);
+					$this->cleanObjects($value);
 				} else {
 					if ($value === null) {
 						//unset($objects->$key);
@@ -247,7 +255,7 @@ trait Helper {
 	function crypto($username, $password) {
 		$cost = 10;
 		
-		$salt = strtr(base64_encode(mcrypt_create_iv(16, MCRYPT_DEV_URANDOM)), '+', '.');
+		$salt = strtr(base64_encode(password_hash(16, MCRYPT_DEV_URANDOM)), '+', '.');
 		
 		$hash = crypt($password, $salt);
 		
