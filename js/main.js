@@ -10,7 +10,7 @@ var BaseRouter = Backbone.Router.extend({
 	objectName : null,
 
 	activeView : null,
-	
+
 	initialize : function() {
 		this.route("", "objectList");
 		this.route(":id", "singleObject");
@@ -21,24 +21,33 @@ var BaseRouter = Backbone.Router.extend({
 		this.route(":id/entities/import", "entityImport");
 		this.route("housekeeping", "housekeeping");
 	},
+	setActiveView : function(newView) {
+		if (this.activeView) {
+			this.activeView.clear();
+		}
+
+		this.activeView = newView;
+
+		this.activeView.render();
+	},
 	isLoginFailure : function() {
 		if (window.location.href.indexOf('login=failed') !== -1) {
 			return true;
 		}
-		
+
 		return false;
 	},
 	isAuthorized : function(routeType) {
 		var roleID = Cookie.get("UserRoleID");
-		
+
 		$('#alerts').html('');
 		/*var routeType;
 		var caller = arguments.callee.caller;
-		
+
 		if (callerName === "objectList") {
 			routeType = "list";
 		}*/
-		
+
 		if (objects[this.objectName] !== undefined) {
 			if (objects[this.objectName][roleID] !== undefined) {
 				if(typeof(objects[this.objectName][roleID]) === "boolean"){
@@ -53,11 +62,11 @@ var BaseRouter = Backbone.Router.extend({
 			} else if (objects[this.objectName][99] !== undefined) {
 				return true;
 			}
-			
+
 		} else {
 			return true;
 		}
-		
+
 		if (this.isLoginFailure()) {
 			var alert_msg = '<div class="alert alert-danger">'+
 			'<br/>' + 'Login failed.'+
@@ -73,15 +82,15 @@ var BaseRouter = Backbone.Router.extend({
 			'<br/><br/>' + 'In case you´re not registered yet, you might want to <a href="' + odBase + 'usermanagement/register">' + 'Sign Up'+ '</a> here.' +
 	    	'</div>';
 		}
-		
-		
+
+
 		$('#alerts').html(alert_msg);
-		
+
 		return false;
 	},
 	isWatchedObject : function (object, watchlist) {
 		var watchlistItems = watchlist.get('WatchlistItems');
-		
+
 		var item;
 		for(var i=0; i<watchlistItems.length; i++) {
 			if (object.get('OntologyClass')) {
@@ -92,31 +101,31 @@ var BaseRouter = Backbone.Router.extend({
 				if (parseInt(object.id) === parseInt(watchlistItems.models[i].get('entityID'))) {
 					return true;
 				}
-					
+
 			}
-			
+
 		}
-		
+
 		return false;
 	},
 	objectList : function() {
 		if (this.isAuthorized('list')) {
 			var objectList = new window[this.objectName + "Collection"]();
-			
+
 			var objectlistView = new ObjectListView({el : $('#content'),
 				collection : objectList, objectName : this.objectName});
-		
-			objectlistView.render();
+
+			this.setActiveView(objectlistView);
 		}
 	},
 	entityList : function() {
 		if (this.isAuthorized('list')) {
 			var entityList = new window[this.objectName + "Entity" + "Collection"]();
-			
+
 			var entitylistView = new EntityListView({el : $('#content'),
 				collection : entityList, objectName : this.objectName});
-		
-			entitylistView.render();
+
+			this.setActiveView(entitylistView);
 		}
 	},
 	singleObject : function(id) {
@@ -124,39 +133,38 @@ var BaseRouter = Backbone.Router.extend({
 			var object = window[this.objectName].findOrCreate({
 				id : id
 			});
-			
+
 			if (typeof DataServiceCollection != "undefined") {
 				var dataservices = new DataServiceCollection();
 				dataservicesPromise = dataservices.fetch();
 			}
-			
 
 			accessMode = "read";
-			
+
 			object.type = this.objectName;
-			
+
 			objectPromise = object.fetch();
+
+			var self = this;
 
 			if (Cookie.get("UserID")) {
 				user = User.findOrCreate({
 					id : Cookie.get("UserID")
 				});
-				
+
 				if (!user.get('Watchlist')) {
 					var watchlist = new Watchlist();
-					
+
 					watchlist.urlRoot = user.urlRoot + "/" + user.id + "/watchlists";
-					
+
 					watchlistPromise = watchlist.fetch();
 				} else {
 					var watchlist = user.get('Watchlist');
 				}
-				
-				var self = this;
-				
+
 				$.when(objectPromise, watchlistPromise).then(function() {
 					user.set('Watchlist', watchlist);
-					
+
 					if (self.isWatchedObject(object, watchlist)) {
 						object.isWatched = true;
 					}
@@ -164,10 +172,8 @@ var BaseRouter = Backbone.Router.extend({
 						el : $('#content'),
 						model : object
 					});
-					
-					objectView.render();
-					
-					app.activeView = objectView;
+
+					self.setActiveView(objectView);
 				});
 			} else {
 				$.when(objectPromise).then(function() {
@@ -175,30 +181,28 @@ var BaseRouter = Backbone.Router.extend({
 						el : $('#content'),
 						model : object
 					});
-					
-					objectView.render();
-					
-					app.activeView = objectView;
-					
+
+					self.setActiveView(objectView);
+
 					if (typeof DataServiceCollection != "undefined") {
 						var ontologyClass = new OntologyClass();
-						
+
 						ontologyClass.urlRoot = ontologyClass.urlRoot + "?name=" + object.type;
-						
+
 						ontologyClassPromise = ontologyClass.fetch();
 					}
-					
-					
+
+
 					$.when(ontologyClassPromise).then(function() {
 						var ontologyInformationView = new OntologyInformationView({
 							el : $('#ontologyInformation'),
 							model : ontologyClass
 						});
-						
+
 						$("#ontologyInformation").append(ontologyInformationView.render().el);
 					});
-					
-					
+
+
 				});
 			}
 		}
@@ -208,61 +212,65 @@ var BaseRouter = Backbone.Router.extend({
 			id : id
 		});
 		entityBase.type = this.objectName;
-		
-		
+
+
 		entityBasePromise = entityBase.fetch();
+
+		var self = this
 
 		$.when(entityBasePromise).then(function() {
 			var object = window[entityBase.type + "Entity"].findOrCreate({
 				id : entityID
 			});
-			
+
 			object.type = entityBase.type + "Entity";
-			
+
 			object.set(entityBase.type, entityBase);
-			
+
 			accessMode = "read";
-			
+
 			object.fetch({
 				success : function() {
 					var objectView = new SingleObjectView({
 						el : $('#content'),
 						model : object
 					});
-					
-					objectView.render();
-					
+
+					self.setActiveView(objectView);
+
 					var watchlist = new Watchlist();
-					
+
 					watchlist.urlRoot = self.user.urlRoot + "/" + self.user.id + "/watchlists";
-					
+
 					objectView.user.set('Watchlist', watchlist);
-					
+
 					watchlist.fetch();
 				}
 			});
 		});
-		
+
 	},
 	entityImport : function(id) {
 		if (isAuthorized(this.objectName, Cookie.get("UserRoleID"))) {
 			var object = window[this.objectName].findOrCreate({
 				id : id
 			});
-			
+
 			accessMode = "read";
-			
+
 			object.type = this.objectName;
-			
+
 			objectPromise = object.fetch();
+
+			var self = this
 
 			$.when(objectPromise).then(function() {
 				var entityImportView = new EntityImportView({
 					el : $('#content'),
 					model : object
 				});
-				
-				entityImportView.render();
+
+				self.setActiveView(entityImportView);
 			});
 		} else {
 			var alert_msg = '<div class="alert alert-warning">'+
@@ -270,7 +278,7 @@ var BaseRouter = Backbone.Router.extend({
 			'<br/>' + 'Login Failed'+
 			'<br/>' + '<a href="http://localhost.ontologydriven/usermanagement/recovery">' + 'Password Recovery '+ '</a>' +
 	    	'</div>';
-			
+
 			$('#alerts').html(alert_msg);
 		}
 	},
@@ -278,44 +286,44 @@ var BaseRouter = Backbone.Router.extend({
 		var object = window[this.objectName].findOrCreate({
 			id : null
 		});
-		
+
 		accessMode = "edit";
-		
+
 		object.type = this.objectName;
 
 		var objectView = new SingleObjectView({
 			el : $('#content'),
 			model : object
 		});
-		
-		objectView.render();
+
+		this.setActiveView(objectView);
 	},
 	newEntity : function(id) {
 		var entityBase = window[this.objectName].findOrCreate({
 			id : id
 		});
 		entityBase.type = this.objectName;
-		
-		
+
 		entityBasePromise = entityBase.fetch();
+
+		var self = this
 
 		$.when(entityBasePromise).then(function() {
 			var object = window[entityBase.type + "Entity"].findOrCreate({
 				id : null
 			});
 			object.type = entityBase.type + "Entity";
-			
+
 			object.set(entityBase.type, entityBase);
-			
+
 			accessMode = "edit";
-			
+
 			var objectView = new SingleObjectView({
 				el : $('#content'),
 				model : object
 			});
-			
-			objectView.render();
 
+			self.setActiveView(objectView);
 		});
 	},
 
@@ -324,6 +332,6 @@ var BaseRouter = Backbone.Router.extend({
 			el : $('#content')
 		});
 
-		intro_view.render();
+		this.setActiveView(intro_view);
 	}
 });
