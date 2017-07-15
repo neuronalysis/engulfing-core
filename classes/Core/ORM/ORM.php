@@ -290,14 +290,21 @@ class ORM {
 		$this->executeQuery($query, get_class($object), $this->getBindingsFromObject($object));
 	}
 	function save($object) {
-		if ($this->isNew($object)) {
-			if ($doublicate = $this->checkUniqueConstraints($object)) {
-				return $this->replace($object);
-			} else {
-				return $this->insert($object);
-			}
+		if ($this->hasVersionning($object)) {
+			$object->version += 1;
+			$object->id = null;
+			
+			return $this->insert($object);
 		} else {
-			$this->update($object);
+			if ($this->isNew($object)) {
+				if ($doublicate = $this->checkUniqueConstraints($object)) {
+					return $this->replace($object);
+				} else {
+					return $this->insert($object);
+				}
+			} else {
+				$this->update($object);
+			}
 		}
 	}
 	function replace($object) {

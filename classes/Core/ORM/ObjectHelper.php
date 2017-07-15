@@ -10,6 +10,13 @@ trait ObjectHelper {
 		if (isset($object->id) && $object->id !== -99) return false;
 		return true;
 	}
+	function hasVersionning($object) {
+		if (property_exists(get_class($object), "version")) {
+			return true;
+		}
+		
+		return false;
+	}
 	function isEmpty($persistables) {
 		foreach($persistables as $key => $value) {
 			if ($key !== "createdBy" && $key !== "createdAt" && $key !== "updatedAt" && $key !== "updatedBy") {
