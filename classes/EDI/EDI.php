@@ -1,6 +1,5 @@
 <?php
-include_once (__DIR__ . "/../../../engulfing-generated/classes/things/Things_Generated.php");
-include_once (__DIR__ . "/../../../engulfing-generated/classes/edi/EDI_Generated.php");
+include_once (__DIR__ . "/../../../engulfing-core/classes/Things/Things.php");
 include_once (__DIR__ . "/../../../engulfing-core/classes/Core/Helper.php");
 include_once (__DIR__ . "/../../../engulfing-core/classes/Core/FileIO.php");
 
@@ -16,7 +15,7 @@ include_once ('ImportProcess.php');
 
 
 
-class EDI extends EDI_Generated {
+class EDI extends Thing {
 	var $classes = array("Schedule", "ImportProcess", "DataProvider", "DataService", "Ressource", "RelationDataServiceOntologyClass", "DataSource", "OntologyClass");
 	
 	var $entities = '{}';

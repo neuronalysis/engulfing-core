@@ -1,4 +1,4 @@
 <?php
-class Role extends Role_Generated {
+class Role extends Thing {
 }
 ?>

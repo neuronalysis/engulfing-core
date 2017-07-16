@@ -1,5 +1,5 @@
 <?php
-class RelationDataServiceOntologyClass extends Thing_Generated {
+class RelationDataServiceOntologyClass extends Thing {
 	
 	var $DataService;
 	var $OntologyClass;
@@ -7,7 +7,7 @@ class RelationDataServiceOntologyClass extends Thing_Generated {
 	function __construct() {
 	}
 }
-class RelationOntologyClassDataSource extends Thing_Generated {
+class RelationOntologyClassDataSource extends Thing {
 	
 	var $OntologyClass;
 	var $DataSource;

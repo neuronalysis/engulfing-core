@@ -1,5 +1,5 @@
 <?php
-class DataSource extends Thing_Generated {
+class DataSource extends Thing {
 	var $name;
 	
 	function __construct() {

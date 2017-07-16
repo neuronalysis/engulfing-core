@@ -1,5 +1,5 @@
 <?php
-class User extends User_Generated {
+class User extends Thing {
     
 }
 class Owner extends User {

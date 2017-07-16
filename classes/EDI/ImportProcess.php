@@ -1,5 +1,5 @@
 <?php
-class ImportProcess extends ImportProcess_Generated {
+class ImportProcess extends Thing {
 	
 	var $processing;
 	
