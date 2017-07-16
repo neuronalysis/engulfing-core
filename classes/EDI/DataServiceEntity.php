@@ -1,5 +1,5 @@
 <?php
-class DataServiceEntity extends Thing_Generated {
+class DataServiceEntity extends Thing {
 	
 	var $DataService;
 	var $OntologyClass;

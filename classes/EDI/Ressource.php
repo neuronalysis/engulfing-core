@@ -1,5 +1,5 @@
 <?php
-class Ressource extends Ressource_Generated {
+class Ressource extends Thing {
 	function __construct($url = null) {
 		if ($url) $this->url = $this->preparePath($url);
 	}

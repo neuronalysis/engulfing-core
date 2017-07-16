@@ -1,6 +1,5 @@
 <?php
-include_once (__DIR__ . "/../../../engulfing-generated/classes/things/Things_Generated.php");
-include_once (__DIR__ . "/../../../engulfing-generated/classes/authentication/Authentication_Generated.php");
+include_once (__DIR__ . "/../../../engulfing-core/classes/Things/Things.php");
 include_once (__DIR__ . "/../../../engulfing-core/classes/Core/Helper.php");
 
 include_once ('User.php');

@@ -1,5 +1,5 @@
 <?php
-class Schedule extends Thing_Generated {
+class Schedule extends Thing {
 	
 	var $name;
 	var $cronCommand;

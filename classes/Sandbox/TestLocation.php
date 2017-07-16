@@ -1,5 +1,5 @@
 <?php
-class TestLocation extends TestLocation_Generated {
+class TestLocation extends Thing {
 	
 	function TestLocation() {
 	}

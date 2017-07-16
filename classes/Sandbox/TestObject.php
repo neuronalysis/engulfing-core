@@ -1,5 +1,5 @@
 <?php
-class TestObject extends TestObject_Generated {
+class TestObject extends Thing {
 	
 	function TestObject() {
 	}

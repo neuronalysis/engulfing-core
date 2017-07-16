@@ -1,5 +1,5 @@
 <?php
-class DataProvider extends DataProvider_Generated {
+class DataProvider extends Thing {
 	
 	
 	function __construct() {

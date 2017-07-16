@@ -1,5 +1,5 @@
 <?php
-class Document extends Document_Generated {
+class Document {
 	use Helper;
 	
 	var $elements = array();
