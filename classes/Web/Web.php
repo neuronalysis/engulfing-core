@@ -25,8 +25,11 @@ class Web {
 	function getWebsiteByName($name) {
 		if (!$name) return null;
 		
-		$objects = $this->orm->getByNamedFieldValues("Website", array("name"), array($name), false, null, false, true, null, array());
-		
+		try {
+			$objects = $this->orm->getByNamedFieldValues("Website", array("name"), array($name), false, null, false, true, null, array());
+		} catch (PDOException $e) {
+			return null;
+		}
 		if(!$objects) return null;
 		
 		return $objects[0];

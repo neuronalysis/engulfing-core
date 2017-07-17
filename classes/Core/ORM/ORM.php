@@ -158,7 +158,9 @@ class ORM {
 				
 			return $objects;
 		} catch(PDOException $e) {
-			echo '{"error":{"text":'. $e->getMessage() .'}}';
+			if ($this->debug) echo '{"error":{"text":'. $e->getMessage() .'}}';
+			
+			throw $e;
 		}
 	}
 	function getById($object_name, $id, $eager = true, $excludes = array()) {
