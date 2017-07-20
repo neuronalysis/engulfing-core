@@ -4,11 +4,18 @@ trait TransactionManager {
 	
 	function __construct($db_scope = null) {
 		if ($db_scope) {
+			echo "asdf";
 			$this->db_scope = $db_scope;
 		}
 	}
-	function executeQuery($query, $object_name, $bindings = null) {
-		$this->db_scope = $this->getOntologyScope($object_name);
+	function executeQuery($query, $object_name, $bindings = null, $db_scope = null) {
+		echo $object_name . "; " . $db_scope . "\n";
+		if ($db_scope) {
+			$this->db_scope = $db_scope;
+		} else {
+			$this->db_scope = $this->getOntologyScope($object_name);
+		}
+		
 		$queryType = $this->getQueryType($query);
 		if ($this->debug) echo "sql: " . $query . "\n";
 	

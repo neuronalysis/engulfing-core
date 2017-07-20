@@ -23,7 +23,7 @@ class ORM {
 		}
 	}
 	function getAllByQuery($sql, $object_name, $explicitFields = null) {
-		$objects = $this->executeQuery($sql, $object_name, null, true, $explicitFields);
+		//$objects = $this->executeQuery($sql, $object_name, null, true, $explicitFields);
 		
 		return $objects;
 	}
@@ -66,7 +66,7 @@ class ORM {
 		
 		$sql = "SELECT " . $sql_select_fields . " FROM " . $tableName . " " . $sql_paging;
 		
-		$objects = $this->executeQuery($sql, $object_name, null, true, $explicitFields, $includingProtected);
+		//$objects = $this->executeQuery($sql, $object_name, null, true, $explicitFields, $includingProtected);
 		
 		
 		if (!$explicitFields || $this->convert) {
@@ -92,13 +92,14 @@ class ORM {
 	}
 	//TODO reduce amount of parameters
 	//TODO document cascade/explicitFields processing
-	function getByNamedFieldValues($object_name, $fields, $values = null, $like = false, $paging = null, $eager = false, $noPaging = false, $cascades = null, $order = null, $limit = null, $keyOperators = null, $explicitFields = null) {
+	function getByNamedFieldValues($object_name, $fields, $values = null, $like = false, $paging = null, $eager = false, $noPaging = false, $cascades = null, $order = null, $limit = null, $keyOperators = null, $explicitFields = null, $db_scope = null) {
 		$keyValues = $this->mergeFieldsAndValues($fields, $values);
 		$keyValues = $this->filterPersistableKeyValues($keyValues);
 		
 		if ($objects = $this->isLoadedObjectsArray($object_name, $keyValues)) return $objects;
 		
-		$db_scope = $this->getOntologyScope($object_name);
+		if (!$db_scope) $db_scope = $this->getOntologyScope($object_name);
+		
 		if ($explicitFields) {
 			$sql_select_fields = "*, " . implode(",", $explicitFields );
 		} else {
@@ -112,7 +113,7 @@ class ORM {
 		
 		$sql .= $this->buildWhereClause($keyValues, $noPaging, $order, $object_name, $limit, $like, $keyOperators);
 		
-		if ($this->debug) echo "getbynamedfield-sql: " . $sql . "\n";
+		if ($this->debug) echo "in db " . $db_scope . " execute getbynamedfield-sql: " . $sql . "\n";
 		
 		try {
 			$db = $this->openConnection($db_scope);
@@ -271,50 +272,53 @@ class ORM {
 			$this->deleteById($object_name, $object->id);
 		}
 	}
-	function insert($object) {
+	//TODO db-scope handling
+	function insert($object, $db_scope = null) {
 		$this->setModificationInfo($object);
 		
 		$query = $this->prepareInsertQueryByObject($object);
 		
 		$bindings = $this->getBindingsFromObject($object);
 		
-		$lastInsertId = $this->executeQuery($query, get_class($object), $this->getBindingsFromObject($object));
+		$lastInsertId = $this->executeQuery($query, get_class($object), $this->getBindingsFromObject($object), $db_scope);
 		
 		return $lastInsertId;
 	}
-	function update($object) {
+	//TODO db-scope handling
+	function update($object, $db_scope = null) {
 		$this->setModificationInfo($object);
 		
 		$query = $this->prepareUpdateQueryByObject($object);
 		
 		$bindings = $this->getBindingsFromObject($object);
 		
-		$this->executeQuery($query, get_class($object), $this->getBindingsFromObject($object));
+		$this->executeQuery($query, get_class($object), $this->getBindingsFromObject($object), $db_scope);
 	}
-	function save($object) {
+	//TODO db-scope handling
+	function save($object, $db_scope = null) {
 		if ($this->hasVersionning($object)) {
 			$object->version += 1;
 			$object->id = null;
 			
-			return $this->insert($object);
+			return $this->insert($object, $db_scope = null);
 		} else {
-			if ($this->isNew($object)) {
+			if ($this->isNew($object, $db_scope = null)) {
 				if ($doublicate = $this->checkUniqueConstraints($object)) {
-					return $this->replace($object);
+					return $this->replace($object, $db_scope = null);
 				} else {
-					return $this->insert($object);
+					return $this->insert($object, $db_scope = null);
 				}
 			} else {
-				$this->update($object);
+				$this->update($object, $db_scope = null);
 			}
 		}
 	}
-	function replace($object) {
+	function replace($object, $db_scope = null) {
 		$persistableObjectVars = $this->filterPersistableFields($object);
 		
 		$this->deleteByNamedFieldValues(get_class($object), array_keys(array_filter($persistableObjectVars)), array_values(array_filter($persistableObjectVars)));
 		
-		return $this->insert($object);
+		return $this->insert($object, $db_scope);
 	}
 	function insertImportEntitiesBulk($entities, $truncate = false, $start = 0, $stackSize = 8000, $ignoreConstraints = true) {
 		try {

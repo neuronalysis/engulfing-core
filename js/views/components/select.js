@@ -19,9 +19,14 @@ window.SelectView = Backbone.View.extend({
 	events : {
 		'change' : 'onSelect'
 	},
+	//TODO get rid of app specifics
 	onSelect : function() {
 		if (typeof this.onSelectRoute !== 'undefined') {
-			var subRoute = '#documents/' + this.options.models[0].get('documentID') + '/pages/' + this.el.options[this.el.selectedIndex].value;
+			if (this.fieldName === 'number') {
+				var subRoute = '#documents/' + this.options.models[0].get('documentID') + '/pages/' + this.el.options[this.el.selectedIndex].value;
+			} else if (this.fieldName === 'version') {
+				var subRoute = '#documents/' + this.model.get('documentID') + '/pages/' + this.model.get('number') + '/version/' + this.el.options[this.el.selectedIndex].value;
+			}
 			var gotoUrl = this.onSelectRoute + subRoute;
 			
 			Backbone.history.navigate(subRoute, {trigger: true})
@@ -41,14 +46,22 @@ window.SelectView = Backbone.View.extend({
 	},
 
 	render : function() {
-		for (var i = 0; i < this.options.length; i++) {
-			if(typeof this.model !== 'undefined') {
-				if (this.options.models[i].get(this.valueField) == this.model.get(this.fieldName)) {
-					this.$el.append('<option value="'
-							+ this.options.models[i].get(this.valueField)
-							+ '" selected="true">'
-							+ this.caption + ' ' + this.options.models[i].value
-							+ '</option>');
+		if (this.options instanceof Backbone.Collection) {
+			for (var i = 0; i < this.options.length; i++) {
+				if(typeof this.model !== 'undefined') {
+					if (this.options.models[i].get(this.valueField) == this.model.get(this.fieldName)) {
+						this.$el.append('<option value="'
+								+ this.options.models[i].get(this.valueField)
+								+ '" selected="true">'
+								+ this.caption + ' ' + this.options.models[i].value
+								+ '</option>');
+					} else {
+						this.$el.append('<option value="'
+								+ this.options.models[i].get(this.valueField)
+								+ '">'
+								+ this.caption + ' ' + this.options.models[i].value
+								+ '</option>');
+					}
 				} else {
 					this.$el.append('<option value="'
 							+ this.options.models[i].get(this.valueField)
@@ -56,14 +69,33 @@ window.SelectView = Backbone.View.extend({
 							+ this.caption + ' ' + this.options.models[i].value
 							+ '</option>');
 				}
-			} else {
-				this.$el.append('<option value="'
-						+ this.options.models[i].get(this.valueField)
-						+ '">'
-						+ this.caption + ' ' + this.options.models[i].value
-						+ '</option>');
+			}
+		} else if (this.options instanceof Array) {
+			for (var i = 0; i < this.options.length; i++) {
+				if(typeof this.model !== 'undefined') {
+					if (this.options[i] == this.model.get(this.fieldName)) {
+						this.$el.append('<option value="'
+								+ this.options[i]
+								+ '" selected="true">'
+								+ this.caption + ' ' + this.options[i]
+								+ '</option>');
+					} else {
+						this.$el.append('<option value="'
+								+ this.options[i]
+								+ '">'
+								+ this.caption + ' ' + this.options[i]
+								+ '</option>');
+					}
+				} else {
+					this.$el.append('<option value="'
+							+ this.options[i]
+							+ '">'
+							+ this.caption + ' ' + this.options[i]
+							+ '</option>');
+				}
 			}
 		}
+		
 
 		//this.onselect();
 

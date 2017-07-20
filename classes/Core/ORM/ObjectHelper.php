@@ -423,8 +423,6 @@ trait ObjectHelper {
 			$reflection = new ReflectionClass($object_name);
 			$directory = dirname($reflection->getFileName());
 			
-			//echo $object_name . ": " . $directory . "\n";
-			
 			if (strpos($directory, "\\") !== false) {
 				$directoryArray = explode("\\", $directory);
 			} else if (strpos($directory, "/") !== false) {
