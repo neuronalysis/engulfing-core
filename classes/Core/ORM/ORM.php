@@ -22,8 +22,10 @@ class ORM {
 			$this->$key = $value;
 		}
 	}
-	function getAllByQuery($sql, $object_name, $explicitFields = null) {
+	//function getAllByQuery($sql, $object_name, $explicitFields = null) {
+	function getAllByQuery($sql, $object_name) {
 		//$objects = $this->executeQuery($sql, $object_name, null, true, $explicitFields);
+		$objects = $this->executeQuery($sql, $object_name);
 		
 		return $objects;
 	}
@@ -67,6 +69,7 @@ class ORM {
 		$sql = "SELECT " . $sql_select_fields . " FROM " . $tableName . " " . $sql_paging;
 		
 		//$objects = $this->executeQuery($sql, $object_name, null, true, $explicitFields, $includingProtected);
+		$objects = $this->executeQuery($sql, $object_name);
 		
 		
 		if (!$explicitFields || $this->convert) {

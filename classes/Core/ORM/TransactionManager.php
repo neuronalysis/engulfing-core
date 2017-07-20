@@ -9,7 +9,7 @@ trait TransactionManager {
 		}
 	}
 	function executeQuery($query, $object_name, $bindings = null, $db_scope = null) {
-		echo $object_name . "; " . $db_scope . "\n";
+		//echo $object_name . "; " . $db_scope . "\n";
 		if ($db_scope) {
 			$this->db_scope = $db_scope;
 		} else {

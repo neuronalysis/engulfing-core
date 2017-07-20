@@ -34,7 +34,7 @@ class User extends Thing {
 		$this->recoveryToken = $recoveryToken;
 	}
 }
-class Owner extends User {
+class Owner {
 	
 }
 ?>
