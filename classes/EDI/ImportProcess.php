@@ -1,6 +1,10 @@
 <?php
 class ImportProcess extends Thing {
 	
+	var $name;
+	
+	var $DataService;
+	
 	var $processing;
 	
 	function __construct() {
