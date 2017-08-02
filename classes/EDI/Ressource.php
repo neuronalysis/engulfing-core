@@ -1,5 +1,10 @@
 <?php
 class Ressource extends Thing {
+	var $name;
+	var $url;
+	var $schemaDefinition;
+	
+	
 	function __construct($url = null) {
 		if ($url) $this->url = $this->preparePath($url);
 	}
