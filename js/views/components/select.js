@@ -73,24 +73,24 @@ window.SelectView = Backbone.View.extend({
 		} else if (this.options instanceof Array) {
 			for (var i = 0; i < this.options.length; i++) {
 				if(typeof this.model !== 'undefined') {
-					if (this.options[i] == this.model.get(this.fieldName)) {
+					if (this.options[i].version == this.model.get(this.fieldName)) {
 						this.$el.append('<option value="'
-								+ this.options[i]
+								+ this.options[i].version
 								+ '" selected="true">'
-								+ this.caption + ' ' + this.options[i]
+								+ this.caption + ' ' + this.options[i].version
 								+ '</option>');
 					} else {
 						this.$el.append('<option value="'
-								+ this.options[i]
+								+ this.options[i].version
 								+ '">'
-								+ this.caption + ' ' + this.options[i]
+								+ this.caption + ' ' + this.options[i].version
 								+ '</option>');
 					}
 				} else {
 					this.$el.append('<option value="'
-							+ this.options[i]
+							+ this.options[i].version
 							+ '">'
-							+ this.caption + ' ' + this.options[i]
+							+ this.caption + ' ' + this.options[i].version
 							+ '</option>');
 				}
 			}

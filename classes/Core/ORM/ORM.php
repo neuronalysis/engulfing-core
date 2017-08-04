@@ -316,6 +316,23 @@ class ORM {
 			}
 		}
 	}
+	function restore($object, $version, $db_scope = null) {
+		$object_name = $this->getNameWithoutNamespace(get_class($object));
+		
+		$versions = $this->getByNamedFieldValues($object_name, array("number"), array($object->number), false, null, false, true, null, "number DESC");
+		
+		$restoredVersion = null;
+		
+		foreach($versions as $versionItem) {
+			if ($versionItem->version > $version) {
+				$this->deleteById($object_name, $versionItem->id);
+			} else if ($versionItem->version == $version) {
+				$restoredVersion = $versionItem;
+			}
+		}
+			
+		return $versionItem;
+	}
 	function replace($object, $db_scope = null) {
 		$persistableObjectVars = $this->filterPersistableFields($object);
 		
