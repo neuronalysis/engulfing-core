@@ -23,9 +23,11 @@ class ORM {
 		}
 	}
 	//function getAllByQuery($sql, $object_name, $explicitFields = null) {
-	function getAllByQuery($sql, $object_name) {
+	function getAllByQuery($sql, $object_name, $db_scope = null) {
+		if (!$db_scope) $db_scope = $this->getOntologyScope($object_name);
+		
 		//$objects = $this->executeQuery($sql, $object_name, null, true, $explicitFields);
-		$objects = $this->executeQuery($sql, $object_name);
+		$objects = $this->executeQuery($sql, $object_name, null, $db_scope);
 		
 		return $objects;
 	}

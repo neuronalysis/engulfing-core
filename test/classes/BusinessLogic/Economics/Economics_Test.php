@@ -20,7 +20,7 @@ class Economics_Test extends TestClass {
 		$mockIndicator->countryID = $country->id;
 		$mockIndicator->Release = $mockRelease;
 		
-		print_r($mockIndicator);
+		//print_r($mockIndicator);
 		$indicatorID = $this->orm->replace($mockIndicator);
 		
 	}
