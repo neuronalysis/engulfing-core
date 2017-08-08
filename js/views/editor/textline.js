@@ -1,7 +1,7 @@
 var TextLineView = BaseView.extend({
 	initialize : function() {
 		
-		if (viewOptions.approximateFontStyle) {
+		if (editorOptions.approximateFontStyle) {
 			this.fontSize = this.model.getFontSize();
 		} else {
 			this.fontSize = '10px';

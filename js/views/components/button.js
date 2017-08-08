@@ -4,10 +4,13 @@ var ButtonView = Backbone.View.extend({
 	
 	buttonObjectName : "",
 	
+	label : null,
 	targetID : null,
 	
 	initialize : function(options) {
 		this.targetID = options.targetID;
+		
+		this.label = options.label;
 	},
 	events : {
 		"click" : "click",
@@ -31,9 +34,13 @@ var ButtonView = Backbone.View.extend({
 		service.fetch();
 	},
 	getLabel : function () {
-		var id_splitted = this.id.split("_");
-		
-		return id_splitted[1].charAt(0).toUpperCase() + id_splitted[1].slice(1) + ' ' + this.buttonObjectName;
+		if (this.label) {
+			return this.label;
+		} else {
+			var id_splitted = this.id.split("_");
+
+			return id_splitted[1].charAt(0).toUpperCase() + id_splitted[1].slice(1) + ' ' + this.buttonObjectName;
+		}
 	},
 	importDataService : function() {
 		alert('ass');
