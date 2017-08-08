@@ -1,9 +1,16 @@
 var TextLineView = BaseView.extend({
 	initialize : function() {
-		this.fontSize = this.model.getFontSize();
+		
+		if (editorOptions.approximateFontStyle) {
+			this.fontSize = this.model.getFontSize();
+		} else {
+			this.fontSize = '10px';
+		}
 		//this.template = _.template(tpl.get('components/editor'));
 	},
 	render : function() {
+		var view = ALTOEditorView;
+		
 		this.$el.empty();
 		
 		if (this.model.get('STYLEREFS')) {
