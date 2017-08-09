@@ -1,3 +1,4 @@
+//TODO merge InputSelectView and SelectView
 window.SelectView = Backbone.View.extend({
 	tagName : "select",
 	className :  "form-control",
@@ -71,6 +72,8 @@ window.SelectView = Backbone.View.extend({
 				}
 			}
 		} else if (this.options instanceof Array) {
+			//TODO 	get rid of version mgmt related stuff
+			//		dependencies:	all non-backbone-collection related select-options (e.g. kokos)
 			for (var i = 0; i < this.options.length; i++) {
 				if(typeof this.model !== 'undefined') {
 					if (this.options[i].version == this.model.get(this.fieldName)) {
