@@ -673,6 +673,16 @@ trait WebsiteScript {
 					
 				}
 				
+				$scopeObjectName = $this->getScopeObjectName();
+				
+				if ($scopeObjectName === "admin") {
+					$html .= '
+		<script src="' . $this->getScriptSource($scope, 'js/main_admin.js') . '"></script>
+					';
+					
+					$onPage = true;
+				}
+				
 				if (!$onPage) {
 					$html .= '
 		<script src="js/main_intro.js"></script>

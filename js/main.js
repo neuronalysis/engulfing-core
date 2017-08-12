@@ -41,12 +41,6 @@ var BaseRouter = Backbone.Router.extend({
 		var roleID = Cookie.get("UserRoleID");
 
 		$('#alerts').html('');
-		/*var routeType;
-		var caller = arguments.callee.caller;
-
-		if (callerName === "objectList") {
-			routeType = "list";
-		}*/
 
 		if (objects[this.objectName] !== undefined) {
 			if (objects[this.objectName][roleID] !== undefined) {

@@ -4,7 +4,6 @@ trait TransactionManager {
 	
 	function __construct($db_scope = null) {
 		if ($db_scope) {
-			echo "asdf";
 			$this->db_scope = $db_scope;
 		}
 	}
@@ -45,7 +44,17 @@ trait TransactionManager {
 						$stmt->bindValue($key, $value);
 					}
 				} else if ($queryType == "DELETE") {
-					$stmt->bindValue("id", $bindings["id"]);
+					if (isset($bindings["id"])) {
+						$stmt->bindValue("id", $bindings["id"]);
+					} else {
+						foreach($bindings as $key => $value) {
+							if($key !== "id") {
+								if ($this->debug) echo "insert bound key: " . $key . " -> " . $value . "\n";
+								
+								$stmt->bindValue($key, $value);
+							}
+						}
+					}
 				}
 			}
 	
