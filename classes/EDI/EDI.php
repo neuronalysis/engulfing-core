@@ -290,6 +290,7 @@ class EDI extends Thing {
 	function importXMLFile($filename, $objectName, $xPathQuery, $scope = null) {
 		$doc = new DOMDocument();
 		
+		//echo file_get_contents($filename);
 		$doc->loadXML(file_get_contents($filename));
 		
 		$baseDoc = clone $doc;

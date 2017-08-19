@@ -30,14 +30,52 @@ var TextLineView = BaseView.extend({
 				'top'           : this.model.get('VPOS') / 3 + 'px'
 			    });*/
 		}
-			
 		
 		_.each(this.model.get('Strings').models, function(object) {
-			var stringView = new StringView({
-				model : object,
-				parent : this
-			});
-			$(this.el).append(stringView.render().el);
+			// approach 1
+			/*if (object.get('SUBS_TYPE') === 'HypPart1') {
+				object.set('CONTENT', object.get('SUBS_CONTENT'));
+				var stringView = new StringView({
+					model : object,
+					parent : this
+				});
+			
+				$(this.el).append(stringView.render().el);
+			} else if (object.get('SUBS_TYPE') === 'HypPart2') {
+			} else {
+				var stringView = new StringView({
+					model : object,
+					parent : this
+				});
+			
+				$(this.el).append(stringView.render().el);
+			}*/
+			
+			//approach 2
+			if (object.get('SUBS_TYPE') === 'HypPart1') {
+				object.set('CONTENT', object.get('CONTENT'));
+				var stringView = new StringView({
+					model : object,
+					parent : this
+				});
+			
+				$(this.el).append(stringView.render().el);
+				
+				var hypView = new HypView({
+					model : new HYP({"CONTENT": "-"}),
+					parent : this
+				});
+				
+				$(this.el).append(hypView.render().el);
+			} else {
+				var stringView = new StringView({
+					model : object,
+					parent : this
+				});
+			
+				$(this.el).append(stringView.render().el);
+			}
+			
 			
 			if (object.get('CONTENT') == 'WIRTSCHAFTSRE6I0NEN') {
 				//alert ($(stringView.el).clientWidth);
