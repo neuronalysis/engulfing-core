@@ -4,6 +4,7 @@ window.SelectView = Backbone.View.extend({
 	className :  "form-control",
 	
 	initialize : function(data) {
+		this.id = data.id;
 		this.model = data.model;
 		this.options = data.options;
 		this.fieldName = data.fieldName;
@@ -25,12 +26,16 @@ window.SelectView = Backbone.View.extend({
 		if (typeof this.onSelectRoute !== 'undefined') {
 			if (this.fieldName === 'number') {
 				var subRoute = '#documents/' + this.options.models[0].get('documentID') + '/pages/' + this.el.options[this.el.selectedIndex].value;
+				var gotoUrl = this.onSelectRoute + subRoute;
+				
+				Backbone.history.navigate(subRoute, {trigger: true})
 			} else if (this.fieldName === 'version') {
 				var subRoute = '#documents/' + this.model.get('documentID') + '/pages/' + this.model.get('number') + '/version/' + this.el.options[this.el.selectedIndex].value;
+				var gotoUrl = this.onSelectRoute + subRoute;
+				
+				Backbone.history.navigate(subRoute, {trigger: true})
 			}
-			var gotoUrl = this.onSelectRoute + subRoute;
 			
-			Backbone.history.navigate(subRoute, {trigger: true})
 		} else {
 			if (this.el.options[this.el.selectedIndex]) {
 				var attribute = {};
@@ -74,14 +79,22 @@ window.SelectView = Backbone.View.extend({
 		} else if (this.options instanceof Array) {
 			//TODO 	get rid of version mgmt related stuff
 			//		dependencies:	all non-backbone-collection related select-options (e.g. kokos)
-			for (var i = 0; i < this.options.length; i++) {
-				if(typeof this.model !== 'undefined') {
-					if (this.options[i].version == this.model.get(this.fieldName)) {
-						this.$el.append('<option value="'
-								+ this.options[i].version
-								+ '" selected="true">'
-								+ this.caption + ' ' + this.options[i].version
-								+ '</option>');
+			if (this.fieldName === 'version') {
+				for (var i = 0; i < this.options.length; i++) {
+					if(typeof this.model !== 'undefined') {
+						if (this.options[i].version === this.model.get(this.fieldName)) {
+							this.$el.append('<option value="'
+									+ this.options[i].version
+									+ '" selected="true">'
+									+ this.caption + ' ' + this.options[i].version
+									+ '</option>');
+						} else {
+							this.$el.append('<option value="'
+									+ this.options[i].version
+									+ '">'
+									+ this.caption + ' ' + this.options[i].version
+									+ '</option>');
+						}
 					} else {
 						this.$el.append('<option value="'
 								+ this.options[i].version
@@ -89,12 +102,30 @@ window.SelectView = Backbone.View.extend({
 								+ this.caption + ' ' + this.options[i].version
 								+ '</option>');
 					}
-				} else {
-					this.$el.append('<option value="'
-							+ this.options[i].version
-							+ '">'
-							+ this.caption + ' ' + this.options[i].version
-							+ '</option>');
+				}
+			} else if (this.fieldName === 'zoomFactor') {
+				for (var i = 0; i < this.options.length; i++) {
+					if(typeof this.model !== 'undefined') {
+						if (this.options[i].zoomFactor === editorOptions['zoomFactor']) {
+							this.$el.append('<option value="'
+									+ this.options[i].zoomFactor
+									+ '" selected="true">'
+									+ this.caption + ' ' + this.options[i].zoomFactor
+									+ '</option>');
+						} else {
+							this.$el.append('<option value="'
+									+ this.options[i].zoomFactor
+									+ '">'
+									+ this.caption + ' ' + this.options[i].zoomFactor
+									+ '</option>');
+						}
+					} else {
+						this.$el.append('<option value="'
+								+ this.options[i].version
+								+ '">'
+								+ this.caption + ' ' + this.options[i].version
+								+ '</option>');
+					}
 				}
 			}
 		}
