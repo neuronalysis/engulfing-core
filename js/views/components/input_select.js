@@ -1,3 +1,6 @@
+//TODO 	get rid of ontology related stuff; try to convert abstract concepts into 
+//		concrete ones before passing them to frontend-components
+//TODO merge InputSelectView and SelectView
 var InputSelectView = InputView.extend({
 	
 	initialize : function(options) {
