@@ -34,32 +34,22 @@ class XMLConverter extends Converter {
 		$sObjVars = get_object_vars($sObject);
 		
 		foreach($sObjVars as $sKey => $sValue) {
-			//echo " -- " . $sKey . "\n";
-			
 			if ($sKey == "@attributes") {
 				foreach($sValue as $sAttributeKey => $sAttributeValue) {
 					if (property_exists($objectName, $sAttributeKey)) {
 						$object->$sAttributeKey = $sAttributeValue;
 					}
-					
 				}
 			} else {
 				if (property_exists($objectName, $sKey)) {
 					if (is_object($sValue)) {
-						//echo $sKey . " exists on " . $objectName . " and has object as value " . "\n";
-							
 						$childObject = $this->convertSimpleObject($sObject->$sKey);
 							
 						$object->$sKey = $childObject;
-							
-							
 					} else if (is_string($sValue)) {
 						$object->$sKey = $sValue;
 					}
-				
-				
 				} else {
-					//echo $sKey . "\n";
 					if (is_array($sValue)) {
 						$sKeyPlural = $this->pluralize($sKey);
 						if (property_exists($objectName, $sKeyPlural)) {
@@ -73,7 +63,7 @@ class XMLConverter extends Converter {
 						}
 					} else {
 						$sKeyPlural = $this->pluralize($sKey);
-						//echo $sKeyPlural . "\n";
+			
 						if (property_exists($objectName, $sKeyPlural)) {
 							$valueArray = array();
 								
@@ -86,12 +76,9 @@ class XMLConverter extends Converter {
 							$object->$sKeyPlural = $valueArray;
 						}
 					}
-				
 				}
 			}
-			
 		}
-		
 			
 		return $object;
 	}
