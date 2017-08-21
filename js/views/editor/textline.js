@@ -20,18 +20,27 @@ var TextLineView = BaseView.extend({
 				id : fontId
 			});
 			
-			/*this.$el.css({
-				'position'          : 'absolute',
+			this.$el.css({
+				'position'          : 'static',
 				'font-size'		: textStyle.get('FONTSIZE') + 'px',
 				'font-family'	: textStyle.get('FONTFAMILY'),
-				'width'         : this.model.get('WIDTH') / 3 + 'px',
-				'height'        : this.model.get('HEIGHT') / 3 + 'px',
-				'left'          : this.model.get('HPOS') / 3 + 'px',
-				'top'           : this.model.get('VPOS') / 3 + 'px'
-			    });*/
+				'width'         : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
+				'height'        : this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
+				'left'          : this.model.get('HPOS') * editorOptions['zoomFactor'] + 'px',
+				'top'           : this.model.get('VPOS') * editorOptions['zoomFactor'] + 'px'
+			    });
 		}
 		
 		_.each(this.model.get('Strings').models, function(object) {
+			// no hyp handling
+			/*var stringView = new StringView({
+				model : object,
+				parent : this
+			});
+		
+			$(this.el).append(stringView.render().el);
+			*/
+			
 			// approach 1
 			/*if (object.get('SUBS_TYPE') === 'HypPart1') {
 				object.set('CONTENT', object.get('SUBS_CONTENT'));

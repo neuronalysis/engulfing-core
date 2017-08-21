@@ -12,7 +12,7 @@ var TextBlockView = BaseView.extend({
 		this.$el.empty();
 		
 		this.$el.css({
-			'position'          : 'absolute',
+			'position'          : 'static',
 			'font-size'		: textStyle.get('FONTSIZE'),
 			'font-family'	: textStyle.get('FONTFAMILY'),
 			'width'         : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',

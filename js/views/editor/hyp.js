@@ -21,9 +21,9 @@ var HypView = BaseView.extend({
 		var css = {
 				'position'          : 'absolute',	
 				'width' : 20 + 'px',
-				'height' : lastString.get('HEIGHT') / 3 + 'px',
-				'left' : (parseInt(lastString.get('HPOS')) + parseInt(lastString.get('WIDTH'))) / 3 + 'px',
-				'top' : lastString.get('VPOS') / 3 + 'px',
+				'height' : lastString.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
+				'left' : (parseInt(lastString.get('HPOS')) + parseInt(lastString.get('WIDTH'))) * editorOptions['zoomFactor'] + 'px',
+				'top' : lastString.get('VPOS') * editorOptions['zoomFactor'] + 'px',
 				'white-space' : 'nowrap'
 			};
 

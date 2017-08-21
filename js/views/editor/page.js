@@ -16,7 +16,7 @@ var PageView = BaseView.extend({
 		}).render().el);
 		
 		this.$el.css({
-			'position'          : 'absolute',
+			'position'          : 'static',
 			'width'         	: this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
 			'height'        	: this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
 			'border'			: '1px solid black'
