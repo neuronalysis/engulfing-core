@@ -459,6 +459,19 @@ class GSystem {
 		
 		return $wellformed;
 	}
+	function isValidAgainstSchema($xml, $schemaFile) {
+		$tempFile = time() . '-' . rand() . '-document.tmp';
+		$xml->save($tempFile);
+		
+		$tempDom = new DOMDocument();
+		$tempDom->load($tempFile);
+		
+		if (is_file($tempFile)) unlink($tempFile);
+		
+		if ($error = $tempDom->schemaValidate($schemaFile)) {
+			return true;
+		}
+	}
 	function wellformXML($badformed) {
 		$badformed = str_replace("\r", "", str_replace("", "", $badformed));
 		$badformed = str_replace("�", "&uuml;", $badformed);
