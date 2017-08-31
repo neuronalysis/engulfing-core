@@ -13,17 +13,14 @@ class ObjectConverter extends Converter {
 		
 		return $dom;
 	}
-	function convertToElement($object, $dom, $stickToClass) {
-		/*if (strlen(get_class($object)) > 4 && substr(get_class($object), 0, 4) == "ALTO") {
-			$className = str_replace("ALTO", "", get_class($object));
-		} else {
-			$className = get_class($object);
-		}*/
+	//TODO function feels bloated. try to simplify/reduce
+	function convertToElement($object, $dom, $stickToClass, $stickToNamespace = true) {
+		if (!is_object($object)) {
+			
+		}
 		$className = get_class($object);
 		
 		$classNameWithoutNS = $this->getNameWithoutNamespace(get_class($object));
-		//echo $classNameWithoutNS. "\n";
-		
 		
 		if($classNameWithoutNS == "ALTOString") {
 			$element = $dom->createElement("String");
@@ -41,7 +38,6 @@ class ObjectConverter extends Converter {
 			if ($reflection->hasMethod("tidy")) {
 				$tidied = $object->tidy();
 			}
-			//print_r($classvars);
 			
 			if ($tidied) {
 				foreach($classvars as $key => $value) {
@@ -69,58 +65,82 @@ class ObjectConverter extends Converter {
 					
 					if (isset($object->$readKey)) {
 						if (is_object($object->$readKey)) {
-							$childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass);
-							
-							$element->appendChild($childElement);
+							if (class_exists("ALTO\\" . $readKey)) {
+								$childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass);
+								
+								$element->appendChild($childElement);
+							} else {
+								if ($stickToNamespace) {
+									if (is_string($object->$readKey)) {
+										$element->setAttribute($readKey, $object->$readKey);
+									}
+								} else {
+									if (class_exists($readKey)) {
+										$childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass);
+										
+										$element->appendChild($childElement);
+									} else {
+										$element->setAttribute($readKey, $object->$readKey);
+									}
+								}
+							}
 						} else if (is_string($object->$readKey)) {
 							if (class_exists("ALTO\\" . $key)) {
 								$childElement = $dom->createElement($key, $object->$readKey);
 								
 								$element->appendChild($childElement);
 							} else {
-								if (class_exists($readKey)) {
-									$childElement = $dom->createElement($key, $object->$readKey);
-									
-									$element->appendChild($childElement);
-								} else {
+								if ($stickToNamespace) {
 									$element->setAttribute($key, $object->$readKey);
+								} else {
+									if (class_exists($readKey)) {
+										$childElement = $dom->createElement($key, $object->$readKey);
+										
+										$element->appendChild($childElement);
+									} else {
+										$element->setAttribute($key, $object->$readKey);
+									}
 								}
 							}
 						} else if (is_array($object->$readKey)) {
-							//echo $key . "; " . $sKey . "\n";
-							
-							foreach($object->$readKey as $item) {
-								$childElement = $this->convertToElement($item, $dom, $stickToClass);
-								
-								$element->appendChild($childElement);
-							}
-						} else {
-							echo "fuck\n";
-						}
-					} else {
-						$sKey = $this->singularize($key);
-						
-						if (class_exists("ALTO\\" . $sKey)) {
-							$childElement = $dom->createElement($sKey, null);
-							
-							//$element->appendChild($childElement);
-						} else {
-							if (class_exists($readKey)) {
-								$childElement = $dom->createElement($key, null);
-								
-								//$element->appendChild($childElement);
+							if ($this->isAssoc($object->$readKey)) {
+								foreach($object->$readKey as $aKey => $aValue) {
+									if ($aKey== "Strings") {
+										$readKey = "ALTOStrings";
+									} else {
+										$readKey = $aKey;
+									}
+									
+									if (class_exists("ALTO\\" . $readKey)) {
+										$childElement = $this->convertToElement($aValue, $dom, $stickToClass);
+										
+										$element->appendChild($childElement);
+									} else {
+										if ($stickToNamespace) {
+											$element->setAttribute($aKey, $aValue);
+										} else {
+											if (class_exists($readKey)) {
+												$childElement = $this->convertToElement($aValue, $dom, $stickToClass);
+												
+												$element->appendChild($childElement);
+											} else {
+												$element->setAttribute($aKey, $aValue);
+											}
+										}
+									}
+								}
 							} else {
-								if ($key == "ID") {
-									//$element->setAttribute($key, null);
+								foreach($object->$readKey as $aValue) {
+									$childElement = $this->convertToElement($aValue, $dom, $stickToClass);
+									
+									$element->appendChild($childElement);
 								}
 							}
+							
 						}
-						//echo "fuck : " . $className . " - > " . $key . "; " . $sKey . "\n";
-						//print_r($object);
 					}
 				}
 			}
-			
 		}
 		
 		return $element;

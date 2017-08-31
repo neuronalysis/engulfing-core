@@ -29,8 +29,6 @@ class XMLConverter extends Converter {
 		
 		$object = new $objectName;
 		
-		
-		
 		$sObjVars = get_object_vars($sObject);
 		
 		foreach($sObjVars as $sKey => $sValue) {
