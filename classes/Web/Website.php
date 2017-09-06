@@ -456,7 +456,6 @@ class Website {
     }
     function renderHTML_ContentContainer() {
     	$html = '';
-    	 
     	if (!isset($this->activescope_OntologyClass)) {
     	//if (!isset($this->activescope_OntologyClass) && !isset($this->activescope_Ontology)) {
     		$html .= '

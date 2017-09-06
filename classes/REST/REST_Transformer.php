@@ -7,7 +7,7 @@ class REST_Transformer {
 	
 	function __construct() {
 	}
-	function deserialize_JSON($json, $class_name = null, $sticktoclass = false, $namespace = null) {
+	function deserialize_JSON($json, $class_name = null, $sticktoclass = false, $namespace = null, $enforceList = false) {
 		$this->baseClass = $class_name;
 		$this->namespace = $namespace;
 		
@@ -16,7 +16,18 @@ class REST_Transformer {
 		//print_r($data);
 		
 		if (isset($data[0])) {
-			$object = $this->mapDataToObject($data[0], $class_name);
+			if ($enforceList) {
+				$objects = array();
+				
+				foreach($data as $item) {
+					array_push($objects, $this->mapDataToObject($item, $class_name));
+				}
+				
+				return $objects;
+			} else {
+				$object = $this->mapDataToObject($data[0], $class_name);
+			}
+			
 		} else {
 			$object = $this->mapDataToObject($data, $class_name);
 		}

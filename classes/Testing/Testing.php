@@ -4,15 +4,18 @@ class Testing {
 	}
 }
 class TestClass {
+	use ObjectHelper;
 	
 	var $rest;
 	
+	var $results = array();
+	
 	function __construct() {
-		$this->orm = new ORM();
+		//$this->orm = new ORM();
 		
-		$classname = str_ireplace("_Test", "", get_class($this));
+		//$classname = str_ireplace("_Test", "", get_class($this));
 		
-		$this->testobject = new $classname();
+		//$this->testobject = new $classname();
 	}
 	function test() {
 		$this->prepare();
@@ -232,6 +235,8 @@ class TestClass {
 		
 		return $coverage;
 	}
+	//TODO improvements necessary. bad approach to save results in class-variable
+	//TODO most probably not robust for general purpose (which is intended); contains app-specific code to be cleaned up.
 	function compareTwoObjects($a,$b, $ignoreID = true, $convertNumericStrings = true) {
 		if(is_object($a) && is_object($b)) {
 			if(get_class($a)!=get_class($b))
@@ -239,11 +244,45 @@ class TestClass {
 				foreach($a as $key => $val) {
 					if(!$this->compareTwoObjects($val,$b->$key) && (!in_array($key, array("id")) || !$ignoreID)) {
 						if (!is_array($val) && !is_array($b->$key)) {
-							echo "delta key " . $key . ": " . $val . "; " . $b->$key . "\n";
+							if (!is_string($key)) $key= print_r($key, true);
+							if (!is_string($val)) $key= print_r($val, true);
+							
+							$classNameWithoutNS = $this->getNameWithoutNamespace($key);
+							
+							if($classNameWithoutNS == "ALTOString") {
+								$bVal = $b->String;
+								$hpos = $b->HPOS;
+								$vpos = $b->VPOS;
+							} else {
+								if (isset($b->$classNameWithoutNS)) {
+									$bVal = $b->$classNameWithoutNS;
+									$hpos = $b->HPOS;
+									$vpos = $b->VPOS;
+								}
+								
+							}
+							
+							if (isset($bVal)) {
+								if (!is_string($bVal)) $bVal= print_r($bVal, true);
+								
+								$delta = new \OCR\Difference();
+								$delta->key = $key;
+								
+								$delta->before = $val;
+								$delta->after = $bVal;
+								$delta->HPOS = $hpos;
+								$delta->VPOS = $vpos;
+								
+								unset($delta->Page);
+								array_push($this->results, $delta);
+								
+								//echo "delta key " . $key . ": " . $val . "; " . $bVal. "\n";
+							}
+							
 						} else {
-							echo "delta key " . $key . "\n";
+							//echo "delta key " . $key . "\n";
 						}
-						return false;
+						//return false;
 					}
 				}
 				return true;
@@ -257,9 +296,9 @@ class TestClass {
 			return is_null(key($a)) && is_null(key($b));
 		}
 		else
-			if (is_array($a)) $a = print_r($a, true);
-			if (is_array($b)) $b = print_r($b, true);
-			//echo $a . "; " . $b . "\n";
+			if (!is_string($a)) $a = print_r($a, true);
+			if (!is_string($b)) $b = print_r($b, true);
+			
 			return "" . $a === "" . $b;
 	}
 }

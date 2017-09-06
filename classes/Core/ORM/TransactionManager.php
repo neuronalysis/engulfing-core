@@ -40,8 +40,10 @@ trait TransactionManager {
 						}
 					}
 				} else if ($queryType == "SELECT") {
-					foreach($bindings as $key => $value) {
-						$stmt->bindValue($key, $value);
+					if (isset($bindings)) {
+						foreach($bindings as $key => $value) {
+							$stmt->bindValue($key, $value);
+						}
 					}
 				} else if ($queryType == "DELETE") {
 					if (isset($bindings["id"])) {
