@@ -104,22 +104,26 @@ var BaseRouter = Backbone.Router.extend({
 	},
 	objectList : function() {
 		if (this.isAuthorized('list')) {
+			var self = this;
+			
 			var objectList = new window[this.objectName + "Collection"]();
 
 			var objectlistView = new ObjectListView({el : $('#content'),
 				collection : objectList, objectName : this.objectName});
 
-			this.setActiveView(objectlistView);
+			self.setActiveView(objectlistView);
 		}
 	},
 	entityList : function() {
 		if (this.isAuthorized('list')) {
+			var self = this;
+			
 			var entityList = new window[this.objectName + "Entity" + "Collection"]();
 
 			var entitylistView = new EntityListView({el : $('#content'),
 				collection : entityList, objectName : this.objectName});
 
-			this.setActiveView(entitylistView);
+			self.setActiveView(entitylistView);
 		}
 	},
 	singleObject : function(id) {

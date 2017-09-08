@@ -216,8 +216,14 @@ var SingleObjectView = BaseView.extend({
 				fieldViews.push(fieldView);
 			} else {
 				for(field in model.attributes) {
-					if (field !== "id" && field !== "name" && field.slice(-2) !== "ID" && !model.isProtected(field)) {
+					if (field !== "id" && field.slice(-2) !== "ID" && !model.isProtected(field)) {
 						if (!this.isGroupFieldView(field) && field !== this.model.type) {
+							fieldView = this.createFieldViewByModel(model, field);
+							
+							fieldViews.push(fieldView);
+						}
+					} else if (field === "name") {
+						if (accessMode === "edit") {
 							fieldView = this.createFieldViewByModel(model, field);
 							
 							fieldViews.push(fieldView);
@@ -315,6 +321,8 @@ var SingleObjectView = BaseView.extend({
 		
 		return fieldViews;
 	},
+	//TODO sync of model does not belong here
+	//TODO approach for followup-navigation after save is shitty
 	saveObject : function() {
 		var input_type;
 		
@@ -345,7 +353,8 @@ var SingleObjectView = BaseView.extend({
 		this.model.save({}, {
 		    success: function(model, response){
 		    	if(typeof response.error === 'undefined'){
-		    		model.url = model.urlRoot;
+		    		//TODO risky change. not sure why url should be overwritten with collection's
+		    		//model.url = model.urlRoot;
 			    	
 			    	if (model.type.substr(-6, 6) === "Entity") {
 			    		var url = window.location.href;
@@ -357,7 +366,16 @@ var SingleObjectView = BaseView.extend({
 				    	
 				    	var target = url[url.length-2] + "/entities/#" + model.id + "/";
 				   	} else {
-			    		app.navigate('#' + model.id, true);
+				   		var url = window.location.href;
+			    		
+				   		url = url.split('#');
+				   		
+				   		if (url[1].indexOf(model.type.toLowerCase()) !== -1) {
+				   			app.navigate('#' + url[1], true);
+				   		} else {
+				   			app.navigate('#' + model.id, true);
+				   		}
+				   		
 			    	}
 		    	} else {
 		    		var alert_msg = '<div class="alert alert-danger">'+

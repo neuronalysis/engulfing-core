@@ -53,7 +53,7 @@ class ORM {
 			echo '{"error":{"text":'. $e->getMessage() .'}}';
 		}
 	}
-	function getAllByName($object_name, $noPaging = false, $orderby = null, $limit = null, $explicitFields = null, $includingProtected = false) {
+	function getAllByName($object_name, $noPaging = false, $orderby = null, $limit = null, $explicitFields = null, $includingProtected = false, $db_scope = null) {
 		if ($objects = $this->isLoadedObjectsArray($object_name, array())) return $objects;
 		
 		$tableName = $this->getTableNameByObjectName($object_name, false);
@@ -71,7 +71,7 @@ class ORM {
 		$sql = "SELECT " . $sql_select_fields . " FROM " . $tableName . " " . $sql_paging;
 		
 		//$objects = $this->executeQuery($sql, $object_name, null, true, $explicitFields, $includingProtected);
-		$objects = $this->executeQuery($sql, $object_name);
+		$objects = $this->executeQuery($sql, $object_name, null, $db_scope);
 		
 		
 		if (!$explicitFields || $this->convert) {
@@ -169,7 +169,7 @@ class ORM {
 			throw $e;
 		}
 	}
-	function getById($object_name, $id, $eager = true, $excludes = array()) {
+	function getById($object_name, $id, $eager = true, $excludes = array(), $db_scope = null) {
 		$this->startLoading($object_name, $id);
 		if ($object = $this->isLoadedObject($object_name, $id)) return $object;
 			
@@ -178,7 +178,7 @@ class ORM {
 		$sql = "SELECT * FROM " . $this->getTableNameByObjectName($object_name) . " WHERE id=:id";
 		
 		if (!$eager) {
-			$objects = $this->executeQuery($sql, $object_name, array("id" => $id));
+			$objects = $this->executeQuery($sql, $object_name, array("id" => $id), $db_scope);
 			
 			if (isset($objects[0])) {
 				$object = $objects[0];
@@ -186,7 +186,7 @@ class ORM {
 				$object = null;
 			}
 		} else {
-			$objects = $this->executeQuery($sql, $object_name, array("id" => $id));
+			$objects = $this->executeQuery($sql, $object_name, array("id" => $id), $db_scope);
 			
 			if (isset($objects[0])) {
 				$object = $objects[0];
@@ -263,12 +263,12 @@ class ORM {
 	
 		return $object;
 	}
-	function deleteById($object_name, $id, $cascade = true) {
+	function deleteById($object_name, $id, $cascade = true, $db_scope = null) {
 		if (!$id) return null;
 		
 		$sql = "DELETE FROM " . $this->pluralize(strtolower($object_name)) . " WHERE id=:id";
 
-		$this->executeQuery($sql, $object_name, array("id" => $id));
+		$this->executeQuery($sql, $object_name, array("id" => $id), $db_scope);
 	}
 	function deleteByNamedFieldValues($object_name, $fields, $values) {
 		$objects = $this->getByNamedFieldValues($object_name, $fields, $values);
@@ -305,16 +305,16 @@ class ORM {
 			$object->version += 1;
 			$object->id = null;
 			
-			return $this->insert($object, $db_scope = null);
+			return $this->insert($object, $db_scope);
 		} else {
-			if ($this->isNew($object, $db_scope = null)) {
+			if ($this->isNew($object, $db_scope)) {
 				if ($doublicate = $this->checkUniqueConstraints($object)) {
-					return $this->replace($object, $db_scope = null);
+					return $this->replace($object, $db_scope);
 				} else {
-					return $this->insert($object, $db_scope = null);
+					return $this->insert($object, $db_scope);
 				}
 			} else {
-				$this->update($object, $db_scope = null);
+				$this->update($object, $db_scope);
 			}
 		}
 	}

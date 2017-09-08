@@ -468,8 +468,12 @@ class GSystem {
 		
 		if (is_file($tempFile)) unlink($tempFile);
 		
-		if ($error = $tempDom->schemaValidate($schemaFile)) {
-			return true;
+		try {
+			if ($error = $tempDom->schemaValidate($schemaFile)) {
+				return true;
+			}
+		} catch(Exception $e) {
+			return null;
 		}
 	}
 	function wellformXML($badformed) {

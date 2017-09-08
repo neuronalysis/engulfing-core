@@ -42,7 +42,13 @@ window.BackGridTableView = BaseView.extend({
 				var url = window.location.href;
 
 		    	if (url.indexOf("entities") === -1) {
-		    		return "#" + model.id;
+		    		if (url.indexOf("#") === -1) {
+		    			return "#" + model.id;
+		    		} else {
+		    			url = url.split('#');
+		    			
+		    			return "#" + url[1] + "/" + model.id;
+		    		}
 		    	} else {
 		    		if (model.collection.OntologyClass.get('isPersistedConcrete')) {
 		    			if (url.substr(-1) == '/') url = url.substr(0, url.length - 2);
