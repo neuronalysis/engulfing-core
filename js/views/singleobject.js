@@ -371,7 +371,14 @@ var SingleObjectView = BaseView.extend({
 				   		url = url.split('#');
 				   		
 				   		if (url[1].indexOf(model.type.toLowerCase()) !== -1) {
-				   			app.navigate('#' + url[1], true);
+				   			url_1 = url[1];
+				   			
+				   			if (url_1.substr(-1) == '/') url_1 = url_1.substr(0, url_1.length - 2);
+				   			
+				   			url_1 = url_1.split('/');
+				   			url_1.pop();
+					    	
+				   			app.navigate('#' + url_1[0] + "/" + model.id, true);
 				   		} else {
 				   			app.navigate('#' + model.id, true);
 				   		}

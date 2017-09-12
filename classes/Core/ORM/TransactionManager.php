@@ -72,11 +72,12 @@ trait TransactionManager {
 				return null;
 			}
 		} catch(PDOException $e) {
-			echo '{"error":{"text": ' . $query . '
+			/*echo '{"error":{"text": ' . $query . '
 ' . $e->getMessage() . '(' . $e->getLine() .')
 }}
 	
-';
+';*/
+			throw $e;
 		}
 	}
 }

@@ -8,6 +8,9 @@ var InputSelectView = InputView.extend({
 		
 		this.template = _.template(tpl.get('components/input_select'));
 		
+		if (options.enumeration) {
+			this.enumeration = options.enumeration;
+		}
 		/*this.labelName = this.field;
 		
 		this.withLabel = true;
@@ -91,6 +94,9 @@ var InputSelectView = InputView.extend({
 			
 			if (this.options) {
 				this.$("#" + model_select.type).select2(select2ConfigMin.get(this.options, model_select.type));
+				this.$("#" + model_select.type).select2('val', object);
+			} else if (this.enumeration) {
+				this.$("#" + model_select.type).select2(select2ConfigMin.get(this.enumeration, model_select.type));
 				this.$("#" + model_select.type).select2('val', object);
 			} else {
 				this.$("#" + model_select.type).select2(select2Config.get(model_select.urlRoot, this.labelName));

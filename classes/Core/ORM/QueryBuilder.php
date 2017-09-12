@@ -84,18 +84,25 @@ trait QueryBuilder {
 			
 			$rp = new ReflectionProperty($object,$key);
 			if (!$this->isObjectReference($key) && !in_array($key, array("cascades", "cascade", "constraintsUnique", "defaultOrder"))) {
+				
 				if ($rp->isProtected()) {
 					$getterMethodName = "get" . ucfirst($key);
 					$fields[$key] = $object->$getterMethodName();
 				} else {
 					$fields[$key] = $object->$key;
 				}
-		
+			
 		
 			} else {
+				//TODO questionable shits
 				if ($includingObjects && $this->isObjectReference($key)) {
 					if (isset($object->$key->id)) {
 						$fields[lcfirst($key) . "ID"] = $object->$key->id;
+					} else {
+						if (method_exists($object->$key, "initialize")) {
+							$object->$key->initialize();
+							$fields[lcfirst($key) . "ID"] = $object->$key->id;
+						}
 					}
 				}
 			}

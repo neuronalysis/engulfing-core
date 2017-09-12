@@ -231,7 +231,7 @@ trait ObjectHelper {
 		
 		return $filtered;
 	}
-	function loadReferencedObjects($stdClass, $object_name, $excludes) {
+	function loadReferencedObjects($stdClass, $object_name, $excludes, $db_scope = null) {
 		$referencedObjects = array();
 		
 		$object = new $object_name();
@@ -248,7 +248,7 @@ trait ObjectHelper {
 				if ($relationshipType == "toOne") {
 					$idFieldname = lcfirst($key) . "ID";
 					
-					$refObject = $this->getById($key, $stdClass->$idFieldname);
+					$refObject = $this->getById($key, $stdClass->$idFieldname, true, array(), $db_scope);
 					
 					if ($refObject->id == null) {
 						$refObject = null;

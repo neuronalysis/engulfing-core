@@ -151,7 +151,7 @@ class ORM {
 					foreach($cascades as $cascade) {
 						$explicitField = $explicitFields[$j];
 						
-						$objects[$i]->$cascade = $this->getById($cascade, $stdObjects[$i]->$explicitField);
+						$objects[$i]->$cascade = $this->getById($cascade, $stdObjects[$i]->$explicitField, true, array(), $db_scope);
 						
 						$j++;
 					}
@@ -246,7 +246,7 @@ class ORM {
 					
 					$object->Sector = $sector;
 				} else {
-					$referencedObjects = $this->loadReferencedObjects($object, $object_name, $excludes);
+					$referencedObjects = $this->loadReferencedObjects($object, $object_name, $excludes, $db_scope);
 						
 					foreach($referencedObjects as $nestedToOneObjectKey => $nestedToOneObjectValue) {
 						$object->$nestedToOneObjectKey = $nestedToOneObjectValue;
@@ -287,7 +287,7 @@ class ORM {
 		
 		$lastInsertId = $this->executeQuery($query, get_class($object), $this->getBindingsFromObject($object), $db_scope);
 		
-		return $lastInsertId;
+		return intval($lastInsertId);
 	}
 	//TODO db-scope handling
 	function update($object, $db_scope = null) {

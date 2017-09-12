@@ -1,5 +1,6 @@
 var referrer = document.referrer;
 //console.log("href: " + window.location.href + "; referrer: " + referrer);
+
 if (window.location.href.indexOf("localhost") === -1) {
 	if (referrer.indexOf("generated") === -1) {
 		var kmapiHost = "http://www.ontologydriven.com/api/";
@@ -24,9 +25,4 @@ if (window.location.href.indexOf("localhost") === -1) {
 	var odBase = "http://localhost.ontologydriven/";
 	var engulfingBase = "http://localhost.engulfing/";
 	var neuroBase = "http://localhost.neuronalysis/";
-	
-	
 }
-
-
-//var apiHost = "http://datamart.services/api/";

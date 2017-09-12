@@ -22,11 +22,11 @@ var InputTextView = InputView.extend({
 		}
     		
 		if (accessMode == "edit") {
-			field_value += this.model.get('name');
+			field_value += this.model.get(this.field);
 		} else {
 			if (this.model.type === "OntologyPropertyEntity") {
 				if (this.url) {
-					field_value += '<a href="' + this.url + '">' + this.model.get('name') + '</a>';
+					field_value += '<a href="' + this.url + '">' + this.model.get(this.field) + '</a>';
 				} else {
 					field_value += this.model.get('name');
 				}

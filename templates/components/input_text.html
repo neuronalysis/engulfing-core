@@ -13,9 +13,9 @@
 <% } else if (accessMode === "edit") { %>
 	<% if (field_name === "password") { %>
 		<input type="text" style="display: none;" class="form-control" value="" id="antiPopulatorText">
-		<input type="password" style="display: none;"  class="form-control" value="" id="antiPopulatorPassword">
+		<input type="password" autocomplete="new-password" style="display: none;" class="form-control" value="" id="antiPopulatorPassword">
 		
-		<input type="password" class="form-control" value="<%= field_value %>" id="<%= field_name %>" autofocus>
+		<input type="password" autocomplete="new-password" class="form-control" value="<%= field_value %>" id="<%= field_name %>" autofocus>
 	<% } else { %>
 		<input type="text" class="form-control" value="<%= field_value %>" id="<%= field_name %>" autofocus>
 	<% } %>

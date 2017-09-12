@@ -181,8 +181,11 @@ trait WebsiteNavigation {
 			$sitemap = json_decode($this->siteMapDefinition);
 			
 			foreach($sitemap->Pages[0]->Pages as $page_item) {
-				
-				if (isset($page_item->Pages)) {
+				$navHide = false;
+				if (isset($page_item->navHide)) {
+					$navHide = $page_item->navHide;
+				}
+				if (isset($page_item->Pages) && !$navHide) {
 					$html .= '
 						<li class="dropdown active">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">' . $page_item->name . '<span class="caret"></span></a>
@@ -191,10 +194,10 @@ trait WebsiteNavigation {
 					foreach($page_item->Pages as $subpage_item) {
 						if (isset($subpage_item->urlPartName)) {
 							$html .= '<li><a href="' . $home_url . strtolower($subpage_item->urlPartName) . '">' . $subpage_item->name . '</a></li>
-						';
+					';
 						} else {
 							$html .= '<li><a href="' . $home_url . strtolower($subpage_item->name) . '">' . $subpage_item->name . '</a></li>
-						';
+					';
 						}
 					}
 					
@@ -203,8 +206,10 @@ trait WebsiteNavigation {
 							</ul>
 						</li>';
 				} else {
-					$html .= '<li><a href="' . $home_url . strtolower($page_item->name) . '">' . $page_item->name . '</a></li>
+					if (!$navHide) {
+						$html .= '<li><a href="' . $home_url . strtolower($page_item->name) . '">' . $page_item->name . '</a></li>
 						';
+					}
 				}
 				
 			}
