@@ -4,7 +4,7 @@ var TextLineView = BaseView.extend({
 		if (editorOptions.approximateFontStyle) {
 			this.fontSize = this.model.getFontSize();
 		} else {
-			this.fontSize = '10px';
+			this.fontSize = '9px';
 		}
 		//this.template = _.template(tpl.get('components/editor'));
 	},
@@ -16,18 +16,19 @@ var TextLineView = BaseView.extend({
 		if (this.model.get('STYLEREFS')) {
 			var fontId =  this.model.get('STYLEREFS').split(" ")[1];
 			
+			
 			var textStyle = window['TextStyle'].findOrCreate({
 				id : fontId
 			});
 			
 			this.$el.css({
-				'position'          : 'static',
-				'font-size'		: textStyle.get('FONTSIZE') + 'px',
-				'font-family'	: textStyle.get('FONTFAMILY'),
-				'width'         : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
-				'height'        : this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
-				'left'          : this.model.get('HPOS') * editorOptions['zoomFactor'] + 'px',
-				'top'           : this.model.get('VPOS') * editorOptions['zoomFactor'] + 'px'
+				//'position'          : 'static',
+				//'font-size'		: textStyle.get('FONTSIZE') + 'px',
+				//'font-family'	: textStyle.get('FONTFAMILY'),
+				//'width'         : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
+				//'height'        : this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
+				//'left'          : this.model.get('HPOS') * editorOptions['zoomFactor'] + 'px',
+				//'top'           : this.model.get('VPOS') * editorOptions['zoomFactor'] + 'px'
 			    });
 		}
 		

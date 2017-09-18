@@ -318,7 +318,7 @@ class EDI extends Thing {
 			$object = new $objectName;
 		}
 		
-		$object->name = $filename;
+		$object->name = basename($filename, ".xml");
 		
 		
 		$xpathObjPage = new DOMXPath($doc);

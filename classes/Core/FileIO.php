@@ -97,7 +97,7 @@ class FileIO {
 	* @param string $dirname Directory to delete
 	* @return bool Returns TRUE on success, FALSE on failure
 	*/
-	function rmdirr($dirname) {
+	function rmdirr($dirname, $onlyContent = false) {
 		// Sanity check
 		if (!file_exists($dirname)) {
 			return false;
@@ -122,6 +122,7 @@ class FileIO {
 		
 		// Clean up
 		$dir->close();
+		if ($onlyContent) return true;
 		return rmdir($dirname);
 	}
 	function cpy($source, $dest){

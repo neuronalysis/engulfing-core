@@ -5,12 +5,17 @@ var ScanImageView = BaseView.extend({
 		"change" : "changeValue"
 	},
 	render : function() {
-		this.$el.css({
-			'position'          : 'absolute',
-			'left'          : this.model.get('WIDTH')
-			});
+		this.$el.empty();
 		
-		this.$el.html('<image src="' + this.model.get('filePath') + '" height="' + this.model.get('HEIGHT') + '"></image>');
+		let imgWidth = this.model.get('width').replace('px', '') * editorOptions['zoomFactor'];
+		let imgHeight = this.model.get('height').replace('px', '') * editorOptions['zoomFactor'];
+		
+		this.$el.css({
+			'width'         	: imgWidth + 'px',
+			'height'        	: imgHeight + 'px',
+			});
+
+		this.$el.html('<img src="' + "./../data/ocr/images/" + this.model.get('filePath') + '" width="' + imgWidth + 'px' + '" height="' + imgHeight + 'px' + '"></img>');
 
 		return this;
 	}

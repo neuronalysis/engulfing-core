@@ -18,7 +18,7 @@ var SPView = BaseView.extend({
 		this.$el.html(' ');
 		
 		this.$el.css({
-			'position'          : 'static',
+			'position'          : 'absolute',
 			'width'         : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
 			'left'          : this.model.get('HPOS') * editorOptions['zoomFactor'] + 'px',
 			'top'           : this.model.get('VPOS') * editorOptions['zoomFactor'] + 'px'

@@ -5,7 +5,26 @@ var StringView = BaseView.extend({
 		this.parent = options.parent;
 	},
 	events : {
-		"input" : "changeValue"
+		"input" : "changeValue",
+		"mouseover" : "hooverArea"
+	},
+	hooverArea : function() {
+		if (editorOptions['imageAvailable']) {
+			let xCoor = +this.model.get('HPOS');
+			let yCoor = +this.model.get('VPOS');
+			
+			let hooverTop = 0 + (+yCoor * editorOptions['zoomFactor']);
+			let hooverLeft = 0 + (+xCoor * editorOptions['zoomFactor']);
+			
+			$("#hooverCraft").css({
+				'position' : 'absolute',	
+				'width' : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
+				'height' : this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
+				'left' : hooverLeft + 'px',
+				'top' : hooverTop + 'px',
+				'backgroundColor' : 'rgba(255, 0, 0, 0.2)'
+			});
+		}
 	},
 	changeValue : function(item) {
 		this.model.set('CONTENT', item.target.textContent);
@@ -36,7 +55,7 @@ var StringView = BaseView.extend({
 				css['font-style'] = style;
 			}
 		} else {
-			css['font-family'] = 'Arial';
+			css['font-family'] = 'Arial Narrow';
 			css['font-size'] = this.parent.fontSize;
 			
 			
