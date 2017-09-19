@@ -4,7 +4,7 @@ var TextLineView = BaseView.extend({
 		if (editorOptions.approximateFontStyle) {
 			this.fontSize = this.model.getFontSize();
 		} else {
-			this.fontSize = '9px';
+			this.fontSize = '8px';
 		}
 		//this.template = _.template(tpl.get('components/editor'));
 	},

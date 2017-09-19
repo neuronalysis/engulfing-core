@@ -6,7 +6,7 @@ window.TrackerView = Backbone.View.extend({
 		this.collection = options.collection;
 	},
 	
-	renderChanges : function() {
+	renderChanges : function(scope) {
 		var titleHTML = '';
 		titleHTML += '<h2>Changes</h2>';
 		
@@ -32,11 +32,21 @@ window.TrackerView = Backbone.View.extend({
 			changesHTML += '<ul class="list-group">';
 			
 			_.each(differenceCollection.models, function(object) {
-				changesHTML += '<li class="list-group-item">' +
+				if (scope == 'page') {
+					changesHTML += '<li class="list-group-item">' +
+					'<i>' + object.get('Page').updatedByUser.name + '</i>' + 
+				  	' changed <i>' + object.get('before') + '</i> to <i>' + object.get('after') + '</i>' +
+				  	' at <i>' + object.get('Page').updatedAt + '</i>' +
+				  '</li>';
+				} else {
+					changesHTML += '<li class="list-group-item">' +
 					'<i>' + object.get('Page').updatedByUser.name + '</i>' + 
 				  	' changed <i>' + object.get('before') + '</i> to <i>' + object.get('after') + '</i>' +
 				  	' on <a href="./editor/#documents/' + object.get('Page').documentID + '/pages/' +  + object.get('Page').number + '">page <i>' +object.get('Page').number + ' of document</i></a>' +
+				  	' at <i>' + object.get('Page').updatedAt + '</i>' +
 				  '</li>';
+				}
+				
 			}, this);
 			
 		
