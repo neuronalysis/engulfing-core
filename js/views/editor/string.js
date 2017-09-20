@@ -8,6 +8,7 @@ var StringView = BaseView.extend({
 		"input" : "changeValue",
 		"mouseover" : "hooverArea"
 	},
+	//TODO doublicate implemenation in tracker.js - consolidate
 	hooverArea : function() {
 		if (editorOptions['imageAvailable']) {
 			let xCoor = +this.model.get('HPOS');
@@ -28,6 +29,19 @@ var StringView = BaseView.extend({
 	},
 	changeValue : function(item) {
 		this.model.set('CONTENT', item.target.textContent);
+		
+		//TODO splitting token
+		/*if (item.target.textContent.indexOf(' ') >= 0) {
+			let splitted = item.target.textContent.split(' ');
+			
+			let textlineString = this.model.collection;
+			let textLine = this.model.relatedModel;
+			this.render();
+		} else {
+			this.model.set('CONTENT', item.target.textContent);
+		}*/
+		
+		
 		//this.render();
 	},
 	render : function() {
