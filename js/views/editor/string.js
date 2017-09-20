@@ -10,7 +10,7 @@ var StringView = BaseView.extend({
 	},
 	//TODO doublicate implemenation in tracker.js - consolidate
 	hooverArea : function() {
-		if (editorOptions['imageAvailable']) {
+		if (editorOptions['imageAvailable'] && editorOptions['facsimileVisibility']) {
 			let xCoor = +this.model.get('HPOS');
 			let yCoor = +this.model.get('VPOS');
 			

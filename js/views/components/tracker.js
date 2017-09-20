@@ -5,7 +5,36 @@ window.TrackerView = Backbone.View.extend({
 	initialize : function(options) {
 		this.collection = options.collection;
 	},
-	
+	events : {
+		"mouseover .list-group-item" : "hooverArea"
+	},
+	//TODO doublicate implemenation in string.js - consolidate
+	hooverArea : function(item) {
+		if (typeof editorOptions !== 'undefined') {
+			if (editorOptions['imageAvailable']) {
+				$(".list-group-item").hover(function() {
+				    $(this).css('cursor','pointer');
+				}, function() {
+				    $(this).css('cursor','auto');
+				});
+				
+				let xCoor = +item.target.getAttribute('hpos');
+				let yCoor = +item.target.getAttribute('vpos');
+				
+				let hooverTop = 0 + (+yCoor * editorOptions['zoomFactor']);
+				let hooverLeft = 0 + (+xCoor * editorOptions['zoomFactor']);
+				
+				$("#hooverCraft").css({
+					'position' : 'absolute',	
+					'width' : +item.target.getAttribute('width') * editorOptions['zoomFactor'] + 'px',
+					'height' : +item.target.getAttribute('height') * editorOptions['zoomFactor'] + 'px',
+					'left' : hooverLeft + 'px',
+					'top' : hooverTop + 'px',
+					'backgroundColor' : 'rgba(255, 0, 0, 0.2)'
+				});
+			}
+		}
+	},
 	renderChanges : function(scope) {
 		var titleHTML = '';
 		titleHTML += '<h2>Changes</h2>';
@@ -33,17 +62,17 @@ window.TrackerView = Backbone.View.extend({
 			
 			_.each(differenceCollection.models, function(object) {
 				if (scope == 'page') {
-					changesHTML += '<li class="list-group-item">' +
-					'<i>' + object.get('Page').updatedByUser.name + '</i>' + 
-				  	' changed <i>' + object.get('before') + '</i> to <i>' + object.get('after') + '</i>' +
-				  	' at <i>' + object.get('Page').updatedAt + '</i>' +
+					changesHTML += '<li class="list-group-item" HPOS="' + object.get('HPOS') + '" VPOS="' + object.get('VPOS') + '" WIDTH="' + object.get('WIDTH') + '" HEIGHT="' + object.get('HEIGHT') + '">' +
+					object.get('Page').updatedByUser.name + 
+				  	' changed ' + object.get('before') + ' to ' + object.get('after') +
+				  	' at ' + object.get('Page').updatedAt +
 				  '</li>';
 				} else {
 					changesHTML += '<li class="list-group-item">' +
-					'<i>' + object.get('Page').updatedByUser.name + '</i>' + 
-				  	' changed <i>' + object.get('before') + '</i> to <i>' + object.get('after') + '</i>' +
+					object.get('Page').updatedByUser.name + 
+				  	' changed ' + object.get('before') + ' to ' + object.get('after') +
 				  	' on <a href="./editor/#documents/' + object.get('Page').documentID + '/pages/' +  + object.get('Page').number + '">page <i>' +object.get('Page').number + ' of document</i></a>' +
-				  	' at <i>' + object.get('Page').updatedAt + '</i>' +
+				  	' at ' + object.get('Page').updatedAt +
 				  '</li>';
 				}
 				

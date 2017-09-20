@@ -253,11 +253,15 @@ class TestClass {
 								$bVal = $b->String;
 								$hpos = $b->HPOS;
 								$vpos = $b->VPOS;
+								$width = $b->WIDTH;
+								$height = $b->HEIGHT;
 							} else {
 								if (isset($b->$classNameWithoutNS)) {
 									$bVal = $b->$classNameWithoutNS;
 									$hpos = $b->HPOS;
 									$vpos = $b->VPOS;
+									$width = $b->WIDTH;
+									$height = $b->HEIGHT;
 								}
 								
 							}
@@ -272,6 +276,8 @@ class TestClass {
 								$delta->after = $bVal;
 								$delta->HPOS = $hpos;
 								$delta->VPOS = $vpos;
+								$delta->WIDTH = $width;
+								$delta->HEIGHT = $height;
 								
 								unset($delta->Page);
 								array_push($this->results, $delta);
