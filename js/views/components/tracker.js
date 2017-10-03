@@ -35,6 +35,15 @@ window.TrackerView = Backbone.View.extend({
 			}
 		}
 	},
+	//TODO implementing as filter would be nicer
+	renderAllChangesHighlighting : function(changes) {
+		_.each(changes, function(object) {
+			$("span[hpos=" + object.get('HPOS') + "][vpos=" + object.get('VPOS') + "]:contains(" + object.get('after') + ")").css({
+				'border' : 'red solid 1px'
+			});
+			
+		}, this);
+	},
 	renderChanges : function(scope) {
 		var titleHTML = '';
 		titleHTML += '<h2>Changes</h2>';
@@ -83,6 +92,8 @@ window.TrackerView = Backbone.View.extend({
 			changesHTML += '</ul>';
 			
 			self.$el.append(changesHTML);
+			
+			self.renderAllChangesHighlighting(differenceCollection.models);
 		});
 		
 		return this;

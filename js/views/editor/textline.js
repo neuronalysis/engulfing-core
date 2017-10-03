@@ -1,11 +1,15 @@
 var TextLineView = BaseView.extend({
 	initialize : function() {
 		
-		if (editorOptions.approximateFontStyle) {
+		/*if (editorOptions.approximateFontStyle) {
 			this.fontSize = this.model.getFontSize();
 		} else {
 			this.fontSize = '9px';
-		}
+		}*/
+		
+		this.fontCSS = this.model.getFontCSS();
+		
+		//this.fontSize = '9px';
 		//this.template = _.template(tpl.get('components/editor'));
 	},
 	render : function() {

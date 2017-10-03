@@ -48,6 +48,8 @@ var StringView = BaseView.extend({
 		this.$el.empty();
 		
 		this.$el.html(this.model.get('CONTENT'));
+		this.$el.attr('VPOS', this.model.get('VPOS'));
+		this.$el.attr('HPOS', this.model.get('HPOS'));
 		
 		var css = {
 				'position' : 'absolute',	
@@ -58,7 +60,7 @@ var StringView = BaseView.extend({
 				'white-space' : 'nowrap'
 			};
 
-		if (this.model.get('style')) {
+		/*if (this.model.get('style')) {
 			var style = this.model.get('style');
 			
 			if (style == 'bold') {
@@ -69,27 +71,30 @@ var StringView = BaseView.extend({
 				css['font-style'] = style;
 			}
 		} else {
-			css['font-family'] = 'Arial Narrow';
-			css['font-size'] = this.parent.fontSize;
-			
-			
-			/*var textsize = get_text_size(this.model.get('CONTENT'), css['font-size'] + " " + css['font-family']);
-			
-			var heightDif = parseInt((this.model.get('HEIGHT') / 3) - textsize['height']);
-			if (this.model.get('CONTENT') == 'vertreten.') {
-				alert (this.parent.model.get('BASELINE'));
-				alert (parseInt(heightDif));
+			if (this.model.get('CONTENT') == 'POLITIK') {
+				css['font-size'] = this.parent.model.getFontSize();
+				css['font-family'] = this.parent.model.getFontFamily(css['font-size']);
+				css['font-weight'] = 'bold';
+				
+				let calcTextSize = get_text_size(this.model.get('CONTENT'), css['font-weight'] + " " + css['font-size'] + " " + css['font-family']);
+				
+				let arsch = 0;
+			} else if (this.model.get('CONTENT') == '1976:') {
+				css['font-size'] = this.parent.model.getFontSize();
+				css['font-family'] = this.parent.model.getFontFamily(css['font-size']);
+				css['font-weight'] = 'bold';
+				
+				let calcTextSize = get_text_size(this.model.get('CONTENT'), css['font-weight'] + " " + css['font-size'] + " " + css['font-family']);
+				
+				let arsch = 0;
+			} else {
+				css['font-family'] = 'Arial Narrow';
+				css['font-size'] = this.parent.fontSize;
 			}
 			
-			if (heightDif == 0) {
-				if (textsize['width'] > (this.model.get('WIDTH') / 3)) {
-					//css['font-family'] = 'Arial Narrow';
-				}
-			} else {
-				css['font-size'] = (14 + heightDif) + 'px';
-			}*/
 			
-		}
+			
+		}*/
 		
 		if (accessMode == "edit") {
 			this.$el.attr('contentEditable', true);
@@ -97,6 +102,8 @@ var StringView = BaseView.extend({
 			this.$el.attr('contentEditable', false);
 		}
 		
+		css['font-family'] = this.parent.fontCSS['font-family'];
+		css['font-size'] = this.parent.fontCSS['font-size'];
 		
 		this.$el.css(css);
 		

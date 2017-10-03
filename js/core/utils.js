@@ -517,15 +517,15 @@ function loadMaps() {
 	});
 	markerCollectionView.render();
 }
-function get_text_size(text, font) {
+/*function get_text_size(text, font) {
     this.element = document.createElement('canvas');
     this.context = this.element.getContext("2d");
     this.context.font = font;
     
-    var tsize = {'width':this.context.measureText(text).width, 'height':parseInt(this.context.font)};
+    var tsize = {'width':this.context.measureText(text).width, 'height': parseInt(window.getComputedStyle(text).fontSize, 10)};
     
     return tsize;
-}
+}*/
 function beyondBaseline(text) {
 	var pattern = /[g|j|p|q|y]/;
 	

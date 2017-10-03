@@ -27,8 +27,8 @@ var HypView = BaseView.extend({
 				'white-space' : 'nowrap'
 			};
 
-		css['font-family'] = 'Arial';
-		css['font-size'] = this.parent.fontSize;
+		css['font-family'] = this.parent.fontCSS['font-family'];
+		css['font-size'] = this.parent.fontCSS['font-size'];
 		
 		if (accessMode == "edit") {
 			this.$el.attr('contentEditable', true);
