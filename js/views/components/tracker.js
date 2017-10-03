@@ -37,11 +37,22 @@ window.TrackerView = Backbone.View.extend({
 	},
 	//TODO implementing as filter would be nicer
 	renderAllChangesHighlighting : function(changes) {
-		_.each(changes, function(object) {
+		/*_.each(changes, function(object) {
 			$("span[hpos=" + object.get('HPOS') + "][vpos=" + object.get('VPOS') + "]:contains(" + object.get('after') + ")").css({
 				'border' : 'red solid 1px'
 			});
 			
+		}, this);*/
+		
+		_.each(changes, function(object) {
+			let hooverTop = 0 + (+object.get('VPOS') * editorOptions['zoomFactor']);
+			let hooverLeft = 0 + (+object.get('HPOS') * editorOptions['zoomFactor']);
+			
+			let width = 0 + (+object.get('WIDTH') * editorOptions['zoomFactor']);
+			let height = 0 + (+object.get('HEIGHT') * editorOptions['zoomFactor']);
+			
+			
+			$("#scanImage").append('<div id="change_' + object.get('HPOS') + '_' + object.get('VPOS') + '" style="position: absolute; ' + 'left: ' + hooverLeft + 'px' + '; top: ' +  + hooverTop + 'px' + '; width: ' + width + 'px' + '; height: ' + height + 'px' + '; border: red solid 1px; ' + '"></div>');
 		}, this);
 	},
 	renderChanges : function(scope) {
