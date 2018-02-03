@@ -9,7 +9,6 @@ var HypView = BaseView.extend({
 	},
 	changeValue : function(item) {
 		this.model.set('CONTENT', item.target.textContent);
-		//this.render();
 	},
 	render : function() {
 		this.$el.empty();
@@ -19,23 +18,29 @@ var HypView = BaseView.extend({
 		var lastString = this.parent.model.getLastString();
 		
 		var css = {
-				'position'          : 'absolute',	
-				'width' : 20 + 'px',
-				'height' : lastString.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
-				'left' : (parseInt(lastString.get('HPOS')) + parseInt(lastString.get('WIDTH'))) * editorOptions['zoomFactor'] + 'px',
-				'top' : lastString.get('VPOS') * editorOptions['zoomFactor'] + 'px',
-				'white-space' : 'nowrap'
+				'position' : 'absolute',	
+				'width' : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
+				'height' : this.parent.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
+				'left' : (parseInt(lastString.get('HPOS')) + parseInt(lastString.get('WIDTH')) - parseInt(this.parent.model.get('HPOS'))) * editorOptions['zoomFactor'] + 'px',
+				'top' : '4px',
+				
+				'white-space' : 'nowrap',
+				'display':'inline-block'
 			};
 
-		css['font-family'] = this.parent.fontCSS['font-family'];
-		css['font-size'] = this.parent.fontCSS['font-size'];
 		
 		if (accessMode == "edit") {
 			this.$el.attr('contentEditable', true);
+		
+			this.$el.append('<div style="position: absolute; top: 1px; left: 0px; outline: gainsboro solid 1px; width: 10px' + '; height: ' + lastString.get('HEIGHT') * editorOptions['zoomFactor'] + 'px' + '; z-index: -1;"></div>')
+			
 		} else {
 			this.$el.attr('contentEditable', false);
 		}
 		
+		
+		css['font-family'] = this.parent.fontCSS['font-family'];
+		css['font-size'] = this.parent.fontCSS['font-size'];
 		
 		this.$el.css(css);
 		

@@ -2,17 +2,7 @@ var TextLineView = BaseView.extend({
 	tagName : 'textline',
 	
 	initialize : function() {
-		
-		/*if (editorOptions.approximateFontStyle) {
-			this.fontSize = this.model.getFontSize();
-		} else {
-			this.fontSize = '9px';
-		}*/
-		
 		this.fontCSS = this.model.getFontCSS();
-		
-		//this.fontSize = '9px';
-		//this.template = _.template(tpl.get('components/editor'));
 	},
 	render : function() {
 		var view = ALTOEditorView;
@@ -29,8 +19,6 @@ var TextLineView = BaseView.extend({
 			
 			var css = {
 					'position'          : 'absolute',
-					//'font-size'		: textStyle.get('FONTSIZE') + 'px',
-					//'font-family'	: textStyle.get('FONTFAMILY'),
 					'width'         : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
 					'height'        : 1 * editorOptions['zoomFactor'] + 'px',
 					'left'          : this.model.get('HPOS') * editorOptions['zoomFactor'] + 'px',
@@ -47,35 +35,6 @@ var TextLineView = BaseView.extend({
 		}
 		
 		_.each(this.model.get('Strings').models, function(object) {
-			// no hyp handling
-			/*var stringView = new StringView({
-				model : object,
-				parent : this
-			});
-		
-			$(this.el).append(stringView.render().el);
-			*/
-			
-			// approach 1
-			/*if (object.get('SUBS_TYPE') === 'HypPart1') {
-				object.set('CONTENT', object.get('SUBS_CONTENT'));
-				var stringView = new StringView({
-					model : object,
-					parent : this
-				});
-			
-				$(this.el).append(stringView.render().el);
-			} else if (object.get('SUBS_TYPE') === 'HypPart2') {
-			} else {
-				var stringView = new StringView({
-					model : object,
-					parent : this
-				});
-			
-				$(this.el).append(stringView.render().el);
-			}*/
-			
-			//approach 2
 			if (object.get('SUBS_TYPE') === 'HypPart1') {
 				object.set('CONTENT', object.get('CONTENT'));
 				var stringView = new StringView({
@@ -98,11 +57,6 @@ var TextLineView = BaseView.extend({
 				});
 			
 				$(this.el).append(stringView.render().el);
-			}
-			
-			
-			if (object.get('CONTENT') == 'WIRTSCHAFTSRE6I0NEN') {
-				//alert ($(stringView.el).clientWidth);
 			}
 		}, this);
 		
