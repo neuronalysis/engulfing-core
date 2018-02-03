@@ -1,4 +1,6 @@
 var PrintSpaceView = BaseView.extend({
+	tagName : 'printspace',
+	
 	initialize : function() {
 	},
 	events : {

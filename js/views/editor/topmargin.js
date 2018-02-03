@@ -1,4 +1,6 @@
 var TopMarginView = BaseView.extend({
+	tagName : 'topmargin',
+	
 	initialize : function() {
 	},
 	events : {
@@ -7,6 +9,15 @@ var TopMarginView = BaseView.extend({
 	render : function() {
 		$(this.el).empty();
 		
+		/*var css = {
+				'position' : 'relative',	
+				'width' : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
+				'height' : this.model.get('HEIGHT') * 1.3 * editorOptions['zoomFactor'] + 'px',
+				'left' : this.model.get('HPOS') * editorOptions['zoomFactor'] + 'px',
+				'top' : this.model.get('VPOS') * editorOptions['zoomFactor'] + 'px',
+				'white-space' : 'nowrap'
+			};
+		*/
 		if (this.model) {
 			if (this.model.get('TextBlocks')) {
 				_.each(this.model.get('TextBlocks').models, function(object) {
@@ -26,6 +37,7 @@ var TopMarginView = BaseView.extend({
 			}
 		}
 		
+		//this.$el.css(css);
 		
 		return this;
 	}

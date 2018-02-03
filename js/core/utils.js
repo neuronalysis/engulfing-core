@@ -548,3 +548,9 @@ function hasCapitalLetters(text) {
 function pageClickAll(pageNumber) {
     $("#page-number-all").text(pageNumber);
 }
+function get_text_width(txt, font) {
+    this.element = document.createElement('canvas');
+    this.context = this.element.getContext("2d");
+    this.context.font = font;
+    return this.context.measureText(txt).width;
+}

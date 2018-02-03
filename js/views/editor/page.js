@@ -7,6 +7,15 @@ var PageView = BaseView.extend({
 	render : function() {
 		this.$el.empty();
 		
+		var css = {
+				'top'         		: '0px',
+				'left'         		: '0px',
+				'height'        	: this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
+				'width'         	: this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
+				'height'        	: this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
+				'border'			: '1px solid black'
+			};
+	
 		$(this.el).append(new TopMarginView({
 			model : this.model.get('TopMargin')
 		}).render().el);
@@ -15,12 +24,8 @@ var PageView = BaseView.extend({
 			model : this.model.get('PrintSpace')
 		}).render().el);
 		
-		this.$el.css({
-			'width'         	: this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
-			'height'        	: this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
-			'border'			: '1px solid black'
-			});
-
+		this.$el.css(css);
+		
 		return this;
 	}
 });

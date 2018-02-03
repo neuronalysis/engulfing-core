@@ -54,10 +54,14 @@ var StringView = BaseView.extend({
 		var css = {
 				'position' : 'absolute',	
 				'width' : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
-				'height' : this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
-				'left' : this.model.get('HPOS') * editorOptions['zoomFactor'] + 'px',
-				'top' : this.model.get('VPOS') * editorOptions['zoomFactor'] + 'px',
-				'white-space' : 'nowrap'
+				//'height' : (this.parent.model.get('HEIGHT') * editorOptions['zoomFactor'] + 3) + 'px',
+				'height' : this.parent.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
+				'left' : (this.model.get('HPOS') - this.parent.model.get('HPOS')) * editorOptions['zoomFactor'] + 'px',
+				'top' : '4px',
+				//'top' : (0) * editorOptions['zoomFactor'] + 'px',
+				
+				'white-space' : 'nowrap',
+				'display':'inline-block'
 			};
 
 		/*if (this.model.get('style')) {
@@ -98,6 +102,10 @@ var StringView = BaseView.extend({
 		
 		if (accessMode == "edit") {
 			this.$el.attr('contentEditable', true);
+			
+			this.$el.append('<div style="position: absolute; top: 0px; left: 0px; outline: gainsboro solid 1px; width: ' + this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px' + '; height: ' + this.parent.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px' + '; z-index: -1;"></div>')
+			//css['border'] = 'grey solid 1px';
+			//css['outline'] = 'grey solid 1px';
 		} else {
 			this.$el.attr('contentEditable', false);
 		}

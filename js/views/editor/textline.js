@@ -1,4 +1,6 @@
 var TextLineView = BaseView.extend({
+	tagName : 'textline',
+	
 	initialize : function() {
 		
 		/*if (editorOptions.approximateFontStyle) {
@@ -25,15 +27,23 @@ var TextLineView = BaseView.extend({
 				id : fontId
 			});
 			
-			this.$el.css({
-				//'position'          : 'static',
-				//'font-size'		: textStyle.get('FONTSIZE') + 'px',
-				//'font-family'	: textStyle.get('FONTFAMILY'),
-				//'width'         : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
-				//'height'        : this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
-				//'left'          : this.model.get('HPOS') * editorOptions['zoomFactor'] + 'px',
-				//'top'           : this.model.get('VPOS') * editorOptions['zoomFactor'] + 'px'
-			    });
+			var css = {
+					'position'          : 'absolute',
+					//'font-size'		: textStyle.get('FONTSIZE') + 'px',
+					//'font-family'	: textStyle.get('FONTFAMILY'),
+					'width'         : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
+					'height'        : 1 * editorOptions['zoomFactor'] + 'px',
+					'left'          : this.model.get('HPOS') * editorOptions['zoomFactor'] + 'px',
+					'top'           : this.model.get('VPOS') * editorOptions['zoomFactor'] + 'px'
+				};
+		} else {
+			var css = {
+					'position' : 'absolute',	
+					'width' : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
+					'height' : 0 * editorOptions['zoomFactor'] + 'px',
+					'left' : this.model.get('HPOS') * editorOptions['zoomFactor'] + 'px',
+					'top' : this.model.get('VPOS') * editorOptions['zoomFactor'] + 'px'
+				};
 		}
 		
 		_.each(this.model.get('Strings').models, function(object) {
@@ -101,6 +111,8 @@ var TextLineView = BaseView.extend({
 				model : object
 			}).render().el);
 		}, this);
+		
+		this.$el.css(css);
 		
 		return this;
 	}

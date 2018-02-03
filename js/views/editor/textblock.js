@@ -1,4 +1,6 @@
 var TextBlockView = BaseView.extend({
+	tagName : 'textblock',
+	
 	initialize : function() {
 		//this.template = _.template(tpl.get('components/editor'));
 	},
@@ -10,17 +12,17 @@ var TextBlockView = BaseView.extend({
 		});
 		
 		this.$el.empty();
-		
-		this.$el.css({
-			'position'      : 'absolute',
+		//alert(PageView);
+		/*this.$el.css({
+			'position'      : 'relative',
 			'font-size'		: textStyle.get('FONTSIZE'),
 			'font-family'	: textStyle.get('FONTFAMILY'),
-			//'width'         : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
-			//'height'        : this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
-			//'left'          : this.model.get('HPOS') * editorOptions['zoomFactor'] + 'px',
+			'width'         : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
+			'height'        : this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
+			'left'          : this.model.get('HPOS') * editorOptions['zoomFactor'] + 'px',
 			//'top'           : this.model.get('VPOS') * editorOptions['zoomFactor'] + 'px'
 		    });
-		
+		*/
 		
 		if (typeof this.model !== 'undefined') {
 			_.each(this.model.get('TextLines').models, function(object) {
