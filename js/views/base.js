@@ -22,6 +22,14 @@ var BaseView = Backbone.View.extend({
 			}
 		}
 	},
+	hasFocus : function() {
+		if (document.activeElement === this.$el.context) {
+			return true;
+		} else {
+			return false;
+		}
+	},
+	//TODO rethink naming
 	focusView : function(item) {
 		$("#context").html("");
 

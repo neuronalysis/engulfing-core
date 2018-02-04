@@ -6,6 +6,7 @@ var ButtonView = Backbone.View.extend({
 	
 	label : null,
 	targetID : null,
+	disabled : false,
 	
 	initialize : function(options) {
 		this.targetID = options.targetID;
@@ -46,6 +47,8 @@ var ButtonView = Backbone.View.extend({
 		alert('ass');
 	},
 	render : function() {
+		this.$el.prop("disabled", this.disabled);
+		
 		this.$el.attr('id', this.id);
 		this.$el.attr('targetID', this.targetID);
 		

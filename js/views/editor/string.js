@@ -6,10 +6,12 @@ var StringView = BaseView.extend({
 	},
 	events : {
 		"input" : "changeValue",
-		"mouseover" : "hooverArea"
+		"mouseover" : "mouseoverArea",
+		"mouseout" : "mouseoutArea",
+		"focus" : "focusArea"
 	},
 	//TODO doublicate implemenation in tracker.js - consolidate
-	hooverArea : function() {
+	mouseoverArea : function() {
 		if (editorOptions['imageAvailable'] && editorOptions['facsimileVisibility']) {
 			let xCoor = +this.model.get('HPOS');
 			let yCoor = +this.model.get('VPOS');
@@ -25,7 +27,35 @@ var StringView = BaseView.extend({
 				'top' : hooverTop + 'px',
 				'backgroundColor' : 'rgba(255, 0, 0, 0.2)'
 			});
+			
+			
 		}
+		
+		if (this.hasFocus()) {
+			this.$el.css({
+				'cursor' : 'text'
+			});
+		} else {
+			this.$el.css({
+				'cursor' : 'pointer'
+			});
+		}
+		
+		let span_outline = this.$el.find('.span_outline')[0];
+		
+		if (span_outline) {
+			span_outline.style.outline = 'grey solid 1px';
+		}
+	},
+	mouseoutArea : function() {
+		let span_outline = this.$el.find('.span_outline')[0];
+		
+		if (span_outline) span_outline.style.outline = 'gainsboro dotted 1px';
+	},
+	focusArea : function() {
+		this.$el.css({
+			'cursor' : 'text'
+		});
 	},
 	changeValue : function(item) {
 		this.model.set('CONTENT', item.target.textContent);
@@ -65,7 +95,7 @@ var StringView = BaseView.extend({
 		if (accessMode == "edit") {
 			this.$el.attr('contentEditable', true);
 			
-			this.$el.append('<div style="position: absolute; top: 1px; left: 0px; outline: gainsboro solid 1px; width: ' + this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px' + '; height: ' + (this.parent.model.get('HEIGHT') * editorOptions['zoomFactor'] + 1) + 'px' + '; z-index: -1;"></div>')
+			this.$el.append('<div class="span_outline" style="position: absolute; top: 1px; left: 0px; outline: gainsboro dotted 1px; width: ' + this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px' + '; height: ' + (this.parent.model.get('HEIGHT') * editorOptions['zoomFactor'] + 1) + 'px' + '; z-index: -1;"></div>')
 		} else {
 			this.$el.attr('contentEditable', false);
 		}
