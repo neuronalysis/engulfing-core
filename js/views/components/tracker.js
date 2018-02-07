@@ -43,17 +43,18 @@ window.TrackerView = Backbone.View.extend({
 			});
 			
 		}, this);*/
-		
-		_.each(changes, function(object) {
-			let hooverTop = 0 + (+object.get('VPOS') * editorOptions['zoomFactor']);
-			let hooverLeft = 0 + (+object.get('HPOS') * editorOptions['zoomFactor']);
-			
-			let width = 0 + (+object.get('WIDTH') * editorOptions['zoomFactor']);
-			let height = 0 + (+object.get('HEIGHT') * editorOptions['zoomFactor']);
-			
-			
-			$("#scanImage").append('<div id="change_' + object.get('HPOS') + '_' + object.get('VPOS') + '" style="position: absolute; ' + 'left: ' + hooverLeft + 'px' + '; top: ' +  + hooverTop + 'px' + '; width: ' + width + 'px' + '; height: ' + height + 'px' + '; border: red solid 1px; ' + '"></div>');
-		}, this);
+		if (editorOptions['facsimileVisibility'])	{
+			_.each(changes, function(object) {
+				let hooverTop = 0 + (+object.get('VPOS') * editorOptions['zoomFactor']);
+				let hooverLeft = 0 + (+object.get('HPOS') * editorOptions['zoomFactor']);
+				
+				let width = 0 + (+object.get('WIDTH') * editorOptions['zoomFactor']);
+				let height = 0 + (+object.get('HEIGHT') * editorOptions['zoomFactor']);
+				
+				
+				$("#scanImage").append('<div id="change_' + object.get('HPOS') + '_' + object.get('VPOS') + '" style="position: absolute; ' + 'left: ' + hooverLeft + 'px' + '; top: ' +  + hooverTop + 'px' + '; width: ' + width + 'px' + '; height: ' + height + 'px' + '; border: red solid 1px; ' + '"></div>');
+			}, this);
+		}
 	},
 	renderChanges : function(scope) {
 		var titleHTML = '';
@@ -104,7 +105,9 @@ window.TrackerView = Backbone.View.extend({
 			
 			self.$el.append(changesHTML);
 			
-			self.renderAllChangesHighlighting(differenceCollection.models);
+			if (scope == 'page') {
+				self.renderAllChangesHighlighting(differenceCollection.models);
+			}
 		});
 		
 		return this;
