@@ -554,3 +554,44 @@ function get_text_width(txt, font) {
     this.context.font = font;
     return this.context.measureText(txt).width;
 }
+function getSelectedText() {
+	var text = "";
+    if (window.getSelection) {
+        text = window.getSelection().toString();
+    } else if (document.selection && document.selection.type != "Control") {
+        text = document.selection.createRange().text;
+    }
+    
+    return text;
+}
+function getCursorPosition(ctrl) {
+	var CaretPos = 0;
+    // IE Support
+   if (document.selection) {
+       ctrl.focus ();
+       var Sel = document.selection.createRange ();
+       Sel.moveStart ('character', -ctrl.value.length);    
+       CaretPos = Sel.text.length;
+   }
+   // Firefox support
+   else if (ctrl.selectionStart || ctrl.selectionStart == '0')
+       CaretPos = ctrl.selectionStart;
+   return (CaretPos);
+}
+function getSelectedStart(text) {
+	let selectedText = getSelectedText();
+	
+	return text.indexOf(selectedText);
+}
+function getSelectedEnd(text) {
+	let selectedText = getSelectedText();
+	
+	return text.indexOf(selectedText) + selectedText.length;
+}
+function isSelectionRange() {
+	selection = getSelectedText();
+	
+	if (selection.length > 1) return true;
+	
+	return false;
+}

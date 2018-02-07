@@ -1,14 +1,27 @@
 var StringView = BaseView.extend({
 	tagName : 'span',
 	
+	activeContextMenuView : null,
+
 	initialize : function(options) {
 		this.parent = options.parent;
+		
 	},
 	events : {
 		"input" : "changeValue",
 		"mouseover" : "mouseoverArea",
 		"mouseout" : "mouseoutArea",
-		"focus" : "focusArea"
+		"focus" : "focusArea",
+		"dblclick" : "openContextMenu",
+	},
+	setActiveContextMenuView : function(newContextMenuView) {
+		if (this.activeContextMenuView) {
+			this.activeContextMenuView.clear();
+		}
+
+		this.activeContextMenuView = newContextMenuView;
+
+		this.activeContextMenuView.render();
 	},
 	//TODO doublicate implemenation in tracker.js - consolidate
 	mouseoverArea : function() {
@@ -56,6 +69,25 @@ var StringView = BaseView.extend({
 		this.$el.css({
 			'cursor' : 'text'
 		});
+	},
+	openContextMenu : function(item) {
+		if (accessMode == "edit") {
+			modalView = new ContextModalView({
+				string : this.model,
+				parent : this
+			});
+			
+			this.setActiveContextMenuView(modalView);
+			
+			$("#modal").append(this.activeContextMenuView.render().el);
+			
+			this.showContextMenu(item);
+		}
+	},
+	showContextMenu : function(item) {
+		this.activeContextMenuView.$('#contextMenu').modal('show');
+		
+		this.activeContextMenuView.$('#contextMenu').find('#wordArea').val(item.target.textContent);
 	},
 	changeValue : function(item) {
 		this.model.set('CONTENT', item.target.textContent);
