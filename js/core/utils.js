@@ -22,6 +22,7 @@ tpl = {
 			'components/backgrid_actions',
 
 			'components/editor',
+			'components/modal',
 				
 			'components/input_datepicker',
 			'components/input_textarea',
