@@ -1,7 +1,9 @@
 var TextLineView = BaseView.extend({
 	tagName : 'textline',
 	
-	initialize : function() {
+	initialize : function(options) {
+		this.parent = options.parent;
+		
 		this.fontCSS = this.model.getFontCSS();
 	},
 	render : function() {

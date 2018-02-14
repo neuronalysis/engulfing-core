@@ -5,7 +5,6 @@ var StringView = BaseView.extend({
 
 	initialize : function(options) {
 		this.parent = options.parent;
-		
 	},
 	events : {
 		"input" : "changeValue",
@@ -73,8 +72,9 @@ var StringView = BaseView.extend({
 	openContextMenu : function(item) {
 		if (accessMode == "edit") {
 			modalView = new ContextModalView({
-				string : this.model,
-				parent : this
+				model : this.model,
+				parent : this,
+				textLines : this.model.getContextTextLines()
 			});
 			
 			this.setActiveContextMenuView(modalView);
@@ -87,7 +87,15 @@ var StringView = BaseView.extend({
 	showContextMenu : function(item) {
 		this.activeContextMenuView.$('#contextMenu').modal('show');
 		
-		this.activeContextMenuView.$('#contextMenu').find('#wordArea').val(item.target.textContent);
+		var css = {
+				'height' : '100px',
+			};
+		
+		this.activeContextMenuView.$('#contextMenu').find('#contextTextBlock').css(css);
+		
+		
+		this.activeContextMenuView.renderTextLines();
+		
 	},
 	changeValue : function(item) {
 		this.model.set('CONTENT', item.target.textContent);

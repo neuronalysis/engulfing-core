@@ -1,7 +1,8 @@
 var TextBlockView = BaseView.extend({
 	tagName : 'textblock',
 	
-	initialize : function() {
+	initialize : function(options) {
+		this.parent = options.parent;
 	},
 	render : function() {
 		var fontId =  this.model.get('STYLEREFS').split(" ")[1];
@@ -15,7 +16,8 @@ var TextBlockView = BaseView.extend({
 		if (typeof this.model !== 'undefined') {
 			_.each(this.model.get('TextLines').models, function(object) {
 				$(this.el).append(new TextLineView({
-					model : object
+					model : object,
+					parent : this
 				}).render().el);
 			}, this);
 		}

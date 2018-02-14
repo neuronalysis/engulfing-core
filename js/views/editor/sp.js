@@ -16,7 +16,11 @@ var SPView = BaseView.extend({
 	},
 	render : function() {
 		this.$el.html(' ');
-		
+
+		this.$el.attr('VPOS', this.model.get('VPOS'));
+		this.$el.attr('HPOS', this.model.get('HPOS'));
+		this.$el.attr('WIDTH', this.model.get('WIDTH'));
+
 		this.$el.css({
 			'position'          : 'absolute',
 			'width'         : this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',

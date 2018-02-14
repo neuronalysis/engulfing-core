@@ -24,7 +24,8 @@ var ComposedBlockView = BaseView.extend({
 			
 			_.each(this.model.get('TextBlocks').models, function(object) {
 				$(this.el).append(new TextBlockView({
-					model : object
+					model : object,
+					parent : this
 				}).render().el);
 			}, this);
 		}

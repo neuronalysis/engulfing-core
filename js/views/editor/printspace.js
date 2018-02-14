@@ -11,13 +11,15 @@ var PrintSpaceView = BaseView.extend({
 		
 		_.each(this.model.get('TextBlocks').models, function(object) {
 			$(this.el).append(new TextBlockView({
-				model : object
+				model : object,
+				parent : this
 			}).render().el);
 		}, this);
 		
 		_.each(this.model.get('ComposedBlocks').models, function(object) {
 			$(this.el).append(new ComposedBlockView({
-				model : object
+				model : object,
+				parent : this
 			}).render().el);
 		}, this);
 		

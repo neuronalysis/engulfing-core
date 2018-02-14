@@ -2,7 +2,7 @@ window.Master = Backbone.RelationalModel.extend({
 	accessMode : "read",
 	detailed : null,
 	isWatched : null,
-	
+	includeInJSON : true,
 	fetch: function (options) {
 		if (typeof options !== 'undefined') {
 			if (options.detailed) {
