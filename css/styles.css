@@ -289,9 +289,12 @@ code {
 }
 
 .modal-dialog {
-  width: 450px;
+  width: 550px;
 }
 
+.modal-footer {
+  height: 80px;
+}
 #spinner {
    position: absolute;
    left: 30px;
