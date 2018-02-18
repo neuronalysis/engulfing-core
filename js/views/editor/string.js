@@ -73,8 +73,7 @@ var StringView = BaseView.extend({
 		if (accessMode == "edit") {
 			modalView = new ContextModalView({
 				model : this.model,
-				parent : this,
-				textLines : this.model.getContextTextLines()
+				parent : this
 			});
 			
 			this.setActiveContextMenuView(modalView);
