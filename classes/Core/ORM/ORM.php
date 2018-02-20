@@ -257,11 +257,17 @@ class ORM {
 			}
 		}
 		
-		$object = $this->convertStdClassToObject($object, $object_name);
-		$this->endLoading($object_name, $id);
-		$this->storeObject($object);
-	
-		return $object;
+		if ($object) {
+			$object = $this->convertStdClassToObject($object, $object_name);
+			$this->endLoading($object_name, $id);
+			$this->storeObject($object);
+			
+			return $object;
+		} else {
+			$this->endLoading($object_name, $id);
+			
+			return null;
+		}
 	}
 	function deleteById($object_name, $id, $cascade = true, $db_scope = null) {
 		if (!$id) return null;
