@@ -60,20 +60,25 @@ var BaseRouter = Backbone.Router.extend({
 		} else {
 			return true;
 		}
-
+		
+		if (appHost) {
+			var umHref = appHost + 'usermanagement#';
+		} else {
+			var umHref = odBase + 'usermanagement/';
+		}
 		if (this.isLoginFailure()) {
 			var alert_msg = '<div class="alert alert-danger">'+
 			'<br/>' + 'Login failed.'+
 			'<br/><br/>' + 'Please try again with your correct credentials.'+
-			'<br/>' + 'If you don´t remember your credentials go to <a href="' + odBase + 'usermanagement/recovery">' + 'Password Recovery'+ '</a>.' +
-			'<br/><br/>' + 'In case you´re not registered yet, you might want to <a href="' + odBase + 'usermanagement/register">' + 'Sign Up'+ '</a> here.' +
+			'<br/>' + 'If you don´t remember your credentials go to <a href="' + umHref + 'recovery">' + 'Password Recovery'+ '</a>.' +
+			'<br/><br/>' + 'In case you´re not registered yet, you might want to <a href="' + umHref + 'register">' + 'Sign Up'+ '</a> here.' +
 	    	'</div>';
 		} else {
 			var alert_msg = '<div class="alert alert-warning">'+
 			'<br/>Access not granted.'+
 			'<br/><br/>' + 'Please login to access this content.' +
-			'<br/>' + 'If you don´t remember your credentials go to <a href="' + odBase + 'usermanagement/recovery">' + 'Password Recovery'+ '</a>.' +
-			'<br/><br/>' + 'In case you´re not registered yet, you might want to <a href="' + odBase + 'usermanagement/register">' + 'Sign Up'+ '</a> here.' +
+			'<br/>' + 'If you don´t remember your credentials go to <a href="' + umHref + 'recovery">' + 'Password Recovery'+ '</a>.' +
+			'<br/><br/>' + 'In case you´re not registered yet, you might want to <a href="' + umHref + 'register">' + 'Sign Up'+ '</a> here.' +
 	    	'</div>';
 		}
 

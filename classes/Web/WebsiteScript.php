@@ -546,32 +546,32 @@ trait WebsiteScript {
 		
 		return $html;
 	}
-	function renderHTMLScripts_UserManagement() {
+	function renderHTMLScripts_UserManagement($scope = null) {
 		$html = "";
 		if ($this->activescope_usermanagement) {
-			$html .= '<script src="' . $this->getScriptSource(null, 'js/views/detail_register.js') . '"></script>
+			$html .= '<script src="' . $this->getScriptSource($scope, 'js/views/detail_register.js') . '"></script>
     			';
-			$html .= '<script src="' . $this->getScriptSource(null, 'js/views/detail_recovery.js') . '"></script>
+			$html .= '<script src="' . $this->getScriptSource($scope, 'js/views/detail_recovery.js') . '"></script>
     			';
-			$html .= '<script src="' . $this->getScriptSource(null, 'js/views/detail_passwordreset.js') . '"></script>
+			$html .= '<script src="' . $this->getScriptSource($scope, 'js/views/detail_passwordreset.js') . '"></script>
     			';
-			$html .= '<script src="' . $this->getScriptSource(null, 'js/models/model_recovery.js') . '"></script>
+			$html .= '<script src="' . $this->getScriptSource($scope, 'js/models/model_recovery.js') . '"></script>
     			';
 			
 			if (file_exists('../js/main_register.js') && $this->getScopeObjectName() == "register") {
-				$html .= '<script src="' . $this->getScriptSource(null, 'js/main_register.js') . '"></script>
+				$html .= '<script src="' . $this->getScriptSource($scope, 'js/main_register.js') . '"></script>
     				';
 			}
 			if (file_exists('../js/main_user.js') && $this->getScopeObjectName() == "users") {
-				$html .= '<script src="' . $this->getScriptSource(null, 'js/main_user.js') . '"></script>
+				$html .= '<script src="' . $this->getScriptSource($scope, 'js/main_user.js') . '"></script>
     				';
 			}
 			if (file_exists('../js/main_role.js') && $this->getScopeObjectName() == "roles") {
-				$html .= '<script src="' . $this->getScriptSource(null, 'js/main_role.js') . '"></script>
+				$html .= '<script src="' . $this->getScriptSource($scope, 'js/main_role.js') . '"></script>
     				';
 			}
 			if (file_exists('../js/main_recovery.js') && $this->getScopeObjectName() == "recovery") {
-				$html .= '<script src="' . $this->getScriptSource(null, 'js/main_recovery.js') . '"></script>
+				$html .= '<script src="' . $this->getScriptSource($scope, 'js/main_recovery.js') . '"></script>
     				';
 			}
 		}
