@@ -96,6 +96,10 @@ class REST_Transformer {
 							} else {
 								$object->$key = $value;
 							}
+						} else {
+							if ($key === "id") {
+								$object->$key = $value;
+							}
 						}
 					}
 				}
