@@ -84,6 +84,7 @@ var BaseView = Backbone.View.extend({
 			}
 		}
 	},
+	//TODO
 	createFieldViewByModel : function(model, field, withCell, reference, compact) {
 		var value = model.get(field);
 		var value_type = typeof value;
