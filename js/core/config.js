@@ -26,3 +26,5 @@ if (window.location.href.indexOf("localhost") === -1) {
 	var engulfingBase = "http://localhost.engulfing/";
 	var neuroBase = "http://localhost.neuronalysis/";
 }
+
+var siteAdmin = "info@ontologydriven.com";

@@ -37,6 +37,13 @@ var BaseRouter = Backbone.Router.extend({
 
 		return false;
 	},
+	isRestricted : function() {
+		if (window.location.href.indexOf('login=failed') !== -1) {
+			return true;
+		}
+
+		return false;
+	},
 	isAuthorized : function(routeType) {
 		var roleID = Cookie.get("UserRoleID");
 
@@ -74,12 +81,19 @@ var BaseRouter = Backbone.Router.extend({
 			'<br/><br/>' + 'In case you´re not registered yet, you might want to <a href="' + umHref + 'register">' + 'Sign Up'+ '</a> here.' +
 	    	'</div>';
 		} else {
-			var alert_msg = '<div class="alert alert-warning">'+
-			'<br/>Access not granted.'+
-			'<br/><br/>' + 'Please login to access this content.' +
-			'<br/>' + 'If you don´t remember your credentials go to <a href="' + umHref + 'recovery">' + 'Password Recovery'+ '</a>.' +
-			'<br/><br/>' + 'In case you´re not registered yet, you might want to <a href="' + umHref + 'register">' + 'Sign Up'+ '</a> here.' +
-	    	'</div>';
+			if (roleID) {
+				var alert_msg = '<div class="alert alert-warning">'+
+				'<br/>Access not granted.'+
+				'<br/><br/>' + 'Please reach out for the <a href="mailto:' + siteAdmin + '">' + 'Site-Administrator' + '</a> to get access for desired ressources.' +
+				'</div>';
+			} else {
+				var alert_msg = '<div class="alert alert-warning">'+
+				'<br/>Access not granted.'+
+				'<br/><br/>' + 'Please login to access this content.' +
+				'<br/>' + 'If you don´t remember your credentials go to <a href="' + umHref + 'recovery">' + 'Password Recovery'+ '</a>.' +
+				'<br/><br/>' + 'In case you´re not registered yet, you might want to <a href="' + umHref + 'register">' + 'Sign Up'+ '</a> here.' +
+		    	'</div>';
+			}
 		}
 
 

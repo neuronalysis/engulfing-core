@@ -5,11 +5,14 @@ var TextBlockView = BaseView.extend({
 		this.parent = options.parent;
 	},
 	render : function() {
-		var fontId =  this.model.get('STYLEREFS').split(" ")[1];
+		if (this.model.get('STYLEREFS')) {
+			var fontId =  this.model.get('STYLEREFS').split(" ")[1];
+			
+			var textStyle = window['TextStyle'].findOrCreate({
+				id : fontId
+			});
+		}
 		
-		var textStyle = window['TextStyle'].findOrCreate({
-			id : fontId
-		});
 		
 		this.$el.empty();
 
