@@ -13,7 +13,7 @@ include_once (__DIR__ . "/../Helper.php");
 class ORM {
 	use Integrity, ObjectHelper, ConnectionManager, QueryBuilder, Loader, ORMConverter, Caching, AccessControl, TransactionManager, Helper;
 	
-	var $convert = false;
+	var $convert = true;
 	
 	protected $debug = false;
 	
@@ -54,7 +54,7 @@ class ORM {
 		}
 	}
 	function getAllByName($object_name, $noPaging = false, $orderby = null, $limit = null, $explicitFields = null, $includingProtected = false, $db_scope = null) {
-		if ($objects = $this->isLoadedObjectsArray($object_name, array())) return $objects;
+		//if ($objects = $this->isLoadedObjectsArray($object_name, array())) return $objects;
 		
 		$tableName = $this->getTableNameByObjectName($object_name, false);
 		
