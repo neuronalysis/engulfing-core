@@ -329,3 +329,14 @@ code {
    from {transform: rotate(0deg);}
    to {transform: rotate(359deg);}
 }
+
+/* CSS */
+.row > div {
+  float:left; /* Can apply this a bunch of ways */
+}
+.fixed-side-column {
+  width:800px;
+}
+.fluid-right-column {
+  width:calc(100% - 800px);
+}

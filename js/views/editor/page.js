@@ -10,7 +10,6 @@ var PageView = BaseView.extend({
 		var css = {
 				'top'         		: '0px',
 				'left'         		: '0px',
-				'height'        	: this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
 				'width'         	: this.model.get('WIDTH') * editorOptions['zoomFactor'] + 'px',
 				'height'        	: this.model.get('HEIGHT') * editorOptions['zoomFactor'] + 'px',
 				'border'			: '1px solid black'
