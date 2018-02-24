@@ -183,9 +183,9 @@ trait QueryBuilder {
 					if ($like) {
 						$sql_add .= $field_name . " LIKE :" . $field_name;
 					} else if (substr($field_name, -2, 2) == "At") {
-						if (strlen($values[array_search("sentAt", $fields)]) == 10) {
+						//if (strlen($values[array_search("sentAt", $fields)]) == 10) {
 							$sql_add .= "DATEDIFF(" . $field_name . ",:" . $field_name . ") = 0";
-						}
+						//}
 					} else {
 						if ($keyOperators) {
 							$sql_add .= $field_name . $keyOperators[$field_name] . ":" . $field_name;

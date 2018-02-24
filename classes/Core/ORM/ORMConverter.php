@@ -94,11 +94,13 @@ trait ORMConverter {
 	function convertStdClassesToMultipleObjects($stdClasses, $object_names) {
 		$objects = array();
 	
+		$rest = new REST();
+		
 		foreach($stdClasses as $stdClass_item) {
 			if (count($object_names) == 2) {
 				$obj_first_name = $object_names[0];
 				if ($obj_first_name === "Lexeme") {
-					$obj_first = $this->orm->getById("Lexeme", $stdClass_item->Lexeme_id, true);
+					$obj_first = $rest->orm->getById("Lexeme", $stdClass_item->lexeme_id, true);
 				} else {
 					$obj_first = $this->convertStdClassToObject($stdClass_item, $object_names[0]);
 				}

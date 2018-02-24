@@ -2003,20 +2003,21 @@ class Element {
 		$class_explode = explode(" ", $class_attributes);
 		if (count($class_explode) <= 1) {
 			$css_values = $this->getCSSValueByKey($class_attributes);
-			
 			if (isset($css_values)) {
 				$keys = array_keys($css_values);
 				$values = array_values($css_values);
-				for ($i=0; $i<count($keys); $i++) {
-					if ($keys[$i] == ".width") {
-						$keys[$i] = "width";
+				foreach($keys as $key=>$value) {
+					if ($value == ".width") {
+						$style->width = $values[$key];
+					} else {
+						$style->$value= $values[$key];
 					}
-					$style->$keys[$i] = $values[$i];
 				}
+				
 				
 				$marginleft = "margin-left";
 				
-				//if (isset($style->width)) $this->width = $style->width;
+				if (isset($style->width)) $this->width = $style->width;
 				
 				if (isset($style->$marginleft)) $style->posX = $style->$marginleft;
 			}
