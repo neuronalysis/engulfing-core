@@ -249,11 +249,12 @@ trait ObjectHelper {
 					$idFieldname = lcfirst($key) . "ID";
 					
 					$refObject = $this->getById($key, $stdClass->$idFieldname, true, array(), $db_scope);
-					
-					if ($refObject->id == null) {
-						$refObject = null;
+					if (isset($refObject)) {
+						if ($refObject->id == null) {
+							$refObject = null;
+						}
+						$referencedObjects[$key] = $refObject;
 					}
-					$referencedObjects[$key] = $refObject;
 				} else if ($relationshipType == "toOneFromRecursive") {
 					$idFieldname = lcfirst($key) . "ID";
 					$objectFieldname = str_ireplace("Incoming", "", $key);
