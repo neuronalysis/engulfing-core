@@ -1,6 +1,0 @@
-{
-	"name" : "engulfing/core",
-	"require" : {
-		"php" : "7.*"
-	}
-}
