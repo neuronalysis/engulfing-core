@@ -156,8 +156,9 @@ trait Helper {
 		 
 		return $singular;
 	}
+	//TODO
 	function sort_on_field(&$objects, $on, $order = 'ASC', $type = "str") {
-		if ($type === "num") {
+		/*if ($type === "num") {
 			$comparer = ($order === 'DESC')
 			? "return -(\$a->{$on} - \$b->{$on});"
 			: "return (\$a->{$on} - \$b->{$on})";
@@ -167,7 +168,7 @@ trait Helper {
 			? "return -strcmp(\$a->{$on},\$b->{$on});"
 			: "return strcmp(\$a->{$on},\$b->{$on});";
 			usort($objects, create_function('$a,$b', $comparer));
-		}
+		}*/
 	}
 	function deabbrevate($string) {
 		return $string;
