@@ -374,14 +374,18 @@ trait ObjectHelper {
 			$OntologyClassname = $levels[1];
 		}
 		
-		if (!class_exists($OntologyClassname, false)) {
+		
+		if (!class_exists($OntologyClassname, true)) {
 			$OntologyClassname = $this->singularize($OntologyClassname);
 			
-			if (class_exists($OntologyClassname, false)) $OntologyClassname = get_class(new $OntologyClassname());
+			if (class_exists($OntologyClassname, true)) $OntologyClassname = get_class(new $OntologyClassname());
 		}
 		
-		if (class_exists("\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname, false)) {
+		if (class_exists("\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname, true)) {
 			$OntologyClassname = "\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname;
+		}
+		if (class_exists("\\" . strtoupper($this->db_scope) . "\\" . ucfirst($OntologyClassname), true)) {
+			$OntologyClassname = "\\" . strtoupper($this->db_scope) . "\\" . ucfirst($OntologyClassname);
 		}
 		
 		return $OntologyClassname;

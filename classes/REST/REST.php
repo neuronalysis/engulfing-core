@@ -1,14 +1,25 @@
 <?php
-include_once ('REST_Transformer.php');
-include_once ('REST_TaskExecutor.php');
-
-include_once (__DIR__ . "/../Core/Helper.php");
-
 class REST {
 	use Helper;
 	
 	function __construct() {
 		$this->orm = new ORM();
+		
+		$this->app = new \Slim\Slim(array(
+				'debug' => true
+		));
+		
+		$this->app->contentType('application/json; charset=utf-8');
+		$this->app->error(function (\Exception $e) {
+			$this->app->render('error.php');
+		});
+	}
+	function run() {
+		$this->checkAuthorization($this->app);
+		
+		$this->app->run();
+		
+		$this->logRequest($this->app, date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']));
 	}
 	//TODO
 	function get($id = null, $app = null) {
