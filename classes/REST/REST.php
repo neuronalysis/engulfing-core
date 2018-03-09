@@ -2,6 +2,8 @@
 class REST {
 	use Helper;
 	
+	public static $instance;
+	
 	function __construct() {
 		$this->orm = new ORM();
 		
@@ -13,6 +15,14 @@ class REST {
 		$this->app->error(function (\Exception $e) {
 			$this->app->render('error.php');
 		});
+		
+		self::$instance = $this;
+	}
+	public static function getInstance() {
+		if (self::$instance === null) {
+			self::$instance = new self();
+		}
+		return self::$instance;
 	}
 	function run() {
 		$this->checkAuthorization($this->app);
@@ -569,10 +579,21 @@ class REST {
 			echo json_encode ( $content, JSON_PRETTY_PRINT );
 		}
 	}
+	function handleResult($result) {
+		$response = new Response();
+		
+		if (!$result instanceof Exception) {
+			$this->app->response->setBody(json_encode ( $result, JSON_PRETTY_PRINT ));
+		} else {
+			$response->error = $result->getTraceAsString();
+			
+			$this->app->response->setStatus(400);
+			$this->app->response->headers->set('Content-Type', 'application/json');
+			$this->app->response->setBody(json_encode ( $response, JSON_PRETTY_PRINT ));
+		}
+	}
 }
 class Response {
-	var $message;
-	
 	function __construct() {
 		
 	}

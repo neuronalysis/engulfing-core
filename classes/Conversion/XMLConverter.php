@@ -9,11 +9,104 @@ class XMLConverter extends Converter {
 		$this->xpath = $xpath;
 	}
 	function convertToObjectTree($dom) {
-		$stree = simplexml_import_dom($dom);
+	    $stree = simplexml_import_dom($dom);
 		
-		$tree = $this->convertSimpleObject($stree);
+	    $children = $dom->childNodes;
+	    
+	    $tree = $this->convertNodesToObjects($children[0]);
 		
-		return $tree;
+	    return $tree;
+	}
+	function extractObjectNameFromNode($node) {
+	    $objectName = $node->nodeName;
+	    
+	    if (strpos($objectName, ':') !== FALSE) {
+	        $nsObjName = explode(":", $objectName);
+	        
+	        if ($nsObjName[1] === "Class") $nsObjName[1] = $nsObjName[0] . $nsObjName[1];
+	        
+	        if (class_exists("\\" . $nsObjName[0] . "\\" . $nsObjName[1])) {
+	            $objectName = "\\" . $nsObjName[0] . "\\" . $nsObjName[1];
+	        } else if (class_exists("\\" . $this->scope . "\\" . $objectName)) {
+	            $objectName = "\\" . $this->scope . "\\" . $objectName;
+	        } else if (class_exists("\\" . $this->scope . "\\" . $this->scope . $objectName)) {
+	            $objectName = "\\" . $this->scope . "\\" . $this->scope . $objectName;
+	        } else {
+	            return false;
+	        }
+	    } else {
+	        if (class_exists("\\" . $this->scope . "\\" . $objectName)) {
+	            $objectName = "\\" . $this->scope . "\\" . $objectName;
+	        } else if (class_exists("\\" . $this->scope . "\\" . $this->scope . $objectName)) {
+	            $objectName = "\\" . $this->scope . "\\" . $this->scope . $objectName;
+	        } else {
+	            return false;
+	        }
+	    }
+	    
+	    return $objectName;
+	}
+	function extractObjectNameWithoutNSFromNode($node) {
+	    $objectName = $node->nodeName;
+	    
+	    if (strpos($objectName, ':') !== FALSE) {
+	        $nsObjName = explode(":", $objectName);
+	        
+	        if (class_exists("\\" . $nsObjName[0] . "\\" . $nsObjName[1])) {
+	            $objectName = $nsObjName[1];
+	        } else if (class_exists("\\" . $nsObjName[0]. "\\" . $nsObjName[0] . $nsObjName[1])) {
+	            $objectName = $nsObjName[0] . $nsObjName[1];
+	        } else {
+	            return false;
+	        }
+	    } else {
+	        if (class_exists("\\" . $this->scope . "\\" . $objectName)) {
+	            $objectName = $objectName;
+	        } else if (class_exists("\\" . $this->scope . "\\" . $this->scope . $objectName)) {
+	            $objectName = $this->scope . $objectName;
+	        } else {
+	            return false;
+	        }
+	    }
+
+	    return $objectName;
+	}
+	function convertNodesToObjects($node) {
+	    $objectName = $this->extractObjectNameFromNode($node);
+	    
+	    $object = new $objectName;
+	    
+	    foreach($node->attributes as $sAttributeKey => $sAttributeValue) {
+            if (property_exists($objectName, $sAttributeKey)) {
+                $object->$sAttributeKey = $sAttributeValue->nodeValue;
+            }
+	    }
+	    
+	    foreach($node->childNodes as $childNode) {
+	        if ($childNode->nodeType === XML_ELEMENT_NODE) {
+	            $childNodeName = $this->extractObjectNameWithoutNSFromNode($childNode);
+	            $plChildNodeName = $this->pluralize($childNodeName);
+	            
+	            if (property_exists($objectName, $childNodeName)) {
+	                $childObject = $this->convertNodesToObjects($childNode);
+	                
+	                $object->$childNodeName = $childObject;
+	            } else if (property_exists($objectName, $plChildNodeName)) {
+	                $childObject = $this->convertNodesToObjects($childNode);
+	                
+	               $object->$plChildNodeName= $childObject;
+	            }
+	            
+	            
+	        } else if ($childNode->nodeType === XML_TEXT_NODE) {
+	        } else if ($childNode->nodeType === XML_COMMENT_NODE) {
+	        } else {
+	        }
+	        
+	        
+	    }
+	    
+	    return $object;
 	}
 	function convertSimpleObject($sObject) {
 		$objectName = $sObject->getName();
@@ -29,17 +122,18 @@ class XMLConverter extends Converter {
 		
 		$object = new $objectName;
 		
+		
 		$sObjVars = get_object_vars($sObject);
 		
 		foreach($sObjVars as $sKey => $sValue) {
-			if ($sKey == "@attributes") {
+		    if ($sKey == "@attributes") {
 				foreach($sValue as $sAttributeKey => $sAttributeValue) {
 					if (property_exists($objectName, $sAttributeKey)) {
 						$object->$sAttributeKey = $sAttributeValue;
 					}
 				}
 			} else {
-				if (property_exists($objectName, $sKey)) {
+			    if (property_exists($objectName, $sKey)) {
 					if (is_object($sValue)) {
 						$childObject = $this->convertSimpleObject($sObject->$sKey);
 							

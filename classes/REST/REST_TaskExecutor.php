@@ -13,7 +13,7 @@ class Processing {
 	function __construct() {
 		
 	}
-	function addTask($task) {
+	function addTask($task, $outcome = null) {
 		$task->end();
 		
 		$duration = $task->end - $task->start;
@@ -58,5 +58,4 @@ class Task {
 		$this->duration = number_format($this->end - $this->start, 3) . " seconds";
 	}
 }
-
 ?>

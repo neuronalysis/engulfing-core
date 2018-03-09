@@ -44,14 +44,19 @@ class EDI extends Thing {
 		return $ressources;
 	}
 	function getRessource($url, $noDownload = false, $enforcedType = null) {
-		$ressource = new Ressource($url);
-		if ($this->debugMode) {
-			//$noDownload = true;
-			//$enforcedType = "application/pdf; charset=binary";
+		try {
+			$ressource = new Ressource($url);
+			if ($this->debugMode) {
+				//$noDownload = true;
+				//$enforcedType = "application/pdf; charset=binary";
+			}
+			$ressource->load($noDownload, $enforcedType);
+			
+			return $ressource;
 		}
-		$ressource->load($noDownload, $enforcedType);
-		 
-		return $ressource;
+		catch (Exception $e) {
+			throw $e;
+		}
 	}
 	/*function convertObjectsToDataServiceEntitiesByDataService($objects, $dataservice) {
 		$dses = array();

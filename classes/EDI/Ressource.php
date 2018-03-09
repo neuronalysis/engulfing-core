@@ -42,7 +42,6 @@ class Ressource extends Thing {
 		$fio = new FileIO();
 		
 		if (!$this->is_connected() || $noDownload) {
-			//echo getcwd();
 			$this->content = file_get_contents('data/temp/structure/processing/processed.html');
 			
 			if ($enforcedType) {
@@ -50,7 +49,6 @@ class Ressource extends Thing {
 			} else {
 				$this->Type = $finfo->buffer($this->content);
 			}
-			//echo "type: " . $this->Type . "\n";
 			
 			$this->size = strlen($this->content);
 			
@@ -60,8 +58,6 @@ class Ressource extends Thing {
 			}
 		} else {
 			$this->content = $fio->loadFile($this->url);
-			
-			//echo $this->path . "\n";
 			
 			$this->Type = $finfo->buffer($this->content);
 			if ($this->Type === "text/plain; charset=us-ascii") {
@@ -76,8 +72,6 @@ class Ressource extends Thing {
 				$this->modificationTime = date ("F d Y H:i:s.", $filetime);
 			}
 		}
-		
-		//echo $this->content;
 	}
 	function isJson($string) {
 		json_decode($string);
