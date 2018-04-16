@@ -1,22 +1,8 @@
 <?php
-include_once (__DIR__ . "/../../../engulfing-core/classes/Things/Things.php");
-include_once (__DIR__ . "/../../../engulfing-core/classes/Core/Helper.php");
-include_once (__DIR__ . "/../../../engulfing-core/classes/Core/FileIO.php");
-
-include_once ('DataService.php');
-include_once ('EDI_Relations.php');
-include_once ('ProcessScheduler.php');
-include_once ('Schedule.php');
-//include_once ('DataServiceEntity.php');
-include_once ('Ressource.php');
-include_once ('DataSource.php');
-include_once ('DataProvider.php');
-include_once ('ImportProcess.php');
-
-
-
 class EDI extends Thing {
-	var $classes = array("Schedule", "ImportProcess", "DataProvider", "DataService", "Ressource", "RelationDataServiceOntologyClass", "DataSource", "OntologyClass");
+    protected $config;
+    
+    var $classes = array("Schedule", "ImportProcess", "DataProvider", "DataService", "Ressource", "RelationDataServiceOntologyClass", "DataSource", "OntologyClass");
 	
 	var $entities = '{}';
 	
@@ -43,15 +29,24 @@ class EDI extends Thing {
 		
 		return $ressources;
 	}
-	function getRessource($url, $noDownload = false, $enforcedType = null) {
+	//TODO
+	function getRessource($url, $noDownload = false, $enforcedType = null, $save = false) {
 		try {
 			$ressource = new Ressource($url);
-			if ($this->debugMode) {
-				//$noDownload = true;
+			if (!$this->is_connected() || $this->debugMode) {
+				$noDownload = true;
+				$ressource->url = $this->config['frontend']['path'] . "api/data/extraction/debug/downloads/testressource.pdf";
+				//echo $ressource->url . "\n";
+				
 				//$enforcedType = "application/pdf; charset=binary";
+				$ressource->load($noDownload, $enforcedType);
+				$fio = new FileIO();
+				$fio->saveStringToFile($ressource->content, $ressource->url);
+			} else {
+			    $ressource->load($noDownload, $enforcedType);
+			    $fio = new FileIO();
+			    $fio->saveStringToFile($ressource->content, $this->config['frontend']['path'] . "api/data/extraction/debug/downloads/testressource.pdf");
 			}
-			$ressource->load($noDownload, $enforcedType);
-			
 			return $ressource;
 		}
 		catch (Exception $e) {

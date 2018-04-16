@@ -45,6 +45,8 @@ var BaseRouter = Backbone.Router.extend({
 		return false;
 	},
 	isAuthorized : function(routeType) {
+		if (!this.objectName) return true;
+		
 		var roleID = Cookie.get("UserRoleID");
 
 		$('#alerts').html('');

@@ -21,7 +21,7 @@ class Processing {
 		unset($task->start);
 		unset($task->end);
 		
-		if ($duration > 0.005) {
+		if ($duration > 0.00005) {
 			array_push($this->tasks, $task);
 		}
 		

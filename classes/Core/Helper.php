@@ -1,19 +1,29 @@
 <?php
 trait Helper {
 	
-	function Helper() {
+    function Helper() {
 	}
 	function getConfig() {
-		if ($this->isLocalRequest()) {
-			if (file_exists(__DIR__ . '/../../config/dev-config.json')){
-				$config = json_decode(file_get_contents(__DIR__ . '/../../config/dev-config.json'));
-			} else{
-			}
-		} else {
-			
-		}
-		
-		return $config;
+	    return $this->config;
+	}
+	function setConfig($config) {
+	    $this->config = $config;
+	    
+	    $fio = new FileIO();
+	    
+	    $cfg = new stdClass();
+	    $cfg->framework = $this->config['framework'];
+	    $cfg->frontend = $this->config['frontend'];
+	    
+	    $webdataDir = getcwd() . "/data/";
+	    if (!file_exists($webdataDir)) {
+	        $webdataDir = getcwd() . "/../data/";
+	    }
+	    if (file_exists($webdataDir)) {
+	        if (!file_exists($webdataDir . "config.json")) {
+	            $fio->saveStringToFile(json_encode($cfg, JSON_PRETTY_PRINT), $webdataDir . "config.json");
+	        }
+	    }
 	}
 	function isLocalRequest() {
 		$whitelist = array(
@@ -26,6 +36,19 @@ trait Helper {
 		}
 			
 		return false;
+	}
+	function is_connected()
+	{
+	    $connected = @fsockopen("www.google.com", 80);
+	    //website, port  (try 80 or 443)
+	    if ($connected){
+	        $is_conn = true; //action when connected
+	        fclose($connected);
+	    }else{
+	        $is_conn = false; //action in connection failure
+	    }
+	    return $is_conn;
+	    
 	}
 	function pluralize($singular) {
 		if ($singular === "corpus") return "corpora";
@@ -279,7 +302,9 @@ trait Helper {
 		
 		if ($pathToUse === "?login=failed") return null;
 		
-		if (!isset($levels[1])) return null;
+		if (!isset($levels[1])) {
+		    return null;
+		}
 		
 		if ($this->isLocalRequest()) {
 			if (strpos($pathToUse, "/api/") !== false) {
@@ -295,6 +320,18 @@ trait Helper {
 			$scopename = $levels[1];
 		}
 		
+		if ($scopename === "") {
+		    $actual_link = "$_SERVER[HTTP_HOST]";
+		    if (isset($actual_link)) {
+		        $exp_host = explode(".", $actual_link);
+		        if ($this->isLocalRequest()) {
+		            if (isset($exp_host[1])) {
+		                $scopename = $exp_host[1];
+		            }
+		        }
+		    }
+		    
+		}
 		return $scopename;
 	}
 	function getScopeObjectName($reference = null) {
@@ -366,7 +403,21 @@ trait Helper {
 					$topdomain = strtolower($this->title);
 				}
 			} else {
-				$topdomain = "ontologydriven";
+			    if ($this->isLocalRequest()) {
+			        if (strtolower($this->title) == "extraction") {
+			            $topdomain = strtolower($this->title);
+			        } else {
+			            $topdomain = "generated/" . strtolower($this->title);
+			        }
+			        
+			    } else {
+			        if (strtolower($this->title) == "extraction") {
+			            $topdomain = strtolower($this->title);
+			        } else {
+			            $topdomain = "ontologydriven";
+			        }
+			    }
+				
 			}
 		}
 		 

@@ -39,7 +39,7 @@ class Monitoring {
 	}
 	function getRequests($ontologyName = null) {
 		if ($ontologyName) {
-			$requests = $this->orm->getByNamedFieldValues("Request", array("OntologyName"), array($ontologyName), false, null, false, true);
+		    $requests = $this->orm->getByNamedFieldValues(new ORM_Request("Request", array("OntologyName" => $ontologyName)));
 		} else {
 			$requests = $this->orm->getAllByName("Request", true);
 		}
@@ -48,13 +48,12 @@ class Monitoring {
 		return $requests;
 	}
 	function getAccessPermissionByClientAndScope($userID, $clientIP, $scope) {
-		//print_r(array($userID, "/api" . $scope, date("Y-m-d")));
 		if (isset($userID)) {
-			$objects = $this->orm->getByNamedFieldValues("Request", array("UserID", "url", "sentAt"), array($userID, "/api" . $scope, date("Y-m-d")));
+		    $objects = $this->orm->getByNamedFieldValues(new ORM_Request("Request", array("UserID" => $userID, "url" => "/api" . $scope, "sentAt" => date("Y-m-d"))));
 			
 			if (count($objects) < 500) return true;
 		} else {
-			$objects = $this->orm->getByNamedFieldValues("Request", array("clientIP", "url", "sentAt"), array($clientIP, "/api" . $scope, date("Y-m-d")));
+		    $objects = $this->orm->getByNamedFieldValues(new ORM_Request("Request", array("clientIP" => $clientIP, "url" => "/api" . $scope, "sentAt" => date("Y-m-d"))));
 			
 			if (count($objects) < 500) return true;
 		}

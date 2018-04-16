@@ -1,5 +1,7 @@
 <?php
 class Testing {
+    use Helper;
+    
 	function __construct() {
 	}
 }
@@ -19,7 +21,7 @@ class TestClass {
 		$this->prepare();
 	
 		$coverage = $this->getTestCoverage();
-	
+	   
 		$classname = str_ireplace("_Test", "", get_class($this));
 	
 		$check = new stdClass();
@@ -215,7 +217,7 @@ class TestClass {
 		$coverage->methods = array();
 		
 		foreach($methods as $method) {
-			if (!in_array($method->name, array("__construct"))) {
+			if (!in_array($method->name, array("__construct", "arrayContains"))) {
 				if (in_array($method->name, $testmethods)) {
 					//$coverage->methods[$method->name] = array(true, $this->getFunctionReferencesByProject($method->name));
 					$coverage->methods[$method->name] = array(true, null);

@@ -340,3 +340,13 @@ code {
 .fluid-right-column {
   width:calc(100% - 800px);
 }
+
+a.anchor {
+    display: block;
+    position: relative;
+    top: -60px;
+    visibility: hidden;
+}
+
+.pdfobject-container { width: 300px; height: 400px;}
+.pdfobject { border: 1px solid #666; }

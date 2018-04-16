@@ -207,8 +207,15 @@ trait WebsiteNavigation {
 						</li>';
 				} else {
 					if (!$navHide) {
-						$html .= '<li><a href="' . $home_url . strtolower($page_item->name) . '">' . $page_item->name . '</a></li>
+					    if (isset($page_item->urlPartName)) {
+					        $html .= '<li><a href="' . $home_url . strtolower($page_item->urlPartName) . '">' . $page_item->name . '</a></li>
+					';
+					    } else {
+					        $html .= '<li><a href="' . $home_url . strtolower($page_item->name) . '">' . $page_item->name . '</a></li>
 						';
+					    }
+					    
+						
 					}
 				}
 				

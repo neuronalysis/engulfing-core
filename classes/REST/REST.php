@@ -2,6 +2,8 @@
 class REST {
 	use Helper;
 	
+	protected $config;
+	
 	public static $instance;
 	
 	function __construct() {
@@ -195,9 +197,17 @@ class REST {
 		}*/
 	
 		if ($ontologyClassName === "indicator") {
-			$observations = $this->orm->getByNamedFieldValues($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID", "date"), array($id, "2014-01-01"), false, null, false, false, null, "date ASC", $limit, array(lcfirst($ontologyClassName) . "ID" => "=", "date" => ">="));
+			$orm_request = new ORM_Request($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID" => $id, "date" => "2014-01-01"));
+			$orm_request->keyOperators = array(lcfirst($ontologyClassName) . "ID" => "=", "date" => ">=");
+			$orm_request->order = "date ASC";
+			
+			$observations= $this->orm->getByNamedFieldValues($orm_request);
 		} else if ($ontologyClassName === "instrument") {
-			$observations = $this->orm->getByNamedFieldValues($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID", "date"), array($id, "2015-01-01"), false, null, false, false, null, "date ASC", $limit, array(lcfirst($ontologyClassName) . "ID" => "=", "date" => ">="));
+		    $orm_request = new ORM_Request($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID" => $id, "date" => "2015-01-01"));
+		    $orm_request->keyOperators = array(lcfirst($ontologyClassName) . "ID" => "=", "date" => ">=");
+		    $orm_request->order = "date ASC";
+		    
+		    $observations= $this->orm->getByNamedFieldValues($orm_request);
 		}
 		
 		foreach($observations as $item) {

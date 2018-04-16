@@ -1,15 +1,4 @@
 <?php
-include_once (__DIR__ . "/Integrity.php");
-include_once (__DIR__ . "/ObjectHelper.php");
-include_once (__DIR__ . "/ConnectionManager.php");
-include_once (__DIR__ . "/Caching.php");
-include_once (__DIR__ . "/QueryBuilder.php");
-include_once (__DIR__ . "/Loader.php");
-include_once (__DIR__ . "/ORMConverter.php");
-include_once (__DIR__ . "/TransactionManager.php");
-include_once (__DIR__ . "/../AccessControl.php");
-include_once (__DIR__ . "/../Helper.php");
-
 class ORM {
 	use Integrity, ObjectHelper, ConnectionManager, QueryBuilder, Loader, ORMConverter, Caching, AccessControl, TransactionManager, Helper;
 	
@@ -97,7 +86,70 @@ class ORM {
 	}
 	//TODO reduce amount of parameters
 	//TODO document cascade/explicitFields processing
-	function getByNamedFieldValues($object_name, $fields, $values = null, $like = false, $paging = null, $eager = false, $noPaging = false, $cascades = null, $order = null, $limit = null, $keyOperators = null, $explicitFields = null, $db_scope = null) {
+	function getByNamedFieldValues(ORM_Request $request) {
+	    //if ($objects = $this->isLoadedObjectsArray($request->objectName, $request->keyValues)) return $objects;
+	    
+	    if (!$request->dbScope) $request->dbScope= $this->getOntologyScope($request->objectName);
+	    
+	    if ($request->explicitFields) {
+	        $sql_select_fields = "*, " . implode(",", $request->explicitFields);
+	    } else {
+	        $sql_select_fields = "*";
+	    }
+	    
+	    $sql = "SELECT " . $sql_select_fields . " FROM " . $this->getTableNameByObjectName($request->objectName);
+	    
+	    $fields = array_keys($request->keyValues);
+	    $values = array_values($request->keyValues);
+	    
+	    $sql .= $this->buildWhereClause($request->keyValues, $request->noPaging, $request->order, $request->objectName, $request->limit, $request->like, $request->keyOperators);
+	    
+	    if ($this->debug) echo "in db " . $request->dbScope . " execute getbynamedfield-sql: " . $sql . "\n";
+	    
+	    try {
+	        $db = $this->openConnection($request->dbScope);
+	        $stmt = $db->prepare($sql);
+	        
+	        for($i=0; $i<count($fields); $i++) {
+	            $field_name = $fields[$i];
+	            
+	            if ($request->like) {
+	                $stmt->bindValue(":" . $field_name, "%" . $values[$i] . "%");
+	            } else {
+	                $stmt->bindParam ( $field_name, $values[$i] );
+	            }
+	        }
+	        
+	        $stmt->execute();
+	        
+	        $stdObjects = $stmt->fetchAll(PDO::FETCH_OBJ);
+	        
+	        if (class_exists($request->objectName)) {
+	            $objects = $this->convertStdClassesToObjects($stdObjects, $request->objectName);
+	            
+	            if ($request->explicitFields) {
+	                foreach($request->explicitFields as $explicitField_item) {
+	                    foreach($objects as $key => $object_item) {
+	                        if ($stdObjects[0]->$explicitField_item) {
+	                            $object_item->$explicitField_item = $stdObjects[$key]->$explicitField_item;
+	                        }
+	                    }
+	                }
+	            }
+	        } else {
+	            $objects = $stdObjects;
+	        }
+	        
+	        $db = null;
+	        
+	        return $objects;
+	    } catch(PDOException $e) {
+	        if ($this->debug) echo '{"error":{"text":'. $e->getMessage() .'}}';
+	        
+	        throw $e;
+	    }
+	}
+	protected function getByNamedFieldValues_Dep($object_name, $fields, $values = null, $like = false, $paging = null, $eager = false, $noPaging = false, $cascades = null, $order = null, $limit = null, $keyOperators = null, $explicitFields = null, $db_scope = null) {
 		$keyValues = $this->mergeFieldsAndValues($fields, $values);
 		$keyValues = $this->filterPersistableKeyValues($keyValues);
 		
@@ -145,14 +197,22 @@ class ORM {
 			}
 			
 			for($i=0; $i<count($objects); $i++) {
-				if(isset($cascades) && isset($explicitFields)) {
-					$j=0;
+			    //if(isset($cascades) && isset($explicitFields)) {
+			    if(isset($cascades)) {
+					$j = 0;
 					
 					foreach($cascades as $cascade) {
-						$explicitField = $explicitFields[$j];
-						
-						$objects[$i]->$cascade = $this->getById($cascade, $stdObjects[$i]->$explicitField, true, array(), $db_scope);
-						
+					    if (is_array($cascade)) {
+					        print_r($cascade);
+					    } else {
+					        $objectName = $this->getPersistanceClassName($cascade);
+					        echo "objName: " . $objectName . "\n";
+					        
+					        $objectIdFieldName = $this->getObjectIdFieldName($cascade);
+					        echo $objectIdFieldName . "\n";
+					        $objects[$i]->$cascade = $this->getById($objectName, $stdObjects[$i]->$objectIdFieldName, true, array(), $db_scope);
+					    }
+					    
 						$j++;
 					}
 				}
@@ -170,8 +230,8 @@ class ORM {
 		}
 	}
 	function getById($object_name, $id, $eager = true, $excludes = array(), $db_scope = null) {
-		$this->startLoading($object_name, $id);
-		if ($object = $this->isLoadedObject($object_name, $id)) return $object;
+		//$this->startLoading($object_name, $id);
+		//if ($object = $this->isLoadedObject($object_name, $id)) return $object;
 			
 		if (!$this->isPersistableObject($object_name)) return $this->loadNonPersistableObject($object_name, $id);
 		
@@ -459,5 +519,38 @@ class ORM {
 		
 		return $dsEntity;
 	}
+}
+class ORM_Request {
+    var $objectName;
+    var $keyValues;
+    var $explicitFields = null;
+    var $limit = null;
+    var $order = null;
+    var $noPaging = true;
+    var $like = null;
+    var $keyOperators = null;
+    var $dbScope = null;
+    
+    use QueryBuilder;
+    
+    function __construct($objectName, $keyValues = null, $explicitFields = null) {
+        $this->objectName = $objectName;
+        if ($keyValues) $this->keyValues = $this->filterPersistableKeyValues($keyValues);
+        $this->explicitFields = $explicitFields;
+    }
+    function filterPersistableKeyValues($keyValues) {
+        $filtered = array();
+        
+        foreach($keyValues as $key => $value) {
+            if (!is_object($value)) {
+                $filtered[$key] = $value;
+            }
+        }
+        
+        return $filtered;
+    }
+    function setKeyValuesByFieldsAndValues($fields, $values) {
+    	$this->keyValues = $this->filterPersistableKeyValues($this->mergeFieldsAndValues($fields, $values));
+    }
 }
 ?>

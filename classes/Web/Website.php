@@ -10,6 +10,9 @@ class Website {
 	var $name;
 	var $siteMapDefinition;
 	
+	protected $config;
+	
+	
 	var $website_url;
     var $website_source;
 	var $html;
