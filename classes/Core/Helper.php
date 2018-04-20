@@ -423,5 +423,11 @@ trait Helper {
 		 
 		return $topdomain;
 	}
+	function plottKeyValues($array) {
+	    $plotter = new Plotter();
+	    
+	    return $plotter->plottKeyValues($array);
+	}
+	
 }
 ?>

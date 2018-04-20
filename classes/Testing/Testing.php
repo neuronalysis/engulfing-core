@@ -5,6 +5,44 @@ class Testing {
 	function __construct() {
 	}
 }
+class TestAssert {
+    var $outcomeExpected;
+    var $outcomeActual;
+    
+    var $result;
+    
+    function __construct($outcomeExpected, $outcomeActual) {
+        $this->outcomeExpected = $outcomeExpected;
+        $this->outcomeActual = $outcomeActual;
+    }
+    
+    function __toString() {
+        $str = "";
+        
+        if (is_array($this->input)) {
+            $str .= "  input:           " . join("; ", $this->input) . "\n";
+        } else {
+            $str .= "  input:           " . $this->input . "\n";
+        }
+        
+        $str .= "  outcome - \n";
+        $str .= "     - expected:   " . $this->outcomeExpected . "\n";
+        $str .= "     - actual:     " .  $this->outcomeActual . "\n";
+        $str .= "\n";
+        
+        foreach($this->result as $key => $value) {
+            if ($value) {
+                $str .= "  test passed\n";
+            } else {
+                $str .= "  test failed\n";
+            }
+        }
+        
+        $str .= "\n\n";
+        
+        return $str;
+    }
+}
 class TestClass {
 	use ObjectHelper;
 	
@@ -111,7 +149,9 @@ class TestClass {
 		return $assert;
 	}
 	function assertString($method, $expected, $actual) {
-		$assert = (object) array(
+	    $assert = new TestAssert($expected, $actual);
+	    
+		$assert->result = (object) array(
 				$method => (($expected == $actual) ? true : false)
 		);
 	

@@ -61,27 +61,35 @@ trait WebsiteScript {
 		
 		return $refererScopeName;
 	}
-	function getScriptSource($scope, $scriptPath) {
+	function getScriptSource($scope, $scriptPath, $cwd = null) {
+	    $scriptSource = "";
+	    
+	    if (!$cwd) $cwd = getcwd();
+	    
 	    $fio = new FileIO();
 	    
 	    $scriptPath = $this->getScriptPathByScopeAndDirectory($scope, $scriptPath);
 	    
+	    $relpath = "";
+	    
 	    if ($scope === "engulfing") {
 	        if ($this->config['frontend']['web']['useAbsolutePaths']) {
-	            return $this->config['framework']['url'] . $scriptPath;
-	            //return str_replace("/", "\\", $this->config['framework']['path']) . $scriptPath;
+	            $scriptSource = $relpath . $this->config['framework']['url'] . $scriptPath;
 	        } else {
-	            $relpath = $fio->translateAbsolutePathToRelative(getcwd(), $this->config['framework']['path']);
+	            $relpath = $fio->translateAbsolutePathToRelative($cwd, $this->config['framework']['path']);
 	            
-	            return $relpath . "" . $scriptPath;
+	            $scriptSource = $relpath . $scriptPath;
 	        }
 	        
 	    } else {
-	        $relpath = $fio->translateAbsolutePathToRelative(getcwd(), $this->config['frontend']['path'], true, $scope);
+	        $relpath = $fio->translateAbsolutePathToRelative($cwd, $this->config['frontend']['path'], true, $scope);
 	        
-	        //echo $scriptPath . "; " . getcwd() . "; " . $relpath . "\n";
-	        return $relpath . "" . $scriptPath;
+	        $scriptSource = $relpath . $scriptPath;
 	    }
+	    
+	    //echo $this->plottKeyValues(array("scope" => $scope, "scriptPath" => $scriptPath, "cwd" => $cwd, "relpath" => $relpath, "scriptSource" => $scriptSource));
+	    
+	    return $scriptSource;
 	}
 	function combineUnderscoreTemplates() {
 		$html = "";
@@ -461,6 +469,8 @@ trait WebsiteScript {
 		return $html;
 	}
 	function renderHTMLScripts_AppVariables() {
+	    $fio = new FileIO();
+	    
 	    $html = "";
 	    
 	    
@@ -480,7 +490,7 @@ var referrer = document.referrer;
 	    $html .= '
     var activateSessionStorage = false;
     var odBase = ""
-    var engulfingBase = "' . $this->config['framework']['url'] . '"
+    var engulfingBase = "' . $this->config['framework']['base'] . '"
     var siteAdmin = "' . $this->config['frontend']['siteAdmin'] . '"
     var appHost = "' . $this->config['frontend']['appHost'] . '"
     var kmapiHost = "' . $this->config['frontend']['kmapiHost'] . '"
