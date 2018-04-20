@@ -25,9 +25,17 @@ class TestAssert {
             $str .= "  input:           " . $this->input . "\n";
         }
         
+        if (is_object($this->outcomeActual)) {
+            $outcome_actual_string = print_r($this->outcomeActual, true);
+            $outcome_expected_string = print_r($this->outcomeExpected, true);
+        } else {
+            $outcome_actual_string= $this->outcomeActual;
+            $outcome_expected_string= $this->outcomeExpected;
+        }
+        
         $str .= "  outcome - \n";
-        $str .= "     - expected:   " . $this->outcomeExpected . "\n";
-        $str .= "     - actual:     " .  $this->outcomeActual . "\n";
+        $str .= "     - expected:   " . $outcome_expected_string . "\n";
+        $str .= "     - actual:     " .  $outcome_actual_string . "\n";
         $str .= "\n";
         
         foreach($this->result as $key => $value) {
@@ -151,7 +159,7 @@ class TestClass {
 	function assertString($method, $expected, $actual) {
 	    $assert = new TestAssert($expected, $actual);
 	    
-		$assert->result = (object) array(
+	    $assert->result = (object) array(
 				$method => (($expected == $actual) ? true : false)
 		);
 	
@@ -168,8 +176,14 @@ class TestClass {
 		return $assert;
 	}
 	function assertObject($method, $expected, $actual) {
-		$assert = (object) array(
-				$method => $this->compareTwoObjects($expected, $actual)
+	    $comp = new Comparator();
+	    
+	    $assert = new TestAssert($expected, $actual);
+	    
+	    $compResult = $comp->compareTwoObjects($expected, $actual, true, true, null);
+	    
+		$assert->result = (object) array(
+		    $method => $comp->compareTwoObjects($expected, $actual, true, true, null)
 		);
 		
 		if (!$assert->$method) {
@@ -181,7 +195,7 @@ class TestClass {
 		
 		return $assert;
 	}
-	function assertJson($method, $result, $classname, $id = null) {
+	/*function assertJson($method, $result, $classname, $id = null) {
 		$objectName = str_ireplace("_Test", "", get_class($this));
 		
 		if ($id) {
@@ -197,6 +211,16 @@ class TestClass {
 		);
 		
 		return $assert;
+	}*/
+	function assertJson($method, $expected, $actual) {
+	    $expectedDecoded = json_decode($expected);
+	    $actualDecoded = json_decode($actual);
+	    
+	    $expectedEncoded = json_encode($expectedDecoded, JSON_PRETTY_PRINT);
+	    $actualEncoded = json_encode($actualDecoded, JSON_PRETTY_PRINT);
+	    
+	    
+	    return $this->assertString($method, $expectedEncoded, $actualEncoded);
 	}
 	function getFunctionReferencesByProject($methodName, $projectNames = array("engulfing/engulfing-core")) {
 		$directory = getcwd() . "../../" . $projectNames[0];
