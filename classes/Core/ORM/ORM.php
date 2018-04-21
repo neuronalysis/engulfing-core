@@ -387,7 +387,10 @@ class ORM {
 	function restore($object, $version, $db_scope = null) {
 		$object_name = $this->getNameWithoutNamespace(get_class($object));
 		
-		$versions = $this->getByNamedFieldValues($object_name, array("number"), array($object->number), false, null, false, true, null, "number DESC");
+		$ormRequest = new ORM_Request($object_name, array("number" => $object->number));
+		$ormRequest->order = "number DESC";
+		
+		$versions = $this->getByNamedFieldValues($ormRequest);
 		
 		$restoredVersion = null;
 		

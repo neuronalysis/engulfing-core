@@ -13,8 +13,6 @@ class REST_Transformer {
 		
 		$data = json_decode($json, TRUE);
 		
-		//print_r($data);
-		
 		if (isset($data[0])) {
 			if ($enforceList) {
 				$objects = array();
