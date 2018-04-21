@@ -56,6 +56,7 @@ window.TrackerView = Backbone.View.extend({
 			}, this);
 		}
 	},
+	//TODO get rid of app specific stuff
 	renderChanges : function(scope) {
 		var titleHTML = '';
 		titleHTML += '<h2>Changes</h2>';
@@ -86,13 +87,13 @@ window.TrackerView = Backbone.View.extend({
 					changesHTML += '<li class="list-group-item" HPOS="' + object.get('HPOS') + '" VPOS="' + object.get('VPOS') + '" WIDTH="' + object.get('WIDTH') + '" HEIGHT="' + object.get('HEIGHT') + '">' +
 					object.get('Page').updatedByUser.name + 
 				  	' changed ' + object.get('before') + ' to ' + object.get('after') +
-				  	' at ' + object.get('Page').updatedAt +
+				  	' at ' + object.get('Page').updatedAt + ' (version: ' + object.get('Page').version + ')' +
 				  '</li>';
 				} else {
 					changesHTML += '<li class="list-group-item">' +
 					object.get('Page').updatedByUser.name + 
 				  	' changed ' + object.get('before') + ' to ' + object.get('after') +
-				  	' on <a href="./editor/#documents/' + object.get('Page').documentID + '/pages/' +  + object.get('Page').number + '">page <i>' +object.get('Page').number + ' of document</i></a>' +
+				  	' on <a href="./editor/#documents/' + object.get('Page').documentID + '/pages/' +  object.get('Page').number + '">page <i>' +object.get('Page').number + ' of document</i></a>' +
 				  	' at ' + object.get('Page').updatedAt +
 				  '</li>';
 				}
