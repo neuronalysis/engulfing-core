@@ -45,9 +45,12 @@ class Document extends \Thing {
 		
 		$pagesFiltered = array();
 		
-		$pagesTotal = $rest->orm->getByNamedFieldValues("\\OCR\\Page", array("documentID"), array($this->id), false, null, false, true);
+		$ocr_request = new \ORM_Request("\\OCR\\Page", array("documentID" => $this->id));
 		
-		$pages = $rest->orm->getByNamedFieldValues("\\OCR\\Page", array("documentID"), array($this->id), false, null, false, true, null, "number DESC");
+		$pagesTotal = $rest->orm->getByNamedFieldValues($ocr_request);
+		
+		$ocr_request->order = "number DESC";
+		$pages = $rest->orm->getByNamedFieldValues($ocr_request);
 		
 		foreach($pages as $relObjectItem) {
 			unset($relObjectItem->altoXML);
@@ -56,13 +59,38 @@ class Document extends \Thing {
 			//}
 		}
 		
-		//$result = new \stdClass();
-		//$result->items = $pagesFiltered;
-		//$result->total_count = count($pagesTotal);
-		
 		if ($pages[0]) return $pagesFiltered;
 		
 		return null;
+	}
+	function getAltoXML() {
+		$rest = new \REST();
+		$dom = new \DOMDocument();
+		$xmlconv = new \XMLConverter("ALTO");
+		$objconv = new \ObjectConverter();
+		
+		$pagesFiltered = array();
+		
+		$ocr_request = new \ORM_Request("\\OCR\\Page", array("documentID" => $this->id));
+		
+		$pagesTotal = $rest->orm->getByNamedFieldValues($ocr_request);
+		
+		$ocr_request->order = "number DESC";
+		$pages = $rest->orm->getByNamedFieldValues($ocr_request);
+		
+		$dom->loadXML($pages[0]->altoXML);
+		$docAlto = $xmlconv->convertToObjectTree($dom);
+		
+		for($i=1; $i<count($pages); $i++) {
+			$dom->loadXML($pages[$i]->altoXML);
+			$alto = $xmlconv->convertToObjectTree($dom);
+			
+			array_push($docAlto->Layout->Pages, $alto->Layout->Pages[0]);
+		}
+		
+		$altoXML = $objconv->convertToDOMDocument($docAlto);
+		
+		return $altoXML;
 	}
 }
 class Page extends \Thing {
