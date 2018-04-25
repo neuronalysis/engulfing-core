@@ -12,7 +12,7 @@ class Document extends \Thing {
 	var $Pages;
 	
 	function getPageByNumber($number) {
-		$rest = new \REST();
+		$rest = \REST::getInstance();
 		
 		$pages = $rest->orm->getByNamedFieldValues(new \ORM_Request("\\OCR\\Page", array("documentID" => $this->id, "number" => $number)));
 		
@@ -32,7 +32,7 @@ class Document extends \Thing {
 		return null;
 	}
 	function getPageByNumberAndVersion($number, $version) {
-		$rest = new \REST();
+		$rest = \REST::getInstance();
 		
 		$pages = $rest->orm->getByNamedFieldValues(new \ORM_Request("\\OCR\\Page", array("documentID" => $this->id, "number" => $number, "version" => $version)));
 		
@@ -41,7 +41,7 @@ class Document extends \Thing {
 		return null;
 	}
 	function getPages($currentPage = null) {
-		$rest = new \REST();
+		$rest = \REST::getInstance();
 		
 		$pagesFiltered = array();
 		
@@ -64,7 +64,7 @@ class Document extends \Thing {
 		return null;
 	}
 	function getAltoXML() {
-		$rest = new \REST();
+		$rest = \REST::getInstance();
 		$dom = new \DOMDocument();
 		$xmlconv = new \XMLConverter("ALTO");
 		$objconv = new \ObjectConverter();
@@ -128,7 +128,7 @@ class Page extends \Thing {
 	var $differenceDefinition;
 	
 	function getVersions() {
-		$rest = new \REST();
+		$rest = \REST::getInstance();
 		
 		$orm_req = new \ORM_Request("\\OCR\\Page", array("documentID" => $this->documentID, "number" => $this->number));
 		$orm_req->order = "version ASC";

@@ -4,6 +4,7 @@ class ORM {
 	
 	var $convert = true;
 	
+	protected $config;
 	protected $debug = false;
 	
 	function __construct($init = array()) {

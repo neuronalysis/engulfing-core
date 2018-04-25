@@ -9,6 +9,10 @@ trait Helper {
 	function setConfig($config) {
 	    $this->config = $config;
 	    
+	    if (isset($this->orm)) {
+	    	$this->orm->setConfig($config);
+	    }
+	    
 	    $fio = new FileIO();
 	    
 	    $cfg = new stdClass();

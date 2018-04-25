@@ -1,19 +1,24 @@
 <?php
 trait ConnectionManager {
-	protected $connectionHost = "127.0.0.1";
-	protected $connectionUsername = "root";
-	protected $connectionPassword = "";
+	protected $connectionHost;
+	protected $connectionUsername;
+	protected $connectionPassword;
 	
 	protected $databaseConnections = array();
 	
 	function __construct() {
+		
 	}
 	function openConnection($ontologyName = null) {
+		$config = $this->getConfig();
+		
+		$this->connectionHost = $config['databases'][0]['host'];
+		$this->connectionUsername = $config['databases'][0]['username'];
+		$this->connectionPassword = $config['databases'][0]['password'];
+		
+		
 		if (!$ontologyName) return null;
 		
-		//$config = $this->getConfig();
-		
-		//print_r($config);
 		
 		if (isset($this->databaseConnections[$ontologyName])) {
 			if (is_object($this->databaseConnections[$ontologyName])) {
@@ -29,9 +34,9 @@ trait ConnectionManager {
 		$databaseName = $this->getDatabaseName($ontologyName);
 		
 		if (!isset($this->connectionHost)) {
-			$this->connectionHost = "127.0.0.1";
-			$this->connectionUsername = "root";
-			$this->connectionPassword = "";
+			$this->connectionHost = $config['databases'][0]['host'];
+			$this->connectionUsername = $config['databases'][0]['username'];
+			$this->connectionPassword = $config['databases'][0]['password'];
 		}
 		
 		$dbh = new PDO("mysql:host=$this->connectionHost;dbname=$databaseName", $this->connectionUsername, $this->connectionPassword);	
