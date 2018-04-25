@@ -44,6 +44,8 @@ class Website {
 	
 	var $debug = true;
 	
+	var $enforceRecompile = true;
+	
 	var $accessRestrictions;
 	
 	var $usedOntologyClasses = array();

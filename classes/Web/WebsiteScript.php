@@ -230,26 +230,13 @@ trait WebsiteScript {
 		
 		$path = $this->getPathForRecursiveDirectoryIterator($scope, $targetDirectory);
 		
-		if (!file_exists($path . "/" . $target)) {
+		if ($this->enforceRecompile || !file_exists($path . "/" . $target)) {
 			$js = $this->combineJSFromDirectory($path, $ordering, $exclusions);
 			
 			if (file_exists($path)) {
 				$fio = new FileIO();
 				$fio->saveStringToFile($js, $path . "/" . $target );
 			}
-		/*} else {
-			$maxFiletime = $this->getDirectoryMaxFileTime($directory, $exclusions);
-			
-			$compiledFileTime = filemtime ($targetDirectory . "/" . $target);
-			
-			if ($maxFiletime > $compiledFileTime) {
-				$js = $this->combineJSFromDirectory($directory, $ordering, $exclusions);
-					
-				if (file_exists($targetDirectory)) {
-					$fio = new FileIO();
-					$fio->saveStringToFile($js, $targetDirectory . "/" . $target );
-				}
-			}*/
 		}
 	}
 	function getDirectoryMaxFileTime($directory, $exclusions) {
@@ -287,50 +274,28 @@ trait WebsiteScript {
 		return $html;
 	}
 	function getPathForRecursiveDirectoryIterator($scope, $scriptSource) {
+		$cwd = null;
+		
+		if (!$cwd) $cwd = getcwd();
+		
+		$fio = new FileIO();
+		
 		if ($scope === "engulfing") {
-			if (file_exists ( "../../../engulfing/" . $scriptSource )) {
-				$path = "../../../engulfing/" . $scriptSource;
+			if ($this->config['frontend']['web']['useAbsolutePaths']) {
+				$path = $this->config['framework']['path'] . $scriptSource;
 			} else {
-				if (file_exists ( "../../engulfing/" . $scriptSource )) {
-					$path = "../../engulfing/" . $scriptSource;
-				} else {
-					if (file_exists ( "../engulfing/" . $scriptSource )) {
-						$path = "../engulfing/" . $scriptSource;
-					} else {
-					    if (file_exists ( "engulfing/" . $scriptSource )) {
-					        $path = "engulfing/" . $scriptSource;
-					    } else {
-					        
-					    }
-					    
-					}
-				}
+				$relpath = $fio->translateAbsolutePathToRelative($cwd, $this->config['framework']['path']);
+				
+				$path = $relpath . $scriptSource;
 			}
-			
 		} else {
 			if ($scope) {
-				if (file_exists ( "../../../" . $scope . "/" . $scriptSource )) {
-					$path = "../../../" . $scope . "/" . $scriptSource;
+				if ($this->config['frontend']['web']['useAbsolutePaths']) {
+					$path = $this->config['frontend']['path'] . $scriptSource;
 				} else {
-					if (file_exists ( "../../" . $scope . "/" . $scriptSource )) {
-						$path = "../../" . $scope . "/" . $scriptSource;
-					} else {
-						if (file_exists ( "../" . $scope . "/" . $scriptSource )) {
-							$path = "../" . $scope . "/" . $scriptSource;
-						} else {
-							if (file_exists ( $scope . "/" . $scriptSource )) {
-								$path = $scope . "/" . $scriptSource;
-							} else {
-								if (file_exists ( "../" . $scriptSource )) {
-									$path = "../" . $scriptSource;
-								} else {
-									if (file_exists ( $scriptSource )) {
-										$path = $scriptSource;
-									}
-								}
-							}	
-						}	
-					}
+					$relpath = $fio->translateAbsolutePathToRelative($cwd, $this->config['frontend']['path']);
+					
+					$path = $relpath . $scriptSource;
 				}
 			} else {
 				if (file_exists ( "../" . $scriptSource )) {
@@ -495,6 +460,11 @@ var referrer = document.referrer;
     var appHost = "' . $this->config['frontend']['appHost'] . '"
     var kmapiHost = "' . $this->config['frontend']['kmapiHost'] . '"
     var apiHost = "' . $this->config['frontend']['apiHost'] . '";';
+
+	    $html .= '
+    var sitemap = ' . json_encode($this->config['frontend']['sitemap'], JSON_PRETTY_PRINT). '';
+	    
+
         $html .= '
 </script>';
 

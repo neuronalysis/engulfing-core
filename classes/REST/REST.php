@@ -381,6 +381,7 @@ class REST {
 				$ressourceRoot = __DIR__;
 			}
 			
+			/*
 			if (file_exists($ressourceRoot . '/../../../../engulfing/engulfing-core/classes/' . $classScopeName . '/')) {
 				require_once $ressourceRoot . '/../../../../engulfing/engulfing-core/classes/' . $classScopeName . '/' . $classScopeName . '.php';
 			} else if (file_exists($ressourceRoot . '/../../../../engulfing/engulfing-extensions/classes/' . $classScopeName . '/')) {
@@ -389,7 +390,7 @@ class REST {
 				if (file_exists($ressourceRoot . '/../../../../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/')) {
 					require_once $ressourceRoot . '/../../../../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/' . $classScopeName . '.php';
 				}
-			}
+			}*/
 			
 			$contents = glob($ressourceRoot  . '/ressources/' . $scopeName . '/' . '*.*');
 				
@@ -398,6 +399,7 @@ class REST {
 					require_once $file_name;
 				}
 			}
+			
 		}
 		
 		if (class_exists("KM")) {
