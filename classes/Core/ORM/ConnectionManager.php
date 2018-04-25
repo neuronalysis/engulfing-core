@@ -31,7 +31,7 @@ trait ConnectionManager {
 			echo " new connection\n";
 		}
 		
-		$databaseName = $this->getDatabaseName($ontologyName);
+		$databaseName = $config['databases'][0]['name'];
 		
 		if (!isset($this->connectionHost)) {
 			$this->connectionHost = $config['databases'][0]['host'];
