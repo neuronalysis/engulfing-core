@@ -18,6 +18,7 @@ class ObjectConverter extends Converter {
 		$className = get_class($object);
 		$classNameWithoutNS = $this->getNameWithoutNamespace(get_class($object));
 		
+		//echo $className . "; " . $classNameWithoutNS . "\n";
 		$classNameForTagName = null;
 		$classNameWithoutNSForTagName = null;
 		
@@ -34,7 +35,7 @@ class ObjectConverter extends Converter {
 		    $nsName = $reflection->getNamespaceName();
 		    
 		    if($classNameWithoutNS == "ALTOString") {
-		        $element = $dom->createElement($nsName . ":String");
+		    	$element = $dom->createElement($nsName . ":String");
 		    } else if ($classNameWithoutNS == "owlClass") {
 		        $element = $dom->createElement($nsName . ":Class");
 		    } else {
@@ -46,7 +47,7 @@ class ObjectConverter extends Converter {
 		    }
 		} else {
 		    if($classNameWithoutNS == "ALTOString") {
-		        $element = $dom->createElement("String");
+		    	$element = $dom->createElement("String");
 		    } else if ($classNameWithoutNS == "owlClass") {
 		        $element = $dom->createElement("Class");
 		    } else {
@@ -82,9 +83,7 @@ class ObjectConverter extends Converter {
 				}
 			} else {
 				foreach($classvars as $key => $value) {
-				    
-				    
-					if ($key == "Strings") {
+				    if ($key == "Strings") {
 						$readKey = "ALTOStrings";
 					} else {
 						$readKey = $key;
@@ -96,11 +95,11 @@ class ObjectConverter extends Converter {
 					
 					$sKey = $this->singularize($key);
 					
-					if (isset($object->$readKey)) {
-					    if (is_object($object->$readKey)) {
+					if (isset($object->$key)) {
+						if (is_object($object->$key)) {
 					        
 					        if (class_exists("ALTO\\" . $readKey)) {
-					            $childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
+					        	$childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
 								
 								$element->appendChild($childElement);
 							} else {
@@ -156,7 +155,7 @@ class ObjectConverter extends Converter {
 									}
 								}
 							}
-						} else if (is_string($object->$readKey)) {
+						} else if (is_string($object->$key)) {
 							if (class_exists("ALTO\\" . $key)) {
 								$childElement = $dom->createElement($key, $object->$readKey);
 								
@@ -187,9 +186,9 @@ class ObjectConverter extends Converter {
 									}
 								}
 							}
-						} else if (is_array($object->$readKey)) {
+						} else if (is_array($object->$key)) {
 						    
-							if ($this->isAssoc($object->$readKey)) {
+							if ($this->isAssoc($object->$key)) {
 							    if ($key === "keyValues") {
 							        foreach($object->$readKey as $aKey => $aValue) {
 							            $childElement = $dom->createElement($aKey, $aValue);
@@ -197,7 +196,7 @@ class ObjectConverter extends Converter {
 							            $element->appendChild($childElement);
 							        }
 							    } else {
-							        foreach($object->$readKey as $aKey => $aValue) {
+							    	foreach($object->$key as $aKey => $aValue) {
 							            if ($aKey== "Strings") {
 							                $readKey = "ALTOStrings";
 							            } else {
@@ -226,7 +225,7 @@ class ObjectConverter extends Converter {
 							    }
 								
 							} else {
-							    foreach($object->$readKey as $aValue) {
+								foreach($object->$key as $aValue) {
 							        $childElement = $this->convertToElement($aValue, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
 									
 									$element->appendChild($childElement);

@@ -10,7 +10,19 @@ $tst->setConfig($config);
 $config_dev = json_decode(file_get_contents(__DIR__ . "/../config/dev-config.json"), true);
 $config_live = json_decode(file_get_contents(__DIR__ . "/../config/live-config.json"), true);
 
+$doc = new Document_Test();
+$doc->setConfigs(array('dev' => $config_dev, 'live' => $config_live));
 
+$results = $doc->test();
+
+foreach($results as $key => $class_item) {
+	echo "\n\n\nclass: " . $key . "\n";
+	foreach($class_item->methodAsserts as $assert_item) {
+		echo $assert_item;
+	}
+}
+
+/*
 $resttrans = new REST_Transformer_Test();
 $resttrans->setConfigs(array('dev' => $config_dev, 'live' => $config_live));
 
@@ -47,6 +59,7 @@ foreach($results as $key => $class_item) {
         echo $assert_item;
     }
 }
+*/
 
 echo "tests done\n";
 

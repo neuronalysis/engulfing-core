@@ -69,6 +69,8 @@ class Document extends \Thing {
 		$xmlconv = new \XMLConverter("ALTO");
 		$objconv = new \ObjectConverter();
 		
+		$maxVersions = array();
+		
 		$pagesFiltered = array();
 		
 		$ocr_request = new \ORM_Request("\\OCR\\Page", array("documentID" => $this->id));
@@ -78,17 +80,39 @@ class Document extends \Thing {
 		$ocr_request->order = "number DESC";
 		$pages = $rest->orm->getByNamedFieldValues($ocr_request);
 		
-		$dom->loadXML($pages[0]->altoXML);
+		foreach($pages as $page_item) {
+			if (isset($page_item->version)) {
+				if (isset($maxVersions[$page_item->number])) {
+					if ($maxVersions[$page_item->number] < $page_item->version) {
+						$maxVersions[$page_item->number] = $page_item->version;
+					}
+				} else {
+					$maxVersions[$page_item->number] = $page_item->version;
+				}
+			}
+		}
+		
+		foreach($pages as $page_item) {
+			if ($page_item->version === $maxVersions[$page_item->number]) {
+				array_push($pagesFiltered, $page_item);
+			}
+		}
+			
+		//print_r($maxVersions);
+		
+		$dom->loadXML($pagesFiltered[0]->altoXML);
 		$docAlto = $xmlconv->convertToObjectTree($dom);
 		
-		for($i=1; $i<count($pages); $i++) {
-			$dom->loadXML($pages[$i]->altoXML);
+		for($i=1; $i<count($pagesFiltered); $i++) {
+			$dom->loadXML($pagesFiltered[$i]->altoXML);
 			$alto = $xmlconv->convertToObjectTree($dom);
+			
 			
 			array_push($docAlto->Layout->Pages, $alto->Layout->Pages[0]);
 		}
 		
 		$altoXML = $objconv->convertToDOMDocument($docAlto);
+		//echo $altoXML->saveXML();
 		
 		return $altoXML;
 	}
