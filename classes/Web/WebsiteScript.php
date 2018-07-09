@@ -14,7 +14,7 @@ trait WebsiteScript {
 
 		$this->combineUnderscoreTemplates();
 		
-		$html .= $this->renderHTMLScripts_Base($scope);
+		$html .= $this->renderHTMLScripts_Base($scope, $topdomain);
 		$html .= $this->renderHTMLScripts_AppBase($scope);
 		$html .= $this->renderHTMLScripts_UserManagement();
 		$html .= $this->renderHTMLScripts_Administration();
@@ -61,142 +61,35 @@ trait WebsiteScript {
 		
 		return $refererScopeName;
 	}
-	function getScriptSource($scope, $scriptPath, $targetDirectory = null) {
-		$scriptPath = $this->getScriptPathByScopeAndDirectory($scope, $scriptPath);
-		
-		$scopeDebth = $this->getScopeDepth();
-		
-		$refererScopeName = $this->getRefererScopeName($scope);
-		
-		$desc = "";
-		
-		if (strpos(getcwd(), "\\") !== false) {
-			$explodes = explode("\\", getcwd());
-		} else {
-			$explodes = explode("/", getcwd());
-		}
-		
-		$scope = str_ireplace(".com", "", $scope);
-		
-		//echo $scope . "; " . $refererScopeName. "\n";
-		if ($scope !== $refererScopeName) {
-			if ($this->isLocalRequest()) {
-				if ($this->generated) {
-					if ($scope !== "engulfing" && $scope !== "ontologydriven") {
-						if (in_array($scope, array("neuronalysis", "kissenstern")) || $scope == "") {
-							if ($scopeDebth == 1) {
-								$source = $scriptPath;
-							} else {
-								if (file_exists($scope)) {
-									$source = $scope . $scriptPath;
-								} else {
-									if (file_exists("../" . $scope)) {
-										$source = "../" . $scope . "/" . $scriptPath;
-									} else {
-										if (file_exists("../../" . $scope)) {
-											$source = "../../" . $scope . "/" . $scriptPath;
-										} else {
-											if (file_exists("../../../" . $scope)) {
-												$source = "../../../" . $scope . "/" . $scriptPath;
-											} else {
-							
-											}
-										}
-									}
-								}
-							}
-						} else {
-							$source = "http://localhost.ontologydriven/" . $scope . "/" . $scriptPath;
-						}
-						
-					} else {
-						if ($scope === "engulfing") {
-							$source = "http://localhost.engulfing/" . $scriptPath;
-						}
-					}
-				} else {
-					if (file_exists($scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
-						$source = $scope . "/" . $scriptPath;
-						
-					} else {
-						if (file_exists("../" . $scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
-							$source = "../" . $scope . "/" . $scriptPath;
-							
-						} else {
-							if (file_exists("../../" . $scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
-								$source = "../../" . $scope . "/" . $scriptPath;
-							} else {
-								if (file_exists("../../../" . $scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
-									$source = "../../../" . $scope . "/" . $scriptPath;
-								} else {
-									if (file_exists("../../../../" . $scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
-										$source = "../../../../" . $scope . "/" . $scriptPath;
-									} else {
-										
-										$source = "http://localhost." . $scope . "/" . $scriptPath;
-									}
-								}
-							}
-						}
-					}
-				}
-				
-			} else {
-				if (file_exists($scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
-					$source = $scope . "/" . $scriptPath;
-				} else if ($scope !== "engulfing" && in_array($scope, array("km", "nlp", "codegeneration", "edi", "wiki", "admin"))) {
-					$source = "http://www.ontologydriven.com/" . $scope . "/" . $scriptPath;
-				} else {
-					if (file_exists("../" . $scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
-						$source = "../" . $scope . "/" . $scriptPath;
-					} else {
-						if (file_exists("../../" . $scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
-							$source = "../../" . $scope . "/" . $scriptPath;
-						} else {
-							if (file_exists("../../../" . $scope) && $scope !== "engulfing" && $scope !== "ontologydriven") {
-								$source = "../../../" . $scope . "/" . $scriptPath;
-							} else {
-								$source = "http://www.engulfing.com/" . $scope . "/" . $scriptPath;
-							}
-						}
-					}
-				}
-			}
-		} else {
-			$scope = str_ireplace(".com", "", $scope);
-			
-			if ($scope === "ontologydriven" || $scope === "neuronalysis" || $scope === "kissenstern") {
-				$scope = "";
-				
-				if (!file_exists($desc . $scope . "/")) {
-					$desc .= "../";
-					if (!file_exists($desc . $scope . "/")) {
-						$desc .= "../";
-						if (!file_exists($desc . $scope . "/")) {
-							$desc .= "../";
-						}
-					}
-				}
-					
-				if ($desc . $scope === "") {
-					$source = $scriptPath;
-				} else {
-					$source = $desc . $scope . "/" . $scriptPath;
-				}
-				
-			//TODO
-			} else if (in_array($scope, array("releases", "indicators", "instruments", "releasepublications", "pillowcases", "pillowfillings"))) {
-				$desc .= "../";
-				
-				$source = $desc . $scriptPath;
-			} else if (in_array($scope, array("wiki"))) {
-				$source = $desc . $scriptPath;
-			} else {
-				$source = $desc . $scriptPath;
-			}
-		}
-		
-		return $source;
+	function getScriptSource($scope, $scriptPath, $cwd = null) {
+	    $scriptSource = "";
+	    
+	    if (!$cwd) $cwd = getcwd();
+	    
+	    $fio = new FileIO();
+	    
+	    $scriptPath = $this->getScriptPathByScopeAndDirectory($scope, $scriptPath);
+	    
+	    $relpath = "";
+	    
+	    if ($scope === "engulfing") {
+	        if ($this->config['frontend']['web']['useAbsolutePaths']) {
+	            $scriptSource = $relpath . $this->config['framework']['url'] . $scriptPath;
+	        } else {
+	            $relpath = $fio->translateAbsolutePathToRelative($cwd, $this->config['framework']['path']);
+	            
+	            $scriptSource = $relpath . $scriptPath;
+	        }
+	        
+	    } else {
+	        $relpath = $fio->translateAbsolutePathToRelative($cwd, $this->config['frontend']['path'], true, $scope);
+	        
+	        $scriptSource = $relpath . $scriptPath;
+	    }
+	    
+	    //echo $this->plottKeyValues(array("scope" => $scope, "scriptPath" => $scriptPath, "cwd" => $cwd, "relpath" => $relpath, "scriptSource" => $scriptSource));
+	    
+	    return $scriptSource;
 	}
 	function combineUnderscoreTemplates() {
 		$html = "";
@@ -244,7 +137,7 @@ trait WebsiteScript {
 		}
 
 	}
-	function renderHTMLScripts_Base($scope) {
+	function renderHTMLScripts_Base($scope, $topdomain) {
 		$html = "";
 		
 		$files = array();
@@ -274,6 +167,7 @@ trait WebsiteScript {
 		array_push($files, new File (null, 'vendor/various/js/cookie.js'));
 		array_push($files, new File (null, 'vendor/various/js/scripts.js'));
 		array_push($files, new File (null, 'vendor/various/js/inflection.js'));
+		array_push($files, new File (null, 'vendor/various/js/pdfobject.min.js'));
 
 		
 		$js = $this->combineJS($files, "../engulfing/engulfing-core/", "engulfing.vendor.min.js");
@@ -291,13 +185,12 @@ trait WebsiteScript {
 				"engulfing",
 				"engulfing-core/js",
 				"engulfing.min.js",
-				array("core/utils.js", "core/config.js", "models/model_master.js", "models/model_user.js", "models/model_content.js", "main.js", "views/base.js", "views/singleobject.js", "views/components/input.js", "views/components/button.js"),
+				array("core/utils.js", "models/model_master.js", "models/model_user.js", "models/model_content.js", "main.js", "views/base.js", "views/singleobject.js", "views/components/input.js", "views/components/button.js"),
 				array("app.min.js", "ontologydriven.admin.min.js", "ontologydriven.wiki.min.js", "ontologydriven.edi.min.js", "ontologydriven.codegeneration.min.js", "ontologydriven.nlp.min.js", "ontologydriven.km.min.js", "engulfing.min.js"),
 				null)
 		;
 		
-		
-		if (!in_array($scope, array("kokos"))) {
+		if (!in_array($scope, array("kokos", "extraction")) && !in_array($topdomain, array("extraction"))) {
 			foreach (array('km', 'nlp', 'codegeneration', 'edi', 'wiki', 'admin') as $scopeItem) {
 				$html .= $this->renderHTMLScriptByDirectory(
 						$scopeItem,
@@ -337,26 +230,13 @@ trait WebsiteScript {
 		
 		$path = $this->getPathForRecursiveDirectoryIterator($scope, $targetDirectory);
 		
-		if (!file_exists($path . "/" . $target)) {
+		if ($this->enforceRecompile || !file_exists($path . "/" . $target)) {
 			$js = $this->combineJSFromDirectory($path, $ordering, $exclusions);
 			
 			if (file_exists($path)) {
 				$fio = new FileIO();
 				$fio->saveStringToFile($js, $path . "/" . $target );
 			}
-		/*} else {
-			$maxFiletime = $this->getDirectoryMaxFileTime($directory, $exclusions);
-			
-			$compiledFileTime = filemtime ($targetDirectory . "/" . $target);
-			
-			if ($maxFiletime > $compiledFileTime) {
-				$js = $this->combineJSFromDirectory($directory, $ordering, $exclusions);
-					
-				if (file_exists($targetDirectory)) {
-					$fio = new FileIO();
-					$fio->saveStringToFile($js, $targetDirectory . "/" . $target );
-				}
-			}*/
 		}
 	}
 	function getDirectoryMaxFileTime($directory, $exclusions) {
@@ -394,45 +274,28 @@ trait WebsiteScript {
 		return $html;
 	}
 	function getPathForRecursiveDirectoryIterator($scope, $scriptSource) {
+		$cwd = null;
+		
+		if (!$cwd) $cwd = getcwd();
+		
+		$fio = new FileIO();
+		
 		if ($scope === "engulfing") {
-			if (file_exists ( "../../../engulfing/" . $scriptSource )) {
-				$path = "../../../engulfing/" . $scriptSource;
+			if ($this->config['frontend']['web']['useAbsolutePaths']) {
+				$path = $this->config['framework']['path'] . $scriptSource;
 			} else {
-				if (file_exists ( "../../engulfing/" . $scriptSource )) {
-					$path = "../../engulfing/" . $scriptSource;
-				} else {
-					if (file_exists ( "../engulfing/" . $scriptSource )) {
-						$path = "../engulfing/" . $scriptSource;
-					} else {
-					
-					}
-				}
+				$relpath = $fio->translateAbsolutePathToRelative($cwd, $this->config['framework']['path']);
+				
+				$path = $relpath . $scriptSource;
 			}
-			
 		} else {
 			if ($scope) {
-				if (file_exists ( "../../../" . $scope . "/" . $scriptSource )) {
-					$path = "../../../" . $scope . "/" . $scriptSource;
+				if ($this->config['frontend']['web']['useAbsolutePaths']) {
+					$path = $this->config['frontend']['path'] . $scriptSource;
 				} else {
-					if (file_exists ( "../../" . $scope . "/" . $scriptSource )) {
-						$path = "../../" . $scope . "/" . $scriptSource;
-					} else {
-						if (file_exists ( "../" . $scope . "/" . $scriptSource )) {
-							$path = "../" . $scope . "/" . $scriptSource;
-						} else {
-							if (file_exists ( $scope . "/" . $scriptSource )) {
-								$path = $scope . "/" . $scriptSource;
-							} else {
-								if (file_exists ( "../" . $scriptSource )) {
-									$path = "../" . $scriptSource;
-								} else {
-									if (file_exists ( $scriptSource )) {
-										$path = $scriptSource;
-									}
-								}
-							}	
-						}	
-					}
+					$relpath = $fio->translateAbsolutePathToRelative($cwd, $this->config['frontend']['path']);
+					
+					$path = $relpath . $scriptSource;
 				}
 			} else {
 				if (file_exists ( "../" . $scriptSource )) {
@@ -465,8 +328,8 @@ trait WebsiteScript {
 		
 		$directory_iterator = new RecursiveIteratorIterator ( new RecursiveDirectoryIterator ( $pathForIterator ) );
 		foreach ( $directory_iterator as $filename => $path_object ) {
-			if(is_file($filename) && stripos($filename, ".json") === false && !$this->arrayContains($exclusions, $filename)) {
-				$exploded = explode($scope . "/", $filename);
+		    if(is_file($filename) && stripos($filename, ".json") === false && !$this->arrayContains($exclusions, $filename)) {
+		        $exploded = explode($scope . "/", $filename);
 				$filename = end($exploded);
 				
 				$html .= '
@@ -538,14 +401,6 @@ trait WebsiteScript {
 	
 		return $js;
 	}
-	function renderHTMLScripts_AppBase($scope) {
-		$html = "";
-		
-		$html .= '
-    	<script src="' . $this->getScriptSource($scope, 'js/config.js') . '"></script>';
-		
-		return $html;
-	}
 	function renderHTMLScripts_UserManagement($scope = null) {
 		$html = "";
 		if ($this->activescope_usermanagement) {
@@ -577,6 +432,44 @@ trait WebsiteScript {
 		}
 		
 		return $html;
+	}
+	function renderHTMLScripts_AppVariables() {
+	    $fio = new FileIO();
+	    
+	    $html = "";
+	    
+	    
+	    $html = '
+		<script>
+var activateSessionStorage = false;
+var referrer = document.referrer;
+        ';
+
+	    if (isset($this->config['frontend']['accessRestrictions'])) {
+	        $html .= '
+    var objects = ' . str_replace('"', '', json_encode($this->config['frontend']['accessRestrictions']['objects'], JSON_PRETTY_PRINT)) . ';
+        ';
+	        
+	    }
+	    
+	    $html .= '
+    var activateSessionStorage = false;
+    var odBase = ""
+    var engulfingBase = "' . $this->config['framework']['base'] . '"
+    var siteAdmin = "' . $this->config['frontend']['siteAdmin'] . '"
+    var appHost = "' . $this->config['frontend']['appHost'] . '"
+    var kmapiHost = "' . $this->config['frontend']['kmapiHost'] . '"
+    var apiHost = "' . $this->config['frontend']['apiHost'] . '";';
+
+	    $html .= '
+    var sitemap = ' . json_encode($this->config['frontend']['sitemap'], JSON_PRETTY_PRINT). '';
+	    
+
+        $html .= '
+</script>';
+
+        
+	    return $html;
 	}
 	function renderHTMLScripts_Administration() {
 		$html = "";
@@ -644,18 +537,26 @@ trait WebsiteScript {
 			}
 			
 			if ($this->siteMapDefinition) {
-				$onPage = false;
+			    $onPage = false;
 				
 				$sitemap = json_decode($this->siteMapDefinition);
 				
 				foreach($sitemap->Pages[0]->Pages as $page_item) {
-					if (strpos($this->website_url, strtolower($page_item->name)) !== false  ) {
+				    if (strpos($this->website_url, strtolower(str_replace(' ', '', $page_item->name))) !== false  ) {
 //						$html .= '
 //		<script src="/js/main_' . $this->singularize(strtolower($page_item->name)) . '.js"></script>
 //			 ';
-						$html .= '
-		<script src="' . $this->getScriptSource($scope, 'js/main_' . $this->singularize(strtolower($page_item->name)) . '.js') . '"></script>
+				        if (file_exists($this->getScriptSource($scope, 'js/main_' . $this->singularize(strtolower(str_replace(' ', '', $page_item->name))) . '.js'))) {
+				            $html .= '
+		<script src="' . $this->getScriptSource($scope, 'js/main_' . $this->singularize(strtolower(str_replace(' ', '', $page_item->name))) . '.js') . '"></script>
 			 ';
+				        } else {
+				            $html .= '
+		<script src="' . $this->getScriptSource($scope, 'js/main_' . strtolower(str_replace(' ', '', $page_item->name)) . '.js') . '"></script>
+			 ';
+				        }
+				            
+				        
 						$onPage = true;
 					}
 					if(isset($page_item->Pages)) {
@@ -672,6 +573,7 @@ trait WebsiteScript {
 					}
 					
 				}
+				
 				
 				$scopeObjectName = $this->getScopeObjectName();
 				
@@ -740,7 +642,7 @@ trait WebsiteScript {
 		$html = "";
 		
 		if (isset($this->activescope_OntologyClass)) {
-			foreach ($this->activescope_Ontology->OntologyClasses as $oclass) {
+		    foreach ($this->activescope_Ontology->OntologyClasses as $oclass) {
 				if (file_exists($this->desc['ontology']['js'] . 'js/models/model_' . strtolower($oclass->name) . '.js')) {
 					$html .= '<script src="' . $this->desc['ontology']['js'] . 'js/models/model_' . strtolower($oclass->name) . '.js"></script>
     							';
@@ -764,7 +666,7 @@ trait WebsiteScript {
 					
 		} else {
 			if ($this->siteMapDefinition) {
-				$sitemap = json_decode($this->siteMapDefinition);
+			    $sitemap = json_decode($this->siteMapDefinition);
 			
 				foreach($sitemap->Pages[0]->Pages as $page_item) {
 					if (file_exists($this->desc['ontology']['js'] . 'js/models/model_' . $this->singularize(strtolower($page_item->name)) . '.js')) {

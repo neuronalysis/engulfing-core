@@ -143,6 +143,55 @@ class FileIO {
 	        copy($source, $dest);
 	    }
 	}
+	function translateAbsolutePathToRelative($referencePath, $absolutePath, $forwardSlash = true, $scope = null) {
+	    $hasCommonRoot = false;
+	    $commonRoot = "";
+	    
+	    $referencePath= str_replace("/", "\\", $referencePath);
+	    $absolutePath = str_replace("/", "\\", $absolutePath);
+	    
+	    $path_exp_ref = explode("\\", strtolower($referencePath));
+	    $path_exp_abs = explode("\\", strtolower($absolutePath));
+	    
+	    foreach($path_exp_ref as $key => $value) {
+	        if (isset($path_exp_abs[$key])) {
+	            //echo "key: " . $value . "\n";
+	            if ($path_exp_abs[$key] === $value) {
+	                $hasCommonRoot = true;
+	                
+	                $commonRoot .= $value . "\\";
+	            }
+	        }
+	    }
+	    
+	    
+	    if ($hasCommonRoot) {
+	        $commonRoot = rtrim($commonRoot, "\\");
+	        
+	        //echo "commonRoot: " . $commonRoot . "\n";
+	        $path_exp_root = explode("\\", strtolower($commonRoot));
+	        
+	        $relpath = str_repeat("..\\", count($path_exp_ref) - count($path_exp_root));
+	        //echo "relpath: " . $relpath. "\n";
+	        
+	        //echo $scope . "; path::" . $path_exp_ref[count($path_exp_abs)-1] . "\n";
+	        
+	        //if ($scope && $path_exp_abs[count($path_exp_abs)-2] !== $scope &&  $path_exp_ref[count($path_exp_ref)-1] !== $scope) $relpath .= $scope . "\\";
+	        
+	        for($i=count($path_exp_root); $i<count($path_exp_abs); $i++) {
+	            if ($path_exp_abs[$i]) $relpath.= $path_exp_abs[$i] . "/";
+	        }
+	        //echo "relpath: " . $relpath. "\n";
+	        
+	        if ($forwardSlash) $relpath = str_replace("\\", "/", $relpath);
+	        //echo "relpath: " . $relpath. "\n";
+	        
+	        return $relpath;
+	    } else {
+	        false;
+	    }
+	}
+	
 }
 class File {
 	var $path;

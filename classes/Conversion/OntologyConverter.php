@@ -3,12 +3,26 @@ class OntologyConverter extends Converter {
 	function convertObjectToOntology($object) {
 		
 	}
-	function convertToObjects($oes) {
+	function convertOntologyClassEntititesToObjects($oces) {
+	    $result = new stdClass();
+	    $objects = array();
+	    //echo "count.objects: " . count($oces) . "\n";
+	    
+	    foreach($oces as $oce_item) {
+	        array_push($objects, $this->convertToObject($oce_item));
+	    }
+	    
+	    $objectsName = $this->pluralize(get_class($objects[0]));
+	    
+	    $result->$objectsName = $objects;
+	    
+	    return $result;
+	}
+	function convertToObjects_($oes) {
 		$objects = array();
 	
 		//print_r($oes);
 		for ($i=0; $i<count($oes); $i++) {
-			//echo "oc-name: " . $oes[$i]->OntologyClass->name . "\n";
 			if ($oes[$i]->OntologyClass->name != "") {
 				//print_r($oes[$i]);
 	
@@ -85,8 +99,12 @@ class OntologyConverter extends Converter {
 		return $objects;
 	}
 	function convertToObject($o_class_entity) {
+	    if (!$o_class_entity) return new stdClass();
+	    
 		$class_name = $o_class_entity->OntologyClass->name;
 		$class_name_generated = $class_name . "_Generated";
+		
+		//echo "class-name: " . $class_name. "\n";
 		
 		if (class_exists($class_name)) {
 			$object = new $class_name;
@@ -120,8 +138,16 @@ class OntologyConverter extends Converter {
 			foreach($o_class_entity->RelationOntologyClassOntologyClassEntities as $item_classentity) {
 				if (isset($item_classentity->IncomingOntologyClassEntity->OntologyClass)) {
 					$class_name = $item_classentity->IncomingOntologyClassEntity->OntologyClass->name;
-		
-					$object->$class_name = $this->convertToObject($item_classentity->IncomingOntologyClassEntity);
+		              
+					if (property_exists($object, $class_name)) {
+					    $object->$class_name = $this->convertToObject($item_classentity->IncomingOntologyClassEntity);
+					} else if (property_exists($object, $this->pluralize($class_name))) {
+					    $class_name_pl = $this->pluralize($class_name);
+					    
+					    //echo $class_name_pl . "\n";
+					    array_push($object->$class_name_pl, $this->convertToObject($item_classentity->IncomingOntologyClassEntity));
+					}
+					
 				}
 		
 			}

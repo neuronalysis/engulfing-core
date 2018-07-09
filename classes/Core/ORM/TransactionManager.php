@@ -15,7 +15,10 @@ trait TransactionManager {
 		}
 		
 		$queryType = $this->getQueryType($query);
-		if ($this->debug) echo "sql: " . $query . "\n";
+		if ($this->debug) {
+		    echo "db_scope: " . $this->db_scope . "\n";
+		    echo "sql: " . $query . "\n";
+		}
 	
 		try {
 			$db = $this->openConnection($this->db_scope);
@@ -72,12 +75,7 @@ trait TransactionManager {
 				return null;
 			}
 		} catch(PDOException $e) {
-			/*echo '{"error":{"text": ' . $query . '
-' . $e->getMessage() . '(' . $e->getLine() .')
-}}
-	
-';*/
-			throw $e;
+            throw $e;
 		}
 	}
 }

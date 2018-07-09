@@ -3,7 +3,6 @@ class Plotter {
 	function __construct() {
 		
 	}
-	
 	function plottFragments($fragments) {
 		foreach($fragments as $fragment) {
 			
@@ -31,6 +30,18 @@ class Plotter {
 			
 			
 		}
+	}
+	function plottKeyValues($array) {
+	    $str = "\n";
+	    $str .= "-----keyValuePlott-----\n";
+	    
+	    foreach($array as $key => $value) {
+	        $str .= $key . ": " . $value . "\n";
+	    }
+	    
+	    $str .= "\n\n";
+	    
+	    return $str;
 	}
 }
 ?>

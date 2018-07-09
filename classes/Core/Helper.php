@@ -1,19 +1,33 @@
 <?php
 trait Helper {
 	
-	function Helper() {
+    function Helper() {
 	}
 	function getConfig() {
-		if ($this->isLocalRequest()) {
-			if (file_exists(__DIR__ . '/../../config/dev-config.json')){
-				$config = json_decode(file_get_contents(__DIR__ . '/../../config/dev-config.json'));
-			} else{
-			}
-		} else {
-			
-		}
-		
-		return $config;
+	    return $this->config;
+	}
+	function setConfig($config) {
+	    $this->config = $config;
+	    
+	    if (isset($this->orm)) {
+	    	$this->orm->setConfig($config);
+	    }
+	    
+	    $fio = new FileIO();
+	    
+	    $cfg = new stdClass();
+	    $cfg->framework = $this->config['framework'];
+	    $cfg->frontend = $this->config['frontend'];
+	    
+	    $webdataDir = getcwd() . "/data/";
+	    if (!file_exists($webdataDir)) {
+	        $webdataDir = getcwd() . "/../data/";
+	    }
+	    if (file_exists($webdataDir)) {
+	        if (!file_exists($webdataDir . "config.json")) {
+	            $fio->saveStringToFile(json_encode($cfg, JSON_PRETTY_PRINT), $webdataDir . "config.json");
+	        }
+	    }
 	}
 	function isLocalRequest() {
 		$whitelist = array(
@@ -26,6 +40,19 @@ trait Helper {
 		}
 			
 		return false;
+	}
+	function is_connected()
+	{
+	    $connected = @fsockopen("www.google.com", 80);
+	    //website, port  (try 80 or 443)
+	    if ($connected){
+	        $is_conn = true; //action when connected
+	        fclose($connected);
+	    }else{
+	        $is_conn = false; //action in connection failure
+	    }
+	    return $is_conn;
+	    
 	}
 	function pluralize($singular) {
 		if ($singular === "corpus") return "corpora";
@@ -156,8 +183,9 @@ trait Helper {
 		 
 		return $singular;
 	}
+	//TODO
 	function sort_on_field(&$objects, $on, $order = 'ASC', $type = "str") {
-		if ($type === "num") {
+		/*if ($type === "num") {
 			$comparer = ($order === 'DESC')
 			? "return -(\$a->{$on} - \$b->{$on});"
 			: "return (\$a->{$on} - \$b->{$on})";
@@ -167,7 +195,7 @@ trait Helper {
 			? "return -strcmp(\$a->{$on},\$b->{$on});"
 			: "return strcmp(\$a->{$on},\$b->{$on});";
 			usort($objects, create_function('$a,$b', $comparer));
-		}
+		}*/
 	}
 	function deabbrevate($string) {
 		return $string;
@@ -266,6 +294,11 @@ trait Helper {
 		return mb_strtolower($chr, "UTF-8") != $chr;
 	}
 	function getScopeName($path = null) {
+	    if(isset($this->scope)) {
+	        if ($this->scope) return $this->scope;
+	    }
+	    
+	    
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
 		
 		if ($path) {
@@ -278,14 +311,16 @@ trait Helper {
 		
 		if ($pathToUse === "?login=failed") return null;
 		
-		if (!isset($levels[1])) return null;
+		if (!isset($levels[1])) {
+		    return null;
+		}
 		
 		if ($this->isLocalRequest()) {
 			if (strpos($pathToUse, "/api/") !== false) {
 				$apiIndex = array_search("api", $levels);
 				$scopename = $levels[$apiIndex+1];
 			} else {
-				$scopename = $levels[1];
+			    $scopename = $levels[1];
 			}
 		} else if (strpos($pathToUse, "/api/") !== false) {
 			$apiIndex = array_search("api", $levels);
@@ -294,6 +329,18 @@ trait Helper {
 			$scopename = $levels[1];
 		}
 		
+		if ($scopename === "") {
+		    $actual_link = "$_SERVER[HTTP_HOST]";
+		    if (isset($actual_link)) {
+		        $exp_host = explode(".", $actual_link);
+		        if ($this->isLocalRequest()) {
+		            if (isset($exp_host[1])) {
+		                $scopename = $exp_host[1];
+		            }
+		        }
+		    }
+		    
+		}
 		return $scopename;
 	}
 	function getScopeObjectName($reference = null) {
@@ -365,11 +412,31 @@ trait Helper {
 					$topdomain = strtolower($this->title);
 				}
 			} else {
-				$topdomain = "ontologydriven";
+			    if ($this->isLocalRequest()) {
+			        if (strtolower($this->title) == "extraction") {
+			            $topdomain = strtolower($this->title);
+			        } else {
+			            $topdomain = "generated/" . strtolower($this->title);
+			        }
+			        
+			    } else {
+			        if (strtolower($this->title) == "extraction") {
+			            $topdomain = strtolower($this->title);
+			        } else {
+			            $topdomain = "ontologydriven";
+			        }
+			    }
+				
 			}
 		}
 		 
 		return $topdomain;
 	}
+	function plottKeyValues($array) {
+	    $plotter = new Plotter();
+	    
+	    return $plotter->plottKeyValues($array);
+	}
+	
 }
 ?>

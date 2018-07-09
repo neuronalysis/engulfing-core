@@ -7,34 +7,33 @@ class REST_Transformer {
 	
 	function __construct() {
 	}
-	function deserialize_JSON($json, $class_name = null, $sticktoclass = false, $namespace = null, $enforceList = false) {
+	function deserialize_JSON($json, $class_name = null, $sticktoclass = false, $namespace = null, $enforceList = false, $enforceAttributes = false) {
 		$this->baseClass = $class_name;
 		$this->namespace = $namespace;
 		
 		$data = json_decode($json, TRUE);
 		
-		//print_r($data);
-		
 		if (isset($data[0])) {
+		    
 			if ($enforceList) {
 				$objects = array();
 				
 				foreach($data as $item) {
-					array_push($objects, $this->mapDataToObject($item, $class_name));
+				    array_push($objects, $this->mapDataToObject($item, $class_name, $enforceAttributes));
 				}
 				
 				return $objects;
 			} else {
-				$object = $this->mapDataToObject($data[0], $class_name);
+			    $object = $this->mapDataToObject($data[0], $class_name, $enforceAttributes);
 			}
 			
 		} else {
-			$object = $this->mapDataToObject($data, $class_name);
+		    $object = $this->mapDataToObject($data, $class_name, $enforceAttributes);
 		}
 		
 		return $object;
 	}
-	function mapDataToObject($data, $class_name) {
+	function mapDataToObject($data, $class_name, $enforceAttributes = false) {
 		//echo "\\" . $this->namespace . "\\" . $this->baseClass . $class_name . "\n";
 		if (class_exists("\\" . $this->namespace . "\\" . $this->baseClass . $class_name)) {
 			$object_based = "\\" . $this->namespace . "\\" . $this->baseClass . $class_name;
@@ -63,22 +62,30 @@ class REST_Transformer {
 		}
 		
 		if (is_array($data)) {
+		    
 			foreach($data as $key => $value) {
-				if ((class_exists($key)) || (class_exists("\\" . $this->namespace . "\\" . $key))) {
-					$object->$key =  $this->mapDataToObject($value, $key);
+			    $singularizedKey = $this->singularize($key);
+			    
+			    if (!(class_exists($singularizedKey) || !(class_exists("\\" . $this->namespace . "\\" . $singularizedKey))) && ((class_exists($key)) || (class_exists("\\" . $this->namespace . "\\" . $key)))) {
+				    $object->$key =  $this->mapDataToObject($value, $key, $enforceAttributes);
 				} else {
-					if ($key == "Strings") $key = "ALTOStrings";
+				    if ($key == "Strings") $nsKey = $this->namespace. "Strings";
 					if (is_array($value)) {
 						if ($this->isAssoc($value)) {
 							foreach($value as $itemKey => $itemValue) {
-								$object->$itemKey = $this->mapDataToObject($itemValue, $this->singularize($itemKey));
+							    $object->$itemKey = $this->mapDataToObject($itemValue, $this->singularize($itemKey), $enforceAttributes);
 							}
 						} else {
 							$array = array();
 							
 							if (count($value) > 0) {
 								foreach($value as $item) {
-									array_push($array, $this->mapDataToObject($item, $this->singularize($key)));
+								    if (isset($nsKey)) {
+								        array_push($array, $this->mapDataToObject($item, $this->singularize($nsKey), $enforceAttributes));
+								    } else {
+								        array_push($array, $this->mapDataToObject($item, $this->singularize($key), $enforceAttributes));
+								    }
+								    
 								}
 								
 								$object->$key = $array;
@@ -87,17 +94,18 @@ class REST_Transformer {
 							
 						}
 					} else {
-						if (property_exists($class_name, $key) || property_exists("\\" . $this->namespace . "\\" . $class_name, $key)) {
+					    //echo "\\" . $this->namespace . "\\" . $class_name . "; " . $key . "\n";
+					    if (property_exists($class_name, $key) || property_exists("\\" . $this->namespace . "\\" . $class_name, $key)) {
 							$rp = new ReflectionProperty($object,$key);
 							if ($rp->isProtected()) {
 								$setterMethodName = "set" . ucfirst($key);
 								
 								if (method_exists($object, $setterMethodName) || property_exists($object, $setterMethodName)) $object->$setterMethodName($value);
 							} else {
-								$object->$key = $value;
+							    $object->$key = $value;
 							}
 						} else {
-							if ($key === "id") {
+						    if ($key === "id" || $enforceAttributes) {
 								$object->$key = $value;
 							}
 						}
@@ -105,7 +113,7 @@ class REST_Transformer {
 				}
 			}
 		} else if (is_object($data)) {
-			$object->$key = $this->mapDataToObject($data, $key);
+		    $object->$key = $this->mapDataToObject($data, $key, $enforceAttributes);
 		} else if (is_string($data)) {
 			$object = $data;
 		}

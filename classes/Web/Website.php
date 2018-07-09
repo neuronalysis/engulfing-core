@@ -10,6 +10,9 @@ class Website {
 	var $name;
 	var $siteMapDefinition;
 	
+	protected $config;
+	
+	
 	var $website_url;
     var $website_source;
 	var $html;
@@ -40,6 +43,10 @@ class Website {
 	var $isShop;
 	
 	var $debug = true;
+	
+	var $scope = null;
+	
+	var $enforceRecompile = true;
 	
 	var $accessRestrictions;
 	

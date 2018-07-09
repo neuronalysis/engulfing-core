@@ -1,7 +1,55 @@
 <?php
 class Testing {
+    use Helper;
+    
 	function __construct() {
 	}
+}
+class TestAssert {
+    var $outcomeExpected;
+    var $outcomeActual;
+    
+    var $result;
+    
+    function __construct($outcomeExpected, $outcomeActual) {
+        $this->outcomeExpected = $outcomeExpected;
+        $this->outcomeActual = $outcomeActual;
+    }
+    
+    function __toString() {
+        $str = "";
+        
+        if (is_array($this->input)) {
+            $str .= "  input:           " . join("; ", $this->input) . "\n";
+        } else {
+            $str .= "  input:           " . $this->input . "\n";
+        }
+        
+        if (is_object($this->outcomeActual)) {
+            $outcome_actual_string = print_r($this->outcomeActual, true);
+            $outcome_expected_string = print_r($this->outcomeExpected, true);
+        } else {
+            $outcome_actual_string= $this->outcomeActual;
+            $outcome_expected_string= $this->outcomeExpected;
+        }
+        
+        $str .= "  outcome - \n";
+        $str .= "     - expected:   " . $outcome_expected_string . "\n";
+        $str .= "     - actual:     " .  $outcome_actual_string . "\n";
+        $str .= "\n";
+        
+        foreach($this->result as $key => $value) {
+            if ($value) {
+                $str .= "  test passed\n";
+            } else {
+                $str .= "  test failed\n";
+            }
+        }
+        
+        $str .= "\n\n";
+        
+        return $str;
+    }
 }
 class TestClass {
 	use ObjectHelper;
@@ -19,7 +67,7 @@ class TestClass {
 		$this->prepare();
 	
 		$coverage = $this->getTestCoverage();
-	
+	   
 		$classname = str_ireplace("_Test", "", get_class($this));
 	
 		$check = new stdClass();
@@ -109,7 +157,9 @@ class TestClass {
 		return $assert;
 	}
 	function assertString($method, $expected, $actual) {
-		$assert = (object) array(
+	    $assert = new TestAssert($expected, $actual);
+	    
+	    $assert->result = (object) array(
 				$method => (($expected == $actual) ? true : false)
 		);
 	
@@ -126,8 +176,14 @@ class TestClass {
 		return $assert;
 	}
 	function assertObject($method, $expected, $actual) {
-		$assert = (object) array(
-				$method => $this->compareTwoObjects($expected, $actual)
+	    $comp = new Comparator();
+	    
+	    $assert = new TestAssert($expected, $actual);
+	    
+	    $compResult = $comp->compareTwoObjects($expected, $actual, true, true, null);
+	    
+		$assert->result = (object) array(
+		    $method => $comp->compareTwoObjects($expected, $actual, true, true, null)
 		);
 		
 		if (!$assert->$method) {
@@ -139,7 +195,7 @@ class TestClass {
 		
 		return $assert;
 	}
-	function assertJson($method, $result, $classname, $id = null) {
+	/*function assertJson($method, $result, $classname, $id = null) {
 		$objectName = str_ireplace("_Test", "", get_class($this));
 		
 		if ($id) {
@@ -155,6 +211,16 @@ class TestClass {
 		);
 		
 		return $assert;
+	}*/
+	function assertJson($method, $expected, $actual) {
+	    $expectedDecoded = json_decode($expected);
+	    $actualDecoded = json_decode($actual);
+	    
+	    $expectedEncoded = json_encode($expectedDecoded, JSON_PRETTY_PRINT);
+	    $actualEncoded = json_encode($actualDecoded, JSON_PRETTY_PRINT);
+	    
+	    
+	    return $this->assertString($method, $expectedEncoded, $actualEncoded);
 	}
 	function getFunctionReferencesByProject($methodName, $projectNames = array("engulfing/engulfing-core")) {
 		$directory = getcwd() . "../../" . $projectNames[0];
@@ -215,7 +281,7 @@ class TestClass {
 		$coverage->methods = array();
 		
 		foreach($methods as $method) {
-			if (!in_array($method->name, array("__construct"))) {
+			if (!in_array($method->name, array("__construct", "arrayContains"))) {
 				if (in_array($method->name, $testmethods)) {
 					//$coverage->methods[$method->name] = array(true, $this->getFunctionReferencesByProject($method->name));
 					$coverage->methods[$method->name] = array(true, null);

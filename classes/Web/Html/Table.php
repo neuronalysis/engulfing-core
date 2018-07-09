@@ -2,8 +2,6 @@
 class Table {
 	var $trs = array();
 	
-	function Table() {
-	}
 	function addTR($tr) {
 	}
 	function render() {

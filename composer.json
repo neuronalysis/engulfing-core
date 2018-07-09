@@ -1,0 +1,14 @@
+{
+	"name" : "engulfing/core",
+	"require" : {
+		"php" : "7.1.*",
+		"slim/slim" : "2.4.2",
+		"phpmailer/phpmailer" : "5.2.13"
+	},
+	"autoload" : {
+		"classmap" : [
+			"classes/",
+			"test/classes/"
+		]
+	}
+}

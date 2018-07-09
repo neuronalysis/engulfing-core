@@ -87,7 +87,9 @@ trait QueryBuilder {
 				
 				if ($rp->isProtected()) {
 					$getterMethodName = "get" . ucfirst($key);
-					$fields[$key] = $object->$getterMethodName();
+					if (method_exists($object, $getterMethodName)) {
+					    $fields[$key] = $object->$getterMethodName();
+					}
 				} else {
 					$fields[$key] = $object->$key;
 				}
@@ -99,10 +101,12 @@ trait QueryBuilder {
 					if (isset($object->$key->id)) {
 						$fields[lcfirst($key) . "ID"] = $object->$key->id;
 					} else {
-						if (method_exists($object->$key, "initialize")) {
-							$object->$key->initialize();
-							$fields[lcfirst($key) . "ID"] = $object->$key->id;
-						}
+					    if (!$rp->isProtected()) {
+					        if (method_exists($object->$key, "initialize")) {
+					            $object->$key->initialize();
+					            $fields[lcfirst($key) . "ID"] = $object->$key->id;
+					        }
+					    }
 					}
 				}
 			}

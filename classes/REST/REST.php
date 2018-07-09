@@ -1,23 +1,46 @@
 <?php
-include_once ('REST_Transformer.php');
-include_once ('REST_TaskExecutor.php');
-
-include_once (__DIR__ . "/../Core/Helper.php");
-
 class REST {
 	use Helper;
 	
+	protected $config;
+	
+	public static $instance;
+	
 	function __construct() {
 		$this->orm = new ORM();
+		
+		$this->app = new \Slim\Slim(array(
+				'debug' => true
+		));
+		
+		$this->app->contentType('application/json; charset=utf-8');
+		$this->app->error(function (\Exception $e) {
+			$this->app->render('error.php');
+		});
+		
+		self::$instance = $this;
+	}
+	public static function getInstance() {
+		if (self::$instance === null) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+	function run() {
+		$this->checkAuthorization($this->app);
+		
+		$this->app->run();
+		
+		$this->logRequest($this->app, date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']));
 	}
 	//TODO
 	function get($id = null, $app = null) {
-		$this->orm->db_scope = $this->getScopeName();
+	    $this->orm->db_scope = $this->getScopeName();
 		
 		$ontologyClassName = $this->orm->getOntologyClassName();
 		
+		echo $ontologyClassName;
 		if ($app) {
-			
 			if (isset($_GET['page'])) {
 				
 				$namedfieldParameters = $_GET;
@@ -31,6 +54,8 @@ class REST {
 				
 				if (class_exists("KM")) {
 					$km = new KM();
+					$km->orm = $this->orm;
+					
 					//TODO
 					
 					if (isset($namedfieldParameters['ontologyClassID'])) {
@@ -46,7 +71,11 @@ class REST {
 				
 				
 				if (!$oclass || !$oclass->getIsPersistedConcrete()) {
-					$result_paged = $this->orm->getByNamedFieldValues($ontologyClassName, array_keys($namedfieldParameters), array_values($namedfieldParameters));
+				    $orm_req = new ORM_Request($ontologyClassName);
+				    $orm_req->setKeyValuesByFieldsAndValues(array_keys($namedfieldParameters), array_values($namedfieldParameters));
+				    
+				    $result_paged = $this->orm->getByNamedFieldValues($orm_req);
+				    //$result_paged = $this->orm->getByNamedFieldValues($ontologyClassName, array_keys($namedfieldParameters), array_values($namedfieldParameters));
 		
 					foreach($result_paged as $obj_item) {
 						$obj_item->id = intval($obj_item->id);
@@ -95,7 +124,9 @@ class REST {
 						$result->total_count = $this->getTotalAmount($ontologyClassName);
 						
 					} else {
-						$result = $this->orm->getAllByName($ontologyClassName);
+					    $orm_req = new ORM_Request($ontologyClassName);
+					    
+					    $result = $this->orm->getAllByName($orm_req);
 					}
 					
 					
@@ -103,8 +134,7 @@ class REST {
 			}
 		
 		} else {
-			
-			if ($id) {
+		    if ($id) {
 				$obj = new $ontologyClassName();
 				//TODO
 				
@@ -139,8 +169,6 @@ class REST {
 				} else if ($ontologyClassName === "\\OCR\\Document") {
 					$result = $this->orm->getById("\\OCR\\Document", $id, true);
 					
-					//print_r($result);
-					
 					$doc = new DOMDocument();
 					$doc->loadXML($result->Pages[0]->altoXML);
 					
@@ -169,14 +197,18 @@ class REST {
 		
 		$limit = null;
 		
-		/*if (isset($_GET['limit'])) {
-			$limit = $_GET['limit'];
-		}*/
-	
 		if ($ontologyClassName === "indicator") {
-			$observations = $this->orm->getByNamedFieldValues($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID", "date"), array($id, "2014-01-01"), false, null, false, false, null, "date ASC", $limit, array(lcfirst($ontologyClassName) . "ID" => "=", "date" => ">="));
+			$orm_request = new ORM_Request($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID" => $id, "date" => "2014-01-01"));
+			$orm_request->keyOperators = array(lcfirst($ontologyClassName) . "ID" => "=", "date" => ">=");
+			$orm_request->order = "date ASC";
+			
+			$observations= $this->orm->getByNamedFieldValues($orm_request);
 		} else if ($ontologyClassName === "instrument") {
-			$observations = $this->orm->getByNamedFieldValues($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID", "date"), array($id, "2015-01-01"), false, null, false, false, null, "date ASC", $limit, array(lcfirst($ontologyClassName) . "ID" => "=", "date" => ">="));
+		    $orm_request = new ORM_Request($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID" => $id, "date" => "2015-01-01"));
+		    $orm_request->keyOperators = array(lcfirst($ontologyClassName) . "ID" => "=", "date" => ">=");
+		    $orm_request->order = "date ASC";
+		    
+		    $observations= $this->orm->getByNamedFieldValues($orm_request);
 		}
 		
 		foreach($observations as $item) {
@@ -344,20 +376,9 @@ class REST {
 			$classScopeName = ucfirst($scopeName);
 		}
 		
-		//if ($scopeName !== "" && !in_array(strtolower($scopeName), array("edi"))) {
 		if ($scopeName !== "") {
 			if (!$ressourceRoot) {
 				$ressourceRoot = __DIR__;
-			}
-			
-			if (file_exists($ressourceRoot . '/../../../../engulfing/engulfing-core/classes/' . $classScopeName . '/')) {
-				require_once $ressourceRoot . '/../../../../engulfing/engulfing-core/classes/' . $classScopeName . '/' . $classScopeName . '.php';
-			} else if (file_exists($ressourceRoot . '/../../../../engulfing/engulfing-extensions/classes/' . $classScopeName . '/')) {
-				require_once $ressourceRoot . '/../../../../engulfing/engulfing-extensions/classes/' . $classScopeName . '/' . $classScopeName . '.php';
-			} else {
-				if (file_exists($ressourceRoot . '/../../../../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/')) {
-					require_once $ressourceRoot . '/../../../../engulfing/engulfing-core/classes/BusinessLogic/' . $classScopeName . '/' . $classScopeName . '.php';
-				}
 			}
 			
 			$contents = glob($ressourceRoot  . '/ressources/' . $scopeName . '/' . '*.*');
@@ -383,13 +404,11 @@ class REST {
 					$classes = $km->getOntologyClassesByOntologyId($ontology->id);
 						
 					foreach ($classes as $class) {
-						//echo $scope . ": " . $class->name . "\n";
-						
 						$ressourceName = strtolower($this->pluralize($class->name));
 			
 						$app->get('/' . $scope . '/' . $ressourceName . '/:id',	'get');
-						$app->get('/' . $scope . '/' . $ressourceName . '/:id/detailed',	'getDetailed');
-						$app->get('/' . $scope . '/' . $ressourceName . '/:id/observations',	'getObservations');
+						//$app->get('/' . $scope . '/' . $ressourceName . '/:id/detailed',	'getDetailed');
+						//$app->get('/' . $scope . '/' . $ressourceName . '/:id/observations',	'getObservations');
 			
 						$app->post('/' . $scope . '/' . $ressourceName . '', 'add');
 						$app->put('/' . $scope . '/' . $ressourceName . '/:id', 'update');
@@ -432,15 +451,14 @@ class REST {
 		return $result->getValuation();
 	}
 	function logRequest($app, $request_date) {
-		if (stripos($app->request->getResourceUri(), "monitoring") !== false) return null;
+		if (stripos($app->request->getUri(), "monitoring") !== false) return null;
 	
 		if (class_exists("Request")) {
 			$request = new Request();
 			$request->method = $app->request->getMethod();
 			
-			if (stripos($app->request->getResourceUri(), "/km") !== false && $request->method === "GET") return null;
+			if (stripos($app->request->getUri(), "/km") !== false && $request->method === "GET") return null;
 			
-			$rest = new REST ();
 			$restTransformer = new REST_Transformer ();
 			
 			$OntologyName = $rest->orm->getScopeName();
@@ -558,10 +576,34 @@ class REST {
 			echo json_encode ( $content, JSON_PRETTY_PRINT );
 		}
 	}
+	function handleResult($result) {
+		$response = new Response();
+		
+		if ($result instanceof ErrorException) {
+	        //print_r($result);
+    	    $response->error = $result->getTraceAsString();
+    	    
+    	    $response->message = $result->getMessage();
+    	    
+    	    
+    	    $this->app->response->setBody(json_encode ( $response, JSON_PRETTY_PRINT ));
+	    
+	    } else if ($result instanceof Exception) {
+		    $response->error = $result->getTraceAsString();
+		    
+		    $result->traceMsg = $response->error;
+		    $this->app->response->setStatus(400);
+		    $this->app->response->headers->set('Content-Type', 'application/json');
+		    $this->app->response->setBody(json_encode ( $result, JSON_PRETTY_PRINT ));
+		    
+		} else if ($result instanceof PDOException) {
+		    $this->app->response->setBody(json_encode ( $result, JSON_PRETTY_PRINT ));
+		} else {
+		    $this->app->response->setBody(json_encode ( $result, JSON_PRETTY_PRINT ));
+		}
+	}
 }
 class Response {
-	var $message;
-	
 	function __construct() {
 		
 	}

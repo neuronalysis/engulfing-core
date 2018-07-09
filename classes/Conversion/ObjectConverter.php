@@ -2,35 +2,65 @@
 class ObjectConverter extends Converter {
 	use ObjectHelper;
 	
-	function convertToDOMDocument($object, $stickToClass = true) {
+	function convertToDOMDocument($object, $stickToClass = true, $stickToNamespace = true, $addNameSpacePrefix = false) {
 		$dom = new DOMDocument('1.0', 'utf-8');
 		$dom->preserveWhiteSpace = false;
 		$dom->formatOutput = true;
 		
-		$element = $this->convertToElement($object, $dom, $stickToClass);
+		$element = $this->convertToElement($object, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
 			
 		$dom->appendChild($element);
 		
 		return $dom;
 	}
 	//TODO function feels bloated. try to simplify/reduce
-	function convertToElement($object, $dom, $stickToClass, $stickToNamespace = true) {
-		if (!is_object($object)) {
-			
-		}
+	function convertToElement($object, $dom, $stickToClass, $stickToNamespace = true, $addNameSpacePrefix = false) {
 		$className = get_class($object);
-		
 		$classNameWithoutNS = $this->getNameWithoutNamespace(get_class($object));
 		
-		if($classNameWithoutNS == "ALTOString") {
-			$element = $dom->createElement("String");
+		$classNameForTagName = null;
+		$classNameWithoutNSForTagName = null;
+		
+		if (get_parent_class($className) === "owl\\NamedIndividual") {
+		    $classNameForTagName = "owl\\NamedIndividual";
+		    $classNameWithoutNSForTagName= "NamedIndividual";
 		} else {
-			$element = $dom->createElement($classNameWithoutNS);
+		    $classNameForTagName = $className;
+		    $classNameWithoutNSForTagName= $classNameWithoutNS;
 		}
 		
+		if ($addNameSpacePrefix) {
+		    $reflection = new ReflectionClass($classNameForTagName);
+		    $nsName = $reflection->getNamespaceName();
+		    
+		    if($classNameWithoutNS == "ALTOString") {
+		    	$element = $dom->createElement($nsName . ":String");
+		    } else if ($classNameWithoutNS == "owlClass") {
+		        $element = $dom->createElement($nsName . ":Class");
+		    } else {
+		        if ($classNameWithoutNSForTagName) {
+		            $element = $dom->createElement($nsName . ":" . $classNameWithoutNSForTagName);
+		        } else {
+		            $element = $dom->createElement($nsName . ":" . $classNameWithoutNS);
+		        }
+		    }
+		} else {
+		    if($classNameWithoutNS == "ALTOString") {
+		    	$element = $dom->createElement("String");
+		    } else if ($classNameWithoutNS == "owlClass") {
+		        $element = $dom->createElement("Class");
+		    } else {
+		        if ($classNameWithoutNSForTagName) {
+		            $element = $dom->createElement($classNameWithoutNSForTagName);
+		        } else {
+		            $element = $dom->createElement($classNameWithoutNS);
+		        }
+		    }
+		}
 		
 		if ($stickToClass) {
-			$reflection = new ReflectionClass($className);
+		    
+		    $reflection = new ReflectionClass($className);
 			$classvars = $reflection->getDefaultProperties();
 			
 			$tidied = null;
@@ -46,52 +76,129 @@ class ObjectConverter extends Converter {
 					}
 				}
 				foreach($tidied as $key => $value) {
-					$childElement = $this->convertToElement($value, $dom, $stickToClass);
+				    $childElement = $this->convertToElement($value, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
 					
 					$element->appendChild($childElement);
 				}
 			} else {
-				foreach($classvars as $key => $value) {
-					if ($key == "Strings") {
+			    foreach($classvars as $key => $value) {
+				    if ($key == "Strings") {
 						$readKey = "ALTOStrings";
 					} else {
 						$readKey = $key;
 					}
+					
 					
 					str_ireplace("XML", "", $key, $rplCount);
 					if ($rplCount == 1) $key = strtoupper($key);
 					
 					$sKey = $this->singularize($key);
 					
-					if (isset($object->$readKey)) {
-						if (is_object($object->$readKey)) {
-							if (class_exists("ALTO\\" . $readKey)) {
-								$childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass);
+					if (isset($object->$key)) {
+					    
+						if (is_object($object->$key)) {
+						    
+					        if (class_exists("ALTO\\" . $readKey)) {
+					        	$childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
 								
 								$element->appendChild($childElement);
 							} else {
+							    
 								if ($stickToNamespace) {
-									if (is_string($object->$readKey)) {
-										$element->setAttribute($readKey, $object->$readKey);
+								    
+								    if (is_string($object->$readKey)) {
+								        if ($addNameSpacePrefix) {
+								            $element->setAttribute($nsName . ":" . $readKey, $object->$readKey);
+								        } else {
+								            $element->setAttribute($readKey, $object->$readKey);
+								        }
+										
+									} else if (is_object($object->$readKey)) {
+									    
+									    if (isset($object->$readKey->value)) {
+									        $readKeyclassName = get_class($object->$readKey);
+									        
+									        if (!class_exists($readKeyclassName)) {
+									            if (is_string($object->$readKey->value)) {
+									                if ($addNameSpacePrefix) {
+									                    $attributeRC = new ReflectionClass($object->$readKey);
+									                    
+									                    $nsName = $attributeRC->getNamespaceName();
+									                    
+									                    $element->setAttribute($nsName . ":" . $readKey, $object->$readKey->value);
+									                } else {
+									                    $element->setAttribute($readKey, $object->$readKey->value);
+									                }
+									            } else {
+									                if ($addNameSpacePrefix) {
+									                    $childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
+									                    
+									                    $element->appendChild($childElement);
+									                }
+									            }
+									        } else {
+									            if ($addNameSpacePrefix) {
+									                $childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
+									                
+									                $element->appendChild($childElement);
+									            } else {
+									                $childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass, $stickToNamespace);
+									                
+									                $element->appendChild($childElement);
+									            }
+									        }
+									        
+									    } else {
+									        if ($addNameSpacePrefix) {
+									            $childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
+									            
+									            $element->appendChild($childElement);
+									        } else {
+									            $childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass, $stickToNamespace);
+									            
+									            $element->appendChild($childElement);
+									        }
+									    }
+									    
+									    
 									}
 								} else {
-									if (class_exists($readKey)) {
-										$childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass);
+								    
+								    if (class_exists($readKey)) {
+								        $childElement = $this->convertToElement($object->$readKey, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
 										
 										$element->appendChild($childElement);
 									} else {
-										$element->setAttribute($readKey, $object->$readKey);
+									    if ($addNameSpacePrefix) {
+									        $element->setAttribute($nsName . ":" . $readKey, $object->$readKey);
+									    } else {
+									        $element->setAttribute($readKey, $object->$readKey);
+									    }
+										
 									}
 								}
 							}
-						} else if (is_string($object->$readKey)) {
+						} else if (is_string($object->$key)) {
 							if (class_exists("ALTO\\" . $key)) {
 								$childElement = $dom->createElement($key, $object->$readKey);
 								
 								$element->appendChild($childElement);
 							} else {
 								if ($stickToNamespace) {
-									$element->setAttribute($key, $object->$readKey);
+								    if ($addNameSpacePrefix) {
+								        if (class_exists($readKey)) {
+								            $attributeRC = new ReflectionClass($readKey);
+								            
+								            $nsName = $attributeRC->getNamespaceName();
+								            
+								            $element->setAttribute($nsName . ":" . $key, $object->$readKey);
+								        } else {
+								            
+								        }
+								        
+								    } else {
+								        $element->setAttribute($key, $object->$readKey);
+								    }
 								} else {
 									if (class_exists($readKey)) {
 										$childElement = $dom->createElement($key, $object->$readKey);
@@ -102,36 +209,47 @@ class ObjectConverter extends Converter {
 									}
 								}
 							}
-						} else if (is_array($object->$readKey)) {
-							if ($this->isAssoc($object->$readKey)) {
-								foreach($object->$readKey as $aKey => $aValue) {
-									if ($aKey== "Strings") {
-										$readKey = "ALTOStrings";
-									} else {
-										$readKey = $aKey;
-									}
-									
-									if (class_exists("ALTO\\" . $readKey)) {
-										$childElement = $this->convertToElement($aValue, $dom, $stickToClass);
-										
-										$element->appendChild($childElement);
-									} else {
-										if ($stickToNamespace) {
-											$element->setAttribute($aKey, $aValue);
-										} else {
-											if (class_exists($readKey)) {
-												$childElement = $this->convertToElement($aValue, $dom, $stickToClass);
-												
-												$element->appendChild($childElement);
-											} else {
-												$element->setAttribute($aKey, $aValue);
-											}
-										}
-									}
-								}
+						} else if (is_array($object->$key)) {
+						    
+							if ($this->isAssoc($object->$key)) {
+							    if ($key === "keyValues") {
+							        foreach($object->$readKey as $aKey => $aValue) {
+							            $childElement = $dom->createElement($aKey, $aValue);
+							            
+							            $element->appendChild($childElement);
+							        }
+							    } else {
+							    	foreach($object->$key as $aKey => $aValue) {
+							            if ($aKey== "Strings") {
+							                $readKey = "ALTOStrings";
+							            } else {
+							                $readKey = $aKey;
+							            }
+							            
+							            
+							            if (class_exists("ALTO\\" . $readKey)) {
+							                $childElement = $this->convertToElement($aValue, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
+							                
+							                $element->appendChild($childElement);
+							            } else {
+							                if ($stickToNamespace) {
+							                    $element->setAttribute($aKey, $aValue);
+							                } else {
+							                    if (class_exists($readKey)) {
+							                        $childElement = $this->convertToElement($aValue, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
+							                        
+							                        $element->appendChild($childElement);
+							                    } else {
+							                        $element->setAttribute($aKey, $aValue);
+							                    }
+							                }
+							            }
+							        }
+							    }
+								
 							} else {
-								foreach($object->$readKey as $aValue) {
-									$childElement = $this->convertToElement($aValue, $dom, $stickToClass);
+								foreach($object->$key as $aValue) {
+							        $childElement = $this->convertToElement($aValue, $dom, $stickToClass, $stickToNamespace, $addNameSpacePrefix);
 									
 									$element->appendChild($childElement);
 								}

@@ -94,7 +94,7 @@ trait ORMConverter {
 	function convertStdClassesToMultipleObjects($stdClasses, $object_names) {
 		$objects = array();
 	
-		$rest = new REST();
+		$rest = REST::getInstance();
 		
 		foreach($stdClasses as $stdClass_item) {
 			if (count($object_names) == 2) {

@@ -38,6 +38,8 @@ trait ObjectHelper {
 	function getPersistanceClassName($objectName) {
 		$persistanceClassName = "";
 		
+		$objectName = str_replace("Outgoing", "", $objectName);
+		$objectName = str_replace("Incoming", "", $objectName);
 		
 		if (class_exists($objectName)) {
 			if (substr(get_parent_class($objectName), -10, 10) === "_Generated") {
@@ -89,7 +91,12 @@ trait ObjectHelper {
 		$object->setUpdatedAt(date('Y-m-d H:i:s', time()));
 	}
 	function tableExists($object) {
-		$class_name = get_class($object);
+	    if (is_object($object)) {
+	        $class_name = get_class($object);
+	    } else {
+	        $class_name = $object;
+	    }
+		
 	
 		if ($class_name === "ImportEntity") {
 			$tableName = $this->getTableNameByObjectName($object->entityClassName, false);
@@ -121,10 +128,14 @@ trait ObjectHelper {
 		
 		
 		if ($checkExistance) {
-			$persistanceClassName = $this->getPersistanceClassName($objectName);
+		    $persistanceClassName = $this->getPersistanceClassName($objectName);
 		} else {
-			$persistanceClassName = $objectName;
+		    $persistanceClassName = $objectName;
 		}
+		
+		$exp = explode("_", $persistanceClassName);
+		
+		$persistanceClassName = $exp[0];
 		
 		return $this->pluralize(strtolower($persistanceClassName));
 	}
@@ -173,17 +184,6 @@ trait ObjectHelper {
 		$idFieldName = lcfirst($field) . "ID";
 		
 		return $idFieldName;
-	}
-	function filterPersistableKeyValues($keyValues) {
-		$filtered = array();
-		
-		foreach($keyValues as $key => $value) {
-			if (!is_object($value)) {
-				$filtered[$key] = $value;
-			}
-		}
-		
-		return $filtered;
 	}
 	function filterPersistableFields($object) {
 		$objectvars = get_object_vars($object);
@@ -274,11 +274,15 @@ trait ObjectHelper {
 					
 					$refObjectName = $this->singularize($key);
 					
+					//echo $refObjectName . "\n";
 					if (class_exists($refObjectName)) {
 						if ($refObjectsTotalAmount > 15) {
 							$refObject = new $refObjectName();
+							$ormRequest = new ORM_Request($refObjectName, array($idFieldname=> $stdClass->id));
+							$ormRequest->limit = 10;
+							$ormRequest->order = $refObject->getDefaultOrder();
 							
-							$refObjects = $this->getByNamedFieldValues($refObjectName, array($idFieldname), array($stdClass->id), false, null, false, true, null, $refObject->getDefaultOrder(), 10);
+							$refObjects = $this->getByNamedFieldValues($ormRequest);
 						}
 					} else {
 						$ns = $this->getNamespaceByObjectName($object_name);
@@ -286,7 +290,14 @@ trait ObjectHelper {
 							$refObjectName = "\\" . $ns . "\\" . $refObjectName;
 						}
 						
-						$refObjects = $this->getByNamedFieldValues($refObjectName, array($idFieldname), array($stdClass->id), false, null, false, true);
+						$refObject = new $refObjectName();
+						
+						$ormRequest = new ORM_Request($refObjectName, array($idFieldname=> $stdClass->id));
+						$ormRequest->limit = 10;
+						$ormRequest->order = $refObject->getDefaultOrder();
+						
+						$refObjects = $this->getByNamedFieldValues($ormRequest);
+						//$refObjects = $this->getByNamedFieldValues($refObjectName, array($idFieldname), array($stdClass->id), false, null, false, true);
 					}
 					
 					$manyObjects = array();
@@ -305,7 +316,9 @@ trait ObjectHelper {
 				} else if ($relationshipType == "toManyRecursive") {
 					$idFieldname = lcfirst("Outgoing" . $object_name) . "ID";
 					
-					$refObjects = $this->getByNamedFieldValues($this->singularize($key), array($idFieldname), array($stdClass->id), false, null, false, true);
+					$ormRequest = new ORM_Request($this->singularize($key), array($idFieldname=> $stdClass->id));
+					
+					$refObjects = $this->getByNamedFieldValues($ormRequest);
 					
 					$manyObjects = array();
 					foreach($refObjects as $refObjectItem) {
@@ -374,14 +387,18 @@ trait ObjectHelper {
 			$OntologyClassname = $levels[1];
 		}
 		
-		if (!class_exists($OntologyClassname, false)) {
+		
+		if (!class_exists($OntologyClassname, true)) {
 			$OntologyClassname = $this->singularize($OntologyClassname);
 			
-			if (class_exists($OntologyClassname, false)) $OntologyClassname = get_class(new $OntologyClassname());
+			if (class_exists($OntologyClassname, true)) $OntologyClassname = get_class(new $OntologyClassname());
 		}
 		
-		if (class_exists("\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname, false)) {
+		if (class_exists("\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname, true)) {
 			$OntologyClassname = "\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname;
+		}
+		if (class_exists("\\" . strtoupper($this->db_scope) . "\\" . ucfirst($OntologyClassname), true)) {
+			$OntologyClassname = "\\" . strtoupper($this->db_scope) . "\\" . ucfirst($OntologyClassname);
 		}
 		
 		return $OntologyClassname;
@@ -416,6 +433,8 @@ trait ObjectHelper {
 		return $ontologyName;
 	}
 	function getOntologyScope($object_name) {
+	    $rest = REST::getInstance();
+	    
 		if (is_object($object_name)) {
 			$object_name = get_class($object_name);
 		}
@@ -434,6 +453,7 @@ trait ObjectHelper {
 		} else {
 			if (class_exists("KM")) {
 				$km = new KM();
+				$km->orm = $rest->orm;
 				
 				$ontologyClass = $km->getOntologyClassByName($object_name, true);
 				

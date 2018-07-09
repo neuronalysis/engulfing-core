@@ -1,19 +1,25 @@
 <?php
 trait ConnectionManager {
-	protected $connectionHost = "127.0.0.1";
-	protected $connectionUsername = "root";
-	protected $connectionPassword = "";
+	protected $connectionHost;
+	protected $connectionUsername;
+	protected $connectionPassword;
 	
 	protected $databaseConnections = array();
 	
 	function __construct() {
+		
 	}
 	function openConnection($ontologyName = null) {
+	    $databaseName = null;
+	    
+		$config = $this->getConfig();
+		
+		$this->connectionHost = $config['databases'][0]['host'];
+		$this->connectionUsername = $config['databases'][0]['username'];
+		$this->connectionPassword = $config['databases'][0]['password'];
+		
+		
 		if (!$ontologyName) return null;
-		
-		//$config = $this->getConfig();
-		
-		//print_r($config);
 		
 		if (isset($this->databaseConnections[$ontologyName])) {
 			if (is_object($this->databaseConnections[$ontologyName])) {
@@ -26,12 +32,30 @@ trait ConnectionManager {
 			echo " new connection\n";
 		}
 		
-		$databaseName = $this->getDatabaseName($ontologyName);
+		if (isset($config['databases'])) {
+		    foreach($config['databases'] as $db_item) {
+		        if (strpos($db_item['name'], $ontologyName) !== false) {
+		            $databaseName = $db_item['name'];
+		        }
+		    }
+		}
+		
+		
+		if (!$databaseName)	{
+		    $databaseName = $config['databases'][0]['name'];
+		}
+		
+		if ($this->debug) {
+		    print_r($config['databases']);
+		    
+		    echo "db-name: " . $databaseName . "\n";
+		}
+		
 		
 		if (!isset($this->connectionHost)) {
-			$this->connectionHost = "127.0.0.1";
-			$this->connectionUsername = "root";
-			$this->connectionPassword = "";
+			$this->connectionHost = $config['databases'][0]['host'];
+			$this->connectionUsername = $config['databases'][0]['username'];
+			$this->connectionPassword = $config['databases'][0]['password'];
 		}
 		
 		$dbh = new PDO("mysql:host=$this->connectionHost;dbname=$databaseName", $this->connectionUsername, $this->connectionPassword);	

@@ -1,8 +1,25 @@
 {
-	"databases": [{
-		"name": "engulfin_km",
-		"host": "localhost",
-		"username": "root",
-		"password": ""
-	}]
+	"databases": [
+		{
+			"name": "engulfin_km",
+			"host": "localhost",
+			"username": "root",
+			"password": ""
+		}
+	],
+	"framework": {
+		"path": "C:/xampp/htdocs/engulfing/",
+		"url": "http://localhost.engulfing/",
+		"base": "http://localhost.engulfing"
+	},
+	"frontend": {
+		"siteAdmin": "info@extract-info.com",
+		"path": "C:/xampp/htdocs/extraction/",
+		"appHost": "http://localhost.extraction/",
+		"kmapiHost": "http://localhost.ontologydriven/api/",
+		"apiHost": "http://localhost.extraction/api/",
+		"web": {
+			"useAbsolutePaths": true
+		}
+	}
 }
