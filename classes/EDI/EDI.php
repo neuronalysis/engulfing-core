@@ -2,7 +2,7 @@
 class EDI extends Thing {
     protected $config;
     
-    var $classes = array("Schedule", "ImportProcess", "DataProvider", "DataService", "Ressource", "RelationDataServiceOntologyClass", "DataSource", "OntologyClass");
+    var $classes = array("Schedule", "ImportProcess", "DataProvider", "DataService", "Resource", "RelationDataServiceOntologyClass", "DataSource", "OntologyClass");
 	
 	var $entities = '{}';
 	
@@ -20,40 +20,40 @@ class EDI extends Thing {
 		
 		return $result;
 	}
-	function getRessources($urls) {
-		$ressources = array();
+	function getResources($urls) {
+		$resources = array();
 		
 		foreach($urls as $url) {
-			array_push($ressources, $this->getRessource($url));
+			array_push($resources, $this->getResource($url));
 		}
 		
-		return $ressources;
+		return $resources;
 	}
-	function getRessourceByContent($content) {
-	    $ressource = new Ressource();
-	    $ressource->loadByContent($content);
+	function getResourceByContent($content) {
+	    $resource = new Resource();
+	    $resource->loadByContent($content);
 	    
-	    return $ressource;
+	    return $resource;
 	}
 	//TODO
-	function getRessource($url, $noDownload = false, $enforcedType = null, $save = false) {
+	function getResource($url, $noDownload = false, $enforcedType = null, $save = false) {
 		try {
-			$ressource = new Ressource($url);
+			$resource = new Resource($url);
 			if (!$this->is_connected() || $this->debugMode) {
 				$noDownload = true;
-				$ressource->url = $this->config['frontend']['path'] . "../work/extraction/testressource.pdf";
-				//echo $ressource->url . "\n";
+				$resource->url = $this->config['frontend']['path'] . "../work/extraction/testresource.pdf";
+				//echo $resource->url . "\n";
 				
 				//$enforcedType = "application/pdf; charset=binary";
-				$ressource->load($noDownload, $enforcedType);
+				$resource->load($noDownload, $enforcedType);
 				$fio = new FileIO();
-				$fio->saveStringToFile($ressource->content, $this->config['frontend']['path'] . "../work/extraction/testressource.pdf");
+				$fio->saveStringToFile($resource->content, $this->config['frontend']['path'] . "../work/extraction/testresource.pdf");
 			} else {
-			    $ressource->load($noDownload, $enforcedType);
+			    $resource->load($noDownload, $enforcedType);
 			    $fio = new FileIO();
-			    $fio->saveStringToFile($ressource->content, $this->config['frontend']['path'] . "../work/extraction/testressource.pdf");
+			    $fio->saveStringToFile($resource->content, $this->config['frontend']['path'] . "../work/extraction/testresource.pdf");
 			}
-			return $ressource;
+			return $resource;
 		}
 		catch (Exception $e) {
 			throw $e;

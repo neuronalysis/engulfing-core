@@ -54,7 +54,7 @@ trait DOMHelper {
     
     }
     function processURL() {
-    	$path = str_replace("+", " ", $this->ressource_path);
+    	$path = str_replace("+", " ", $this->resource_path);
     	 
     	$a = explode("?", $path);
     	if (isset($a[1])) {

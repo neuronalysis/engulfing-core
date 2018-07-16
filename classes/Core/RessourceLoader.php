@@ -1,20 +1,20 @@
 <?php
-trait RessourceLoader {
+trait ResourceLoader {
 	
-	function RessourceLoader() {
+	function ResourceLoader() {
 	}
-	function loadFromRessourcesByClass($ontologyClass) {
+	function loadFromResourcesByClass($ontologyClass) {
 		$iex = new Extraction();
 		
 		$wiki_search_url = "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=" . $this->name . "&language=en&format=json";
-		$wiki_search_ressource = $iex->getRessource($wiki_search_url);
-		$wiki_search_json_object = json_decode($wiki_search_ressource->content);
+		$wiki_search_resource = $iex->getResource($wiki_search_url);
+		$wiki_search_json_object = json_decode($wiki_search_resource->content);
 		
 		$entityID = $wiki_search_json_object->search[0]->id;
 		
 		$wiki_entity_url = "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=" . $entityID . "&props=claims&format=json&languages=en";
-		$wiki_entity_ressource = $iex->getRessource($wiki_entity_url);
-		$wiki_entity_json_object = json_decode($wiki_entity_ressource->content);
+		$wiki_entity_resource = $iex->getResource($wiki_entity_url);
+		$wiki_entity_json_object = json_decode($wiki_entity_resource->content);
 		
 		$information_wiki  = $iex->extractInformationFromWikiDataJsonObject($wiki_entity_json_object, $ontologyClass, array("ISIN" => "P946"));
 		
@@ -32,12 +32,12 @@ trait RessourceLoader {
 		$relsOCOC = $ontologyClass->getRelationOntologyClassOntologyClasses();
 		foreach($relsOCOC as $relOCOC) {
 			if ($relOCOC->OntologyRelationType->name === "hasOne") {
-				$ressource = $relOCOC->IncomingOntologyClass->getRessource();
+				$resource = $relOCOC->IncomingOntologyClass->getResource();
 					
-				if (isset($ressource)) {
+				if (isset($resource)) {
 					$fieldName = $relOCOC->IncomingOntologyClass->name;
 				
-					$subclass_information = $iex->extractInformationFromRessourceURL($ressource->url, $ontologyClass, array("symbol", "startDate"), array($this->symbol, "2016-01-20"), $relOCOC->IncomingOntologyClass, $ressource->schemaDefinition);
+					$subclass_information = $iex->extractInformationFromResourceURL($resource->url, $ontologyClass, array("symbol", "startDate"), array($this->symbol, "2016-01-20"), $relOCOC->IncomingOntologyClass, $resource->schemaDefinition);
 				
 					$this->$fieldName = $subclass_information;
 				}

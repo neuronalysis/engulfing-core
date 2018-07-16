@@ -367,7 +367,7 @@ class REST {
 		return $this->singularize($objectname);
 	}
 	//TODO gebastel. mix aus generalisierung und spezialfällen...
-	function loadRoutes($app, $ressourceRoot = null) {
+	function loadRoutes($app, $resourceRoot = null) {
 		$scopeName = $this->getScopeName();
 	
 		if (strlen($scopeName) < 3) {
@@ -377,11 +377,11 @@ class REST {
 		}
 		
 		if ($scopeName !== "") {
-			if (!$ressourceRoot) {
-				$ressourceRoot = __DIR__;
+			if (!$resourceRoot) {
+				$resourceRoot = __DIR__;
 			}
 			
-			$contents = glob($ressourceRoot  . '/ressources/' . $scopeName . '/' . '*.*');
+			$contents = glob($resourceRoot  . '/resources/' . $scopeName . '/' . '*.*');
 				
 			foreach ($contents as $file_name) {
 				if (strpos($file_name, "task_") === false && strpos($file_name, ".json") === false) {
@@ -404,16 +404,16 @@ class REST {
 					$classes = $km->getOntologyClassesByOntologyId($ontology->id);
 						
 					foreach ($classes as $class) {
-						$ressourceName = strtolower($this->pluralize($class->name));
+						$resourceName = strtolower($this->pluralize($class->name));
 			
-						$app->get('/' . $scope . '/' . $ressourceName . '/:id',	'get');
-						//$app->get('/' . $scope . '/' . $ressourceName . '/:id/detailed',	'getDetailed');
-						//$app->get('/' . $scope . '/' . $ressourceName . '/:id/observations',	'getObservations');
+						$app->get('/' . $scope . '/' . $resourceName . '/:id',	'get');
+						//$app->get('/' . $scope . '/' . $resourceName . '/:id/detailed',	'getDetailed');
+						//$app->get('/' . $scope . '/' . $resourceName . '/:id/observations',	'getObservations');
 			
-						$app->post('/' . $scope . '/' . $ressourceName . '', 'add');
-						$app->put('/' . $scope . '/' . $ressourceName . '/:id', 'update');
-						$app->delete('/' . $scope . '/' . $ressourceName . '/:id',	'delete');
-						$app->get('/' . $scope . '/' . $ressourceName . '', function () use($app) {
+						$app->post('/' . $scope . '/' . $resourceName . '', 'add');
+						$app->put('/' . $scope . '/' . $resourceName . '/:id', 'update');
+						$app->delete('/' . $scope . '/' . $resourceName . '/:id',	'delete');
+						$app->get('/' . $scope . '/' . $resourceName . '', function () use($app) {
 							$callback = $app->request()->get('callback');
 			
 							if (!$callback) {
@@ -425,7 +425,7 @@ class REST {
 						
 						
 						if (method_exists($class->name, "getValuation")) {
-							$app->get('/' . $scope . '/' . $ressourceName . '/:id/valuation',	'getValuation');
+							$app->get('/' . $scope . '/' . $resourceName . '/:id/valuation',	'getValuation');
 						}
 					}
 				}
@@ -489,16 +489,16 @@ class REST {
 	function filterFields($extract) {
 		$filtered = new Extract();
 	
-		if (isset($extract->ressource)) $filtered->ressource = $extract->ressource;
-		if (isset($extract->language)) $filtered->ressource->language = $extract->language;
+		if (isset($extract->resource)) $filtered->resource = $extract->resource;
+		if (isset($extract->language)) $filtered->resource->language = $extract->language;
 		if (isset($extract->information)) $filtered->information = $extract->information;
 		if (isset($extract->Words)) $filtered->Words = $extract->Words;
 		if (isset($extract->fragments)) $filtered->fragments = $extract->fragments;
 	
-		if (isset($filtered->ressource)) {
-			foreach($filtered->ressource as $key => $value) {
+		if (isset($filtered->resource)) {
+			foreach($filtered->resource as $key => $value) {
 				if ($key != 'type' && $key != 'size' && $key != 'page' && $key != 'size' && $key != 'language') {
-					unset($filtered->ressource->$key);
+					unset($filtered->resource->$key);
 				}
 			}
 		}

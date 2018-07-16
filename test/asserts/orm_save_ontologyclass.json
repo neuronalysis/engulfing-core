@@ -22,7 +22,7 @@
         },
         "id": 1
     },
-    "Ressource": null,
+    "Resource": null,
     "RelationOntologyClassOntologyClasses": [
         {
             "OutgoingOntologyClass": null,
@@ -55,7 +55,7 @@
                     },
                     "id": "1"
                 },
-                "Ressource": null,
+                "Resource": null,
                 "RelationOntologyClassOntologyClasses": [],
                 "RelationOntologyClassOntologyProperties": [],
                 "isPersistedConcrete": "1",
@@ -94,7 +94,7 @@
                     },
                     "id": "24"
                 },
-                "Ressource": null,
+                "Resource": null,
                 "RelationOntologyClassOntologyClasses": [],
                 "RelationOntologyClassOntologyProperties": [],
                 "isPersistedConcrete": "1",
@@ -133,7 +133,7 @@
                     },
                     "id": "1"
                 },
-                "Ressource": null,
+                "Resource": null,
                 "RelationOntologyClassOntologyClasses": [],
                 "RelationOntologyClassOntologyProperties": [],
                 "isPersistedConcrete": "1",

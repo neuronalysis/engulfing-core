@@ -3,14 +3,14 @@ class HTMLConverter extends XMLConverter {
 	
 	function __construct() {
 	}
-	function convertPDFHTMLToEDOM($ressource) {
+	function convertPDFHTMLToEDOM($resource) {
 	    libxml_use_internal_errors(true);
 	    
 	    $doc = new Website_ConvertedPDF();
-	    $doc->ressource_path = $ressource->url;
+	    $doc->resource_path = $resource->url;
 	    $doc->dom = new DOMDocument();
-	    $doc->dom->loadHTML($ressource->content);
-	    $doc->document_type = $ressource->Type;
+	    $doc->dom->loadHTML($resource->content);
+	    $doc->document_type = $resource->Type;
 	    
 	    $stree = simplexml_import_dom($doc->dom);
 		

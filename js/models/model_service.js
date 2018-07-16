@@ -4,11 +4,11 @@ window.Service = Master.extend({
 	initialize: function(props){
 		var parameterString = $.param( props.parameters );
 
-	    this.urlRoot += props.ontology + "/" + props.ressource + "?" + parameterString;
+	    this.urlRoot += props.ontology + "/" + props.resource + "?" + parameterString;
 	},
 	defaults : {
 		"ontology" : null,
-		"ressource" : null
+		"resource" : null
 	}
 });
 

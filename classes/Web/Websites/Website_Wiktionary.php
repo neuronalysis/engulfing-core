@@ -1,7 +1,7 @@
 <?php
 class Website_Wiktionary extends Website {
 	var $baseurl;
-	var $ressource;
+	var $resource;
 	var $website_directory;
 	var $website_sections;
 	
@@ -439,11 +439,11 @@ class Website_Wiktionary extends Website {
     	
     	if (!isset($this->website_directory->website_chapters)) {
     		$word = new Word();
-    		$word->name = $this->ressource;
+    		$word->name = $this->resource;
     		$word->Type = "proper noun";
     		
     		$word->Lexeme = new Lexeme();
-    		$word->Lexeme->name = $this->ressource;
+    		$word->Lexeme->name = $this->resource;
     			
     		array_push($words, $word);
     		
@@ -459,7 +459,7 @@ class Website_Wiktionary extends Website {
     						if (isset($this->website_directory->website_chapters[$i]->website_chapters[$j]->title)) {
     							if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->title == "Verb") {
     								$word = new Word();
-    								$word->name = $this->ressource;
+    								$word->name = $this->resource;
     								$word->Type = "verb";
     								$word->extractWordForm($this->website_sections[$i]->website_sections[$j]->website_content->word_form, $this->website_sections[$i]->website_sections[$j]->website_content->word_form_of);
     									
@@ -468,14 +468,14 @@ class Website_Wiktionary extends Website {
     									if (isset($this->website_sections[$i]->website_sections[$j]->website_content->word_form_of)) {
     										$word->Lexeme->name = $this->website_sections[$i]->website_sections[$j]->website_content->word_form_of;
     									} else {
-    										$word->Lexeme->name = $this->ressource;
+    										$word->Lexeme->name = $this->resource;
     									}
     								}
     									
     								array_push($words, $word);
     							} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->title == "Proper noun") {
     								$word = new Word();
-    								$word->name = $this->ressource;
+    								$word->name = $this->resource;
     								$word->Type = "proper noun";
     									
     								if (isset($this->website_sections[$i]->website_sections[$j]->website_content)) {
@@ -483,7 +483,7 @@ class Website_Wiktionary extends Website {
     									if (isset($this->website_sections[$i]->website_sections[$j]->website_content->word_form_of)) {
     										$word->Lexeme->name = $this->website_sections[$i]->website_sections[$j]->website_content->word_form_of;
     									} else {
-    										$word->Lexeme->name = $this->ressource;
+    										$word->Lexeme->name = $this->resource;
     									}
     							
     								}
@@ -491,7 +491,7 @@ class Website_Wiktionary extends Website {
     								array_push($words, $word);
     							} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->title == "Noun") {
     								$word = new Word();
-    								$word->name = $this->ressource;
+    								$word->name = $this->resource;
     								$word->Type = "noun";
     								$word->extractWordForm($this->website_sections[$i]->website_sections[$j]->website_content->word_form, $this->website_sections[$i]->website_sections[$j]->website_content->word_form_of);
     							
@@ -500,7 +500,7 @@ class Website_Wiktionary extends Website {
     									if (isset($this->website_sections[$i]->website_sections[$j]->website_content->word_form_of)) {
     										$word->Lexeme->name = $this->website_sections[$i]->website_sections[$j]->website_content->word_form_of;
     									} else {
-    										$word->Lexeme->name = $this->ressource;
+    										$word->Lexeme->name = $this->resource;
     									}
     							
     								}
@@ -508,7 +508,7 @@ class Website_Wiktionary extends Website {
     								array_push($words, $word);
     							} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->title == "Determiner") {
     								$word = new Word();
-    								$word->name = $this->ressource;
+    								$word->name = $this->resource;
     								$word->Type = "determiner";
     								$word->extractWordForm($this->website_sections[$i]->website_sections[$j]->website_content->word_form, $this->website_sections[$i]->website_sections[$j]->website_content->word_form_of);
     							
@@ -517,7 +517,7 @@ class Website_Wiktionary extends Website {
     									if (isset($this->website_sections[$i]->website_sections[$j]->website_content->word_form_of)) {
     										$word->Lexeme->name = $this->website_sections[$i]->website_sections[$j]->website_content->word_form_of;
     									} else {
-    										$word->Lexeme->name = $this->ressource;
+    										$word->Lexeme->name = $this->resource;
     									}
     							
     								}
@@ -525,7 +525,7 @@ class Website_Wiktionary extends Website {
     								array_push($words, $word);
     							} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->title == "Adverb") {
     								$word = new Word();
-    								$word->name = $this->ressource;
+    								$word->name = $this->resource;
     								$word->Type = "adverb";
     								$word->extractWordForm($this->website_sections[$i]->website_sections[$j]->website_content->word_form, $this->website_sections[$i]->website_sections[$j]->website_content->word_form_of);
     							
@@ -534,7 +534,7 @@ class Website_Wiktionary extends Website {
     									if (isset($this->website_sections[$i]->website_sections[$j]->website_content->word_form_of)) {
     										$word->Lexeme->name = $this->website_sections[$i]->website_sections[$j]->website_content->word_form_of;
     									} else {
-    										$word->Lexeme->name = $this->ressource;
+    										$word->Lexeme->name = $this->resource;
     									}
     							
     								}
@@ -542,7 +542,7 @@ class Website_Wiktionary extends Website {
     								array_push($words, $word);
     							} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->title == "Pronoun") {
     								$word = new Word();
-    								$word->name = $this->ressource;
+    								$word->name = $this->resource;
     								$word->Type = "pronoun";
     								$word->extractWordForm($this->website_sections[$i]->website_sections[$j]->website_content->word_form, $this->website_sections[$i]->website_sections[$j]->website_content->word_form_of);
     							
@@ -551,7 +551,7 @@ class Website_Wiktionary extends Website {
     									if (isset($this->website_sections[$i]->website_sections[$j]->website_content->word_form_of)) {
     										$word->Lexeme->name = $this->website_sections[$i]->website_sections[$j]->website_content->word_form_of;
     									} else {
-    										$word->Lexeme->name = $this->ressource;
+    										$word->Lexeme->name = $this->resource;
     									}
     							
     								}
@@ -559,18 +559,18 @@ class Website_Wiktionary extends Website {
     								array_push($words, $word);
     							} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->title == "Article") {
     								$word = new Word();
-    								$word->name = $this->ressource;
+    								$word->name = $this->resource;
     								$word->Type = "article";
     								array_push($words, $word);
     							} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->title == "Adjective") {
     								$word = new Word();
-    								$word->name = $this->ressource;
+    								$word->name = $this->resource;
     								$word->Type = "adjective";
     								array_push($words, $word);
     									
     							} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->title == "Preposition") {
     								$word = new Word();
-    								$word->name = $this->ressource;
+    								$word->name = $this->resource;
     								$word->Type = "preposition";
     								array_push($words, $word);
     							}
@@ -586,7 +586,7 @@ class Website_Wiktionary extends Website {
     							for ($k=0; $k<count($this->website_directory->website_chapters[$i]->website_chapters[$j]->website_chapters); $k++) {
     								if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->website_chapters[$k]->title == "Verb") {
     									$word = new Word();
-    									$word->name = $this->ressource;
+    									$word->name = $this->resource;
     									$word->Type = "verb";
     									if (isset($this->website_sections[$i]->website_sections[$j]->website_sections[$k])) {
     										$word->extractWordForm($this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form, $this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of);
@@ -596,7 +596,7 @@ class Website_Wiktionary extends Website {
     											if (isset($this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of)) {
     												$word->Lexeme->name = $this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of;
     											} else {
-    												$word->Lexeme->name = $this->ressource;
+    												$word->Lexeme->name = $this->resource;
     											}
     										}
     											
@@ -606,7 +606,7 @@ class Website_Wiktionary extends Website {
     									
     								} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->website_chapters[$k]->title == "Noun") {
     									$word = new Word();
-    									$word->name = $this->ressource;
+    									$word->name = $this->resource;
     									$word->Type = "noun";
     									if (isset($this->website_sections[$i]->website_sections[$j]->website_sections[$k])) {
     										$word->extractWordForm($this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form, $this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of);
@@ -616,7 +616,7 @@ class Website_Wiktionary extends Website {
     											if (isset($this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of)) {
     												$word->Lexeme->name = $this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of;
     											} else {
-    												$word->Lexeme->name = $this->ressource;
+    												$word->Lexeme->name = $this->resource;
     											}
     										}
     											
@@ -625,7 +625,7 @@ class Website_Wiktionary extends Website {
     									
     								} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->website_chapters[$k]->title == "Determiner") {
     									$word = new Word();
-    									$word->name = $this->ressource;
+    									$word->name = $this->resource;
     									$word->Type = "determiner";
     									$word->extractWordForm($this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form, $this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of);
     										
@@ -634,14 +634,14 @@ class Website_Wiktionary extends Website {
     										if (isset($this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of)) {
 		    									$word->Lexeme->name = $this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of;
 		    								} else {
-		    									$word->Lexeme->name = $this->ressource;
+		    									$word->Lexeme->name = $this->resource;
 		    								}
     									}
     									
     									array_push($words, $word);
     								} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->website_chapters[$k]->title == "Adverb") {
     									$word = new Word();
-    									$word->name = $this->ressource;
+    									$word->name = $this->resource;
     									$word->Type = "adverb";
     									
     									if (isset($this->website_sections[$i]->website_sections[$j]->website_sections[$k])) {
@@ -652,7 +652,7 @@ class Website_Wiktionary extends Website {
     											if (isset($this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of)) {
     												$word->Lexeme->name = $this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of;
     											} else {
-    												$word->Lexeme->name = $this->ressource;
+    												$word->Lexeme->name = $this->resource;
     											}
     										}
     											
@@ -662,7 +662,7 @@ class Website_Wiktionary extends Website {
     									
     								} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->website_chapters[$k]->title == "Pronoun") {
     									$word = new Word();
-    									$word->name = $this->ressource;
+    									$word->name = $this->resource;
     									$word->Type = "pronoun";
     									
     									if (isset($this->website_sections[$i]->website_sections[$j]->website_sections[$k])) {
@@ -673,7 +673,7 @@ class Website_Wiktionary extends Website {
     											if (isset($this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of)) {
     												$word->Lexeme->name = $this->website_sections[$i]->website_sections[$j]->website_sections[$k]->website_content->word_form_of;
     											} else {
-    												$word->Lexeme->name = $this->ressource;
+    												$word->Lexeme->name = $this->resource;
     											}
     										}
     											
@@ -684,28 +684,28 @@ class Website_Wiktionary extends Website {
     									
     								} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->website_chapters[$k]->title == "Conjunction") {
     									$word = new Word();
-    									$word->name = $this->ressource;
+    									$word->name = $this->resource;
     									$word->Type = "conjunction";
     									array_push($words, $word);
     								} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->website_chapters[$k]->title == "Article") {
     									$word = new Word();
-    									$word->name = $this->ressource;
+    									$word->name = $this->resource;
     									$word->Type = "article";
     									array_push($words, $word);
     								} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->website_chapters[$k]->title == "Preposition") {
     									$word = new Word();
-    									$word->name = $this->ressource;
+    									$word->name = $this->resource;
     									$word->Type = "preposition";
     									array_push($words, $word);
     								} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->website_chapters[$k]->title == "Numeral") {
     									$word = new Word();
-    									$word->name = $this->ressource;
+    									$word->name = $this->resource;
     									$word->Type = "numeral";
     									
     									array_push($words, $word);
     								} else if ($this->website_directory->website_chapters[$i]->website_chapters[$j]->website_chapters[$k]->title == "Adjective") {
     									$word = new Word();
-    									$word->name = $this->ressource;
+    									$word->name = $this->resource;
     									$word->Type = "adjective";
     									
     									array_push($words, $word);    									

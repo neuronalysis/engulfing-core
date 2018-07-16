@@ -14,7 +14,7 @@ var EntityImportView = BaseView.extend({
     },
 
     events:{
-        "click #btn_parse":"parseRessource"
+        "click #btn_parse":"parseResource"
     },
     createFileUploadFieldView : function(field) {
 		var value_type = "file";

@@ -30,8 +30,8 @@ window.OntologyClassEntity = Master.extend({
 
 	}, {
 		type : Backbone.HasOne,
-		key : 'Ressource',
-		relatedModel : 'Ressource'
+		key : 'Resource',
+		relatedModel : 'Resource'
 	} ],
     getNameProperty : function() {
     	return this.getPropertyEntityByName('name');

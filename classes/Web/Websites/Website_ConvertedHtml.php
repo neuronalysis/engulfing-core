@@ -1,7 +1,7 @@
 <?php
 class Website_ConvertedHtml extends Website {
 	var $baseurl;
-	var $ressource;
+	var $resource;
 	var $website_document;
 	var $website_directory;
 	var $website_sections;

@@ -4,7 +4,7 @@ class ABBYYConverter extends Converter {
     
     var $downloads_directory;
     
-    function convertPDFToAltoXML($ressource) {
+    function convertPDFToAltoXML($resource) {
         if (!$this->is_connected() || $this->debugMode) {
             return file_get_contents("C:/xampp/htdocs/api\data/extraction/debug/conversion/testalto.xml");
         }
@@ -18,9 +18,9 @@ class ABBYYConverter extends Converter {
         // Get path to file that we are going to recognize
         //$local_directory=dirname(__FILE__).'/images/';
         if ($this->debugMode) {
-            $fileName = 'testressource.pdf';
+            $fileName = 'testresource.pdf';
         } else {
-            $fileName = $ressource->name;
+            $fileName = $resource->name;
         }
         
         $local_directory = $this->downloads_directory;

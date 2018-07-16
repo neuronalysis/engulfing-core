@@ -16,7 +16,7 @@ class Document {
 	var $language;
 	var $Ontologies = array();
 	var $information;
-	var $ressource_path;
+	var $resource_path;
 	
 	var $type;
 	
@@ -179,7 +179,7 @@ class Document {
     	return $html;
     }
     function processURL() {
-    	$path = str_replace("+", " ", $this->ressource_path);
+    	$path = str_replace("+", " ", $this->resource_path);
     	
     	$a = explode("?", $path);
     	if (isset($a[1])) {

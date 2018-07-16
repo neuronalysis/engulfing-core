@@ -3,7 +3,7 @@ window.Content = Master.extend({
 	
 	defaults : {
 		"ontology" : null,
-		"ressource" : null
+		"resource" : null
 	}
 });
 

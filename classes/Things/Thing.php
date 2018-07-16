@@ -1,7 +1,7 @@
 <?php
 include_once (__DIR__ . "/../../../engulfing-core/classes/Core/Helper.php");
 include_once (__DIR__ . "/../../../engulfing-core/classes/Core/AccessControl.php");
-include_once (__DIR__ . "/../../../engulfing-core/classes/Core/RessourceLoader.php");
+include_once (__DIR__ . "/../../../engulfing-core/classes/Core/ResourceLoader.php");
 include_once (__DIR__ . "/../../../engulfing-core/classes/Core/DOMHelper.php");
 include_once (__DIR__ . "/../../../engulfing-core/classes/Core/ORM/ORM.php");
 
@@ -20,7 +20,7 @@ class Thing {
 	
 	//
 	use Helper;
-	use RessourceLoader;
+	use ResourceLoader;
 
 	
 	function __construct($keyValues = array()) {

@@ -1,5 +1,5 @@
 <?php
-class Ressource extends Thing {
+class Resource extends Thing {
 	var $name;
 	var $url;
 	var $schemaDefinition;
@@ -14,8 +14,8 @@ class Ressource extends Thing {
 		return $path;
 	}
 	function getFileName() {
-		if (strpos($this->ressource_url, "/") !== false) {
-			$slash_explode = explode("/", $this->ressource_url);
+		if (strpos($this->resource_url, "/") !== false) {
+			$slash_explode = explode("/", $this->resource_url);
 			
 			return $slash_explode[count($slash_explode) - 1] . ".pdf";
 		}

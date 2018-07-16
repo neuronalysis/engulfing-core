@@ -86,7 +86,7 @@ var BaseRouter = Backbone.Router.extend({
 			if (roleID) {
 				var alert_msg = '<div class="alert alert-warning">'+
 				'<br/>Access not granted.'+
-				'<br/><br/>' + 'Please reach out for the <a href="mailto:' + siteAdmin + '">' + 'Site-Administrator' + '</a> to get access for desired ressources.' +
+				'<br/><br/>' + 'Please reach out for the <a href="mailto:' + siteAdmin + '">' + 'Site-Administrator' + '</a> to get access for desired resources.' +
 				'</div>';
 			} else {
 				var alert_msg = '<div class="alert alert-warning">'+

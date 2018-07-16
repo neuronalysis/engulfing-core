@@ -98,7 +98,7 @@ window.Master = Backbone.RelationalModel.extend({
     	return false;
     },
     isProtected: function (fieldName) {
-    	if (fieldName === 'Lexemes' || fieldName === 'Ressource' || fieldName === 'isPersistedConcrete') {
+    	if (fieldName === 'Lexemes' || fieldName === 'Resource' || fieldName === 'isPersistedConcrete') {
     		if (!isAuthorizedField(this.objectName, fieldName, Cookie.get("UserRoleID"))) {
     			return true;
     		}

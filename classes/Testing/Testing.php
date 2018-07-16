@@ -4,6 +4,18 @@ class Testing {
     
 	function __construct() {
 	}
+	function plottResults($results) {
+	    $str = "";
+	    
+	    foreach($results as $key => $class_item) {
+	        $str .= "\n\n\nclass: " . $key . "\n";
+	        foreach($class_item->methodAsserts as $assert_item) {
+	            $str .= $assert_item;
+	        }
+	    }
+	    
+	    return $str;
+	}
 }
 class TestAssert {
     var $outcomeExpected;
@@ -166,11 +178,11 @@ class TestClass {
 		return $assert;
 	}
 	function plottError($method, $e) {
-		$error = new Error ();
+	    $error = new Error ();
 		$error->details = $e->getMessage () . "\n" . $e->getFile() . " - " . $e->getLine();
 		
-		$assert = (object) array(
-				$method => $error
+        $assert = (object) array(
+            $method => $error->details
 		);
 		
 		return $assert;

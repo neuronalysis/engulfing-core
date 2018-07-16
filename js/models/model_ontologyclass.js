@@ -6,7 +6,7 @@ window.OntologyClass = Master.extend({
 		"id" : null,
 		"name" : "",
 		"Ontology" : null,
-		"Ressource" : null,
+		"Resource" : null,
 		"isPersistedConcrete" : null,
 		"Lexemes" : null,
 		"RelationOntologyClassOntologyClasses" : null,
@@ -18,8 +18,8 @@ window.OntologyClass = Master.extend({
 		relatedModel : 'Ontology'
 	}, {
 		type : Backbone.HasOne,
-		key : 'Ressource',
-		relatedModel : 'Ressource'
+		key : 'Resource',
+		relatedModel : 'Resource'
 	}, {
 		type : Backbone.HasMany,
 		key : 'Lexemes',
