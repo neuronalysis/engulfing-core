@@ -2,6 +2,9 @@
 class Testing {
     use Helper;
     
+    var $testConfigs = array();
+    var $testClasses = array();
+    
 	function __construct() {
 	}
 	function plottResults($results) {
@@ -16,12 +19,43 @@ class Testing {
 	    
 	    return $str;
 	}
+	function setTestConfigs($configs) {
+	    $this->testConfigs = $configs;
+	}
+	function loadClasses(array $classNames) {
+	    foreach($classNames as $className_item) {
+	        
+	        $tstClassName = $className_item . "_Test";
+	        echo $tstClassName;
+	        
+	        if (class_exists($tstClassName)) {
+	            echo "asdf";
+	            $tstClass = new $tstClassName;
+	            $tstClass->setConfigs($this->testConfigs);
+	            
+	            array_push($this->testClasses, $tstClass);
+	        }
+	        
+	        
+	    }
+	}
+	function test() {
+	    $resultsPlott = "";
+	    foreach($this->testClasses as $testClass_item) {
+	        $results = $testClass_item->test();
+	        
+	        $resultsPlott .= "" . $this->plottResults($results);
+	    }
+	    
+	    return $resultsPlott;
+	}
 }
 class TestAssert {
     var $outcomeExpected;
     var $outcomeActual;
     
     var $result;
+    var $assertFile;
     
     function __construct($outcomeExpected, $outcomeActual) {
         $this->outcomeExpected = $outcomeExpected;
@@ -45,15 +79,20 @@ class TestAssert {
             $outcome_expected_string= $this->outcomeExpected;
         }
         
-        $str .= "  outcome - \n";
-        $str .= "     - expected:   " . $outcome_expected_string . "\n";
-        $str .= "     - actual:     " .  $outcome_actual_string . "\n";
-        $str .= "\n";
+        
         
         foreach($this->result as $key => $value) {
             if ($value) {
                 $str .= "  test passed\n";
+                
+                if ($this->assertFile)  $str .= "  assertFile:           " . $this->assertFile . "\n";
             } else {
+                
+                $str .= "  outcome - \n";
+                $str .= "     - expected:   " . $outcome_expected_string . "\n";
+                $str .= "     - actual:     " .  $outcome_actual_string . "\n";
+                $str .= "\n";
+                
                 $str .= "  test failed\n";
             }
         }
@@ -75,6 +114,9 @@ class TestClass {
 		
 		//$this->testobject = new $classname();
 	}
+	function setInput(array $input) {
+	    $this->testinput = $input;
+	}
 	function test() {
 		$this->prepare();
 	
@@ -90,12 +132,23 @@ class TestClass {
 	
 		foreach($coverage->methods as $method => $coverage) {
 			if ($coverage[0]) {
-				$asserts = $this->$method();
-				if (is_array($asserts)) {
-					$check->$classname->methodAsserts = array_merge($check->$classname->methodAsserts, $asserts);
-				} else {
-					array_push($check->$classname->methodAsserts, $asserts);
-				}
+			    if (isset($this->testinput[$method])) {
+			        foreach($this->testinput[$method] as $testinput_item) {
+			            $asserts = $this->$method($testinput_item);
+			            if (is_array($asserts)) {
+			                $check->$classname->methodAsserts = array_merge($check->$classname->methodAsserts, $asserts);
+			            } else {
+			                array_push($check->$classname->methodAsserts, $asserts);
+			            }
+			        }
+			    } else {
+			        $asserts = $this->$method();
+			        if (is_array($asserts)) {
+			            $check->$classname->methodAsserts = array_merge($check->$classname->methodAsserts, $asserts);
+			        } else {
+			            array_push($check->$classname->methodAsserts, $asserts);
+			        }
+			    }
 			}
 				
 		}
@@ -154,14 +207,16 @@ class TestClass {
 		return $assert;
 	}
 	function assertNumerics($method, $expected, $actual, $operator = null) {
-		if ($operator) {
+	    $assert = new TestAssert($expected, $actual);
+	    
+	    if ($operator) {
 			if ($operator == ">") {
-				$assert = (object) array(
+			    $assert->result = (object) array(
 						$method => (($actual > $expected) ? true : false)
 				);
 			}
 		} else {
-			$assert = (object) array(
+		    $assert->result = (object) array(
 					$method => ((($expected - $actual) == 0) ? true : false)
 			);
 		}
@@ -224,15 +279,23 @@ class TestClass {
 		
 		return $assert;
 	}*/
-	function assertJson($method, $expected, $actual) {
-	    $expectedDecoded = json_decode($expected);
+	function assertJson($method, $expectedFile, $actual) {
+	    $expectedDecoded = json_decode(file_get_contents($expectedFile));
+	    $expected = json_encode($expectedDecoded, JSON_PRETTY_PRINT);
+	    
 	    $actualDecoded = json_decode($actual);
-	    
-	    $expectedEncoded = json_encode($expectedDecoded, JSON_PRETTY_PRINT);
-	    $actualEncoded = json_encode($actualDecoded, JSON_PRETTY_PRINT);
+	    $actual = json_encode($actualDecoded, JSON_PRETTY_PRINT);
 	    
 	    
-	    return $this->assertString($method, $expectedEncoded, $actualEncoded);
+	    $assert = new TestAssert($expected, $actual);
+	    $assert->assertFile = $expectedFile;
+	    
+	    
+	    $assert->result = (object) array(
+	        $method => (($expected == $actual) ? true : false)
+	    );
+	    
+	    return $assert;
 	}
 	function getFunctionReferencesByProject($methodName, $projectNames = array("engulfing/engulfing-core")) {
 		$directory = getcwd() . "../../" . $projectNames[0];
@@ -293,7 +356,7 @@ class TestClass {
 		$coverage->methods = array();
 		
 		foreach($methods as $method) {
-			if (!in_array($method->name, array("__construct", "arrayContains"))) {
+			if (!in_array($method->name, array("__construct", "arrayContains", "isNew", "hasVersionning", "isEmpty", "isClassField"))) {
 				if (in_array($method->name, $testmethods)) {
 					//$coverage->methods[$method->name] = array(true, $this->getFunctionReferencesByProject($method->name));
 					$coverage->methods[$method->name] = array(true, null);

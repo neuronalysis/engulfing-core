@@ -3,7 +3,7 @@ class Classifier {
 	var $Context;
 	var $Classification;
 	
-	use ObjectHelper;
+	//use ObjectHelper;
 }
 class Classification {
     var $name;

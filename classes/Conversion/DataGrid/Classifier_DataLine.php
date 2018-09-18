@@ -5,11 +5,11 @@ class Classifier_DataLine extends Classifier {
     var $mergeTargetRowIndex;
     var $clusterContext;
     
-    function __construct(DataGrid $dataGrid) {
+    function __construct(DataGrid $dataGrid = null) {
         $this->Context = $dataGrid;
     }
     function classify(DataLine $dataLine) {
-        //$this->shouldBePartOfFreeText($dataLine);
+        $this->shouldBePartOfFreeText($dataLine);
         $this->shouldBeKeyValue($dataLine);
         $this->shouldBeTable($dataLine);
     }
