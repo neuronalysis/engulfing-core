@@ -26,17 +26,12 @@ class Testing {
 	    foreach($classNames as $className_item) {
 	        
 	        $tstClassName = $className_item . "_Test";
-	        echo $tstClassName;
-	        
 	        if (class_exists($tstClassName)) {
-	            echo "asdf";
 	            $tstClass = new $tstClassName;
 	            $tstClass->setConfigs($this->testConfigs);
 	            
 	            array_push($this->testClasses, $tstClass);
 	        }
-	        
-	        
 	    }
 	}
 	function test() {
@@ -156,7 +151,7 @@ class TestClass {
 		return $check;
 	}
 	function testMethod($method) {
-		if (!method_exists($this, $method)) return null;
+	    if (!method_exists($this, $method)) return null;
 		
 		$this->prepare($method);
 	

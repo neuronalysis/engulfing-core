@@ -6,12 +6,14 @@ use ALTO\ALTOString;
 class DataArray {
     var $KeyValues = array();
     var $Tables = array();
+    var $FreeTexts = array();
     
     function toJSON() {
         $obj = new \stdClass();
         
         $obj->KeyValues = array();
         $obj->Tables = array();
+        $obj->FreeTexts = array();
         
         $tbls = 1;
         
@@ -33,6 +35,12 @@ class DataArray {
             }
         }
         
+        foreach($this->FreeTexts as $idx => $freetext_item) {
+            $freetext_string = $freetext_item->getString();
+            
+            $obj->FreeTexts[$idx] = $freetext_string->CONTENT;
+        }
+        
         
         return $obj;
     }
@@ -41,11 +49,22 @@ class DataArray {
             array_push($this->KeyValues, $kv);
         }
     }
+    function addFreeText(FreeText $freetext) {
+        if (!in_array($freetext, $this->FreeTexts)) {
+            array_push($this->FreeTexts, $freetext);
+        }
+    }
     function mergeKeyValues(array $keyvalues) {
         $this->KeyValues = array_merge($this->KeyValues, $keyvalues);
     }
     function getKeyValues() {
         return $this->KeyValues;
+    }
+    function mergeFreeTexts(array $freetexts) {
+        $this->FreeTexts = array_merge($this->FreeTexts, $freetexts);
+    }
+    function getFreeTexts() {
+        return $this->FreeTexts;
     }
     function addTable(Table $table) {
         if (!in_array($table, $this->Tables)) {
@@ -123,6 +142,31 @@ class Key {
 }
 class Value {
     var $Strings;
+}
+class FreeText {
+    var $Strings;
+    
+    function getString() {
+        $string = new ALTOString();
+        
+        if (isset($this->Strings)) {
+            if(is_array($this->Strings)) {
+                foreach($this->Strings as $key => $string_item) {
+                    if ($key > 0) {
+                        $string->CONTENT .= " " . $string_item->CONTENT;
+                    } else {
+                        $string->CONTENT .= $string_item->CONTENT;
+                    }
+                }
+                
+                
+            }
+        } else {
+            $string->CONTENT = "";
+        }
+        
+        return $string;
+    }
 }
 class Table {
     var $TableDataRows = array();

@@ -96,20 +96,21 @@ class Classifier_DataLine extends Classifier {
         $targetColumn = $this->Context->selectTargetColumn($dataLine);
         $lines = $targetColumn->DataLines;
         
-        //echo "string: " . $dataLine->Strings[0]->CONTENT . "\n";
-        
-        //echo "previous.previous.vpos: " . $lines[$dataLine->RowIndex -2]->VPOS . "; height: " . $lines[$dataLine->RowIndex -2]->HEIGHT .  "\n";
-        //echo "previous.vpos: " . $lines[$dataLine->RowIndex -1]->VPOS . "; height: " . $lines[$dataLine->RowIndex -1]->HEIGHT .  "\n";
-        
-        $vspace = $dataLine->VPOS - ($lines[$dataLine->RowIndex -1]->VPOS + $lines[$dataLine->RowIndex -1]->HEIGHT);
-        $vspace_previous = $lines[$dataLine->RowIndex -1]->VPOS - ($lines[$dataLine->RowIndex -2]->VPOS + $lines[$dataLine->RowIndex -2]->HEIGHT);
-        
-        //echo "vspace: " . ($dataLine->VPOS - ($lines[$dataLine->RowIndex -1]->VPOS + $lines[$dataLine->RowIndex -1]->HEIGHT)) . "\n";
-        //echo "vspace.previous: " . ($lines[$dataLine->RowIndex -1]->VPOS - ($lines[$dataLine->RowIndex -2]->VPOS + $lines[$dataLine->RowIndex -2]->HEIGHT)) . "\n";
-        
-        if (abs($vspace - $vspace_previous) < 20) {
-            return true;
+        if (isset($lines[$dataLine->RowIndex -2])) {
+            $vspace = $dataLine->VPOS - ($lines[$dataLine->RowIndex -1]->VPOS + $lines[$dataLine->RowIndex -1]->HEIGHT);
+            $vspace_previous = $lines[$dataLine->RowIndex -1]->VPOS - ($lines[$dataLine->RowIndex -2]->VPOS + $lines[$dataLine->RowIndex -2]->HEIGHT);
+            
+            $width = $dataLine->WIDTH;
+            $width_previous = $lines[$dataLine->RowIndex -1]->WIDTH;
+            $width_previous_previous = $lines[$dataLine->RowIndex -2]->WIDTH;
+            
+            if (abs($vspace - $vspace_previous) < 20) {
+                if ($width < $width_previous / 2) {
+                    return true;
+                }
+            }
         }
+        
         
         return false;
     }
@@ -140,46 +141,35 @@ class Classifier_DataLine extends Classifier {
         return 0;
     }
     function shouldBePartOfFreeText(DataLine $dataLine) {
-        $res = 0;
         
+        // criteria
         $hasExactlyOneColumns = $this->hasExactlyOneColumns($dataLine);
+        $hasDelimitedStrings = $this->hasDelimitedStrings($dataLine);
+        $hasAtLeastFiveWords = $this->hasAtLeastFiveWords($dataLine);
+        $isInlineWithValueIndent = $this->isInlineWithValueIndent($dataLine);
+        $belongsToPreviousLine = $this->belongsToPreviousLine($dataLine);
+        $isRightAligned = $dataLine->isRightAligned();
+        $isLeftAligned = $dataLine->isLeftAligned();
         
+        // sufficient criteria
+        $conditions_sufficient = array();
+        array_push($conditions_sufficient,
+            $hasExactlyOneColumns && ($isRightAligned && $isLeftAligned)
+        );
+        array_push($conditions_sufficient,
+            $hasExactlyOneColumns && (!$isRightAligned && $isLeftAligned && $belongsToPreviousLine)
+        );
         
-        if ($hasExactlyOneColumns) {
-            $res = 1;
-            
-        }
-        /*$numberOfColumns = $dataLine->getNumberOfColumns();
+        // necessities
+        $conditions_necessary = array();
         
-        if ($numberOfColumns === 1) {
-            if ($dataLine->isLeftAligned() && $dataLine->isRightAligned()) {
-                return 1;
-            } else {
-                if ($dataLine->RowIndex === 0) {
-                    if ($lines[$dataLine->RowIndex + 1]->getNumberOfColumns() === 1) {
-                        if (abs($dataLine->HEIGHT - $lines[$dataLine->RowIndex + 1]->HEIGHT) < 2) {
-                            return 1;
-                        }
-                    }
-                } else if ($dataLine->RowIndex > 0 && $dataLine->RowIndex < count($lines) - 1) {
-                    if ($lines[$dataLine->RowIndex - 1]->getNumberOfColumns() === 1) {
-                        if (abs($dataLine->HEIGHT - $lines[$dataLine->RowIndex - 1]->HEIGHT) < 2) {
-                            return 1;
-                        }
-                    }
-                    if ($lines[$dataLine->RowIndex + 1]->getNumberOfColumns() === 1) {
-                        if (abs($dataLine->HEIGHT - $lines[$dataLine->RowIndex + 1]->HEIGHT) < 2) {
-                            return 1;
-                        }
-                    }
-                    
-                }
-                
-                
-                
-                
-            }
-        }*/
+        array_push($conditions_necessary, $hasExactlyOneColumns);
+        array_push($conditions_necessary, !$hasDelimitedStrings);
+        array_push($conditions_necessary, !$isInlineWithValueIndent);
+        array_push($conditions_necessary, $hasAtLeastFiveWords || $belongsToPreviousLine);
+        array_push($conditions_necessary, $isLeftAligned);
+        
+        $res = $this->verifyCriteria($conditions_necessary, $conditions_sufficient);
         
         $dataLine->Classification->isPartOfFreeText = $res;
         
@@ -326,6 +316,20 @@ class Classifier_DataLine extends Classifier {
         
         return false;
     }
+    function hasAtLeastFiveWords($dataLine) {
+        $currentLineStringsByColumn = $dataLine->getStringsByColumns();
+        
+        $words = 0;
+        foreach ($currentLineStringsByColumn as $column_item) {
+            $words += count($column_item);
+        }
+        
+        if ($words >= 5) {
+            return true;
+        }
+        
+        return false;
+    }
     function hasExactlyTwoColumns($dataLine) {
         $currentLineStringsByColumn = $dataLine->getStringsByColumns();
         
@@ -398,16 +402,9 @@ class Classifier_DataLine extends Classifier {
     function shouldBeTableHeader(DataLine $dataLine) {
         $res = 0;
         
-        # certain necessities
-        
-        # has at least two columns
         $hasExactlyOneColumns = $this->hasExactlyOneColumns($dataLine);
         $hasAtLeastTwoColumns = $this->hasAtLeastTwoColumns($dataLine);
         
-        
-        # probable necessities
-        
-        # does start with "name"
         $doesStartWith_Name = !$this->doesNotStartWith_Name($dataLine);
         
         $isInTableContext = $this->isInContextTable($dataLine);
@@ -415,7 +412,6 @@ class Classifier_DataLine extends Classifier {
         $isInContextKeyValue = $this->isInContextKeyValue($dataLine);
         $isInContextTableHeader = $this->isInContextTableHeader($dataLine);
         
-        # has at least three columns
         $hasAtLeastThreeColumns = $this->hasAtLeastThreeColumns($dataLine);
         
         $hasEqualAmountOfColumnsLikeHeader = $this->hasEqualAmountOfColumnsLikeHeader($dataLine);
@@ -444,11 +440,6 @@ class Classifier_DataLine extends Classifier {
                             }
                         }
                     }
-                    /*if ($hasOnlyColumnsInlineWithHeaderInfo) {
-                        if (!$hasEqualAmountOfColumnsLikeHeader) {
-                            $res = 1;
-                        }
-                    }*/
                 }
             }
             
@@ -631,52 +622,37 @@ class Classifier_DataLine extends Classifier {
         return false;
     }
     function shouldBeKeyValue($dataLine) {
-        $res = 0;
-        
-        # certain necessities
-        
-        # has at least two columns
+        // criteria
         $hasAtLeastTwoColumns = $this->hasAtLeastTwoColumns($dataLine);
         $hasAtLeastThreeColumns = $this->hasAtLeastThreeColumns($dataLine);
         $hasExactlyTwoColumns = $this->hasExactlyTwoColumns($dataLine);
         $hasExactlyOneColumns = $this->hasExactlyOneColumns($dataLine);
-        
-        
-        # probable necessities
-        
-        # does not start with "name"
         $doesNotStartWith_Name = $this->doesNotStartWith_Name($dataLine);
-        
-        # is inline with overall key/value indent
         $isInlineWithOverallKeyValueIndent = $this->isInlineWithOverallKeyValueIndent($dataLine);
-        
         $isInlineWithValueIndent = $this->isInlineWithValueIndent($dataLine);
-        
         $shouldBeTable = $this->shouldBeTable($dataLine);
-        
-        # is not in table context
         $isInSuperContextTable= $this->isInSuperContextTable($dataLine);
-        
         $hasKeyAndValueInlineWithIndent = $this->hasKeyAndValueInlineWithIndent($dataLine);
+
         
-        if ($doesNotStartWith_Name && !$isInSuperContextTable) {
-            if ($hasExactlyTwoColumns) {
-                if ($hasKeyAndValueInlineWithIndent) {
-                    $res = 1;
-                }
-            } else if ($hasAtLeastThreeColumns) {
-                if ($hasKeyAndValueInlineWithIndent) {
-                    $res = 1;
-                }
-            }
-        } else if ($doesNotStartWith_Name) {
-            if ($hasExactlyTwoColumns) {
-                if ($hasKeyAndValueInlineWithIndent && !$shouldBeTable) {
-                    $res = 1;
-                }
-            }
-        }
+        // necessities
+        $conditions_necessary = array();
         
+        // sufficiencies
+        
+        $conditions_sufficient = array();
+        array_push($conditions_sufficient, 
+            ($doesNotStartWith_Name && !$isInSuperContextTable) && $hasExactlyTwoColumns && $hasKeyAndValueInlineWithIndent
+            );
+        array_push($conditions_sufficient,
+            ($doesNotStartWith_Name && !$isInSuperContextTable) && $hasAtLeastThreeColumns && $hasKeyAndValueInlineWithIndent
+            );
+        array_push($conditions_sufficient,
+            ($doesNotStartWith_Name && $isInSuperContextTable) && $hasExactlyTwoColumns && $hasKeyAndValueInlineWithIndent && !$shouldBeTable
+            );
+        
+        
+        $res = $this->verifyCriteria($conditions_necessary, $conditions_sufficient);
         
         $dataLine->Classification->isPartOfKeyValueList = $res;
         
@@ -835,7 +811,32 @@ class Classifier_DataLine extends Classifier {
         
         return $res;
     }
-    
+    function verifyCriteria(array $necessities, array $sufficiencies) {
+        $res = 0;
+        
+        foreach($sufficiencies as $sufficient_item) {
+            if ($sufficient_item) {
+                $res = 1;
+                
+                break;
+            }
+        }
+        
+        if ($res === 0) {
+            if (count($necessities) > 0) {
+                $res = 1;
+                
+                foreach($necessities as $necessary_item) {
+                    if (!$necessary_item) {
+                        $res = 0;
+                    }
+                }
+            }
+            
+        }
+        
+        return $res;
+    }
 }
 class Classification_DataLine {
     var $name;
