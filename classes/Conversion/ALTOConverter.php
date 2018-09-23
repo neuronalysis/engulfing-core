@@ -99,10 +99,36 @@ class ALTOConverter extends Converter {
                 
                 $array->mergeKeyValues($pageArray->getKeyValues());
                 $array->mergeTables($pageArray->getTables());
+                $array->mergeFreeTexts($pageArray->getFreeTexts());
             }
         }
          
         return $array;
+    }
+    function convertToDataGrids() {
+        $array = array();
+        
+        foreach($this->ALTO->Layout->Pages as $key => $page_item) {
+            if ($key <= 5) {
+                $pageDataGrid = $this->convertPageToDataGrid($key);
+                
+                array_push($array, $pageDataGrid);
+            }
+        }
+        
+        return $array;
+    }
+    function convertPageToDataGrid($pageNumber) {
+        $gridconv = new DataGridConverter();
+        
+        $lines = $this->bringStringsToLines($pageNumber);
+        
+        $lines = $this->trimWhitespaces($lines);
+        
+        $grid = new DataGrid();
+        $grid->bringLinesToGrid($lines, $pageNumber);
+        
+        return $grid;
     }
 }
 ?>

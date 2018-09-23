@@ -161,6 +161,13 @@ class DataGrid {
             }
         }
     }
+    function selectDataLine($rowIdx, $colIdx, $lineItemNumber) {
+        if (isset($this->DataGridRows[$rowIdx]->DataGridColumns[$colIdx]->DataLines[$lineItemNumber])) {
+            return $this->DataGridRows[$rowIdx]->DataGridColumns[$colIdx]->DataLines[$lineItemNumber];
+        } else {
+            return false;
+        }
+    }
     function addLines($lines) {
         $this->prepareGrid($lines);
         

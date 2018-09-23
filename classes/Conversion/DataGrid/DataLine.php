@@ -188,7 +188,7 @@ class DataLine {
         
         usort($this->Strings, array($this, "posStringCompare"));
         
-        $this->Strings= array_values($this->Strings);
+        $this->Strings = array_values($this->Strings);
     }
     function getAverageDevitationFromAverageSpaces() {
         $avgSpaceOfStrings = $this->getAverageSpaceBetweenStrings();
@@ -413,7 +413,7 @@ class DataLine {
         $avgSpaceDeviationOfStrings = $this->getAverageDevitationFromAverageSpaces();
         
         if ($avgSpaceDeviationOfStrings < 5) {
-            return $avgSpaceOfStrings + 10;
+            return $avgSpaceOfStrings * 3;
         } else {
             if ($this->HEIGHT < 35) {
                 return 22;
@@ -442,6 +442,7 @@ class DataLine {
         
         $spaceToCheck = $this->getSpaceCheckTreshold();
         
+        
         $noCols = 1;
         
         $columns[0] = array();
@@ -460,6 +461,8 @@ class DataLine {
             }
         } else {
             $avgDeviationFromAvgSpaces = $this->getAverageDevitationFromAverageSpaces();
+            
+            //echo $this . "; " . $avgSpaceOfStrings . "; " . $spaceToCheck . "; " . $avgDeviationFromAvgSpaces . "\n";
             
             foreach($this->Strings as $key => $string_item) {
                 if ($key > 0) {
@@ -488,7 +491,10 @@ class DataLine {
             }
         }
         
-        if (count($columns) === 1 && !$this->isLeftAligned()) {
+//TODO following part is not re-producable;  
+        /*if (count($columns) === 1 && !$this->isLeftAligned()) {
+            echo $this . "; " . "; " . $spaceToCheck . "\n";
+            
             $columns_imp = array();
             
             if (count($grid->denseStartHPOSNonColumnBased) === 1) {
@@ -514,7 +520,7 @@ class DataLine {
                     }
                 }
             }
-        }
+        }*/
         
         $this->stringColumns = $columns;
     }
@@ -562,14 +568,15 @@ class DataLine {
     function isLeftAligned() {
         $grid = DataGrid::getInstance();
         
-        if (abs($this->Strings[0]->HPOS - $grid->pageLeft) < 50) return true;
+        if (abs($this->Strings[0]->HPOS - $grid->pageLeft) < 100) return true;
+        
         
         return false;
     }
     function isRightAligned() {
         $grid = DataGrid::getInstance();
         
-        if (abs(($this->Strings[count($this->Strings) - 1]->HPOS + $this->Strings[count($this->Strings) - 1]->WIDTH) - $grid->pageRight) < 50) return true;
+        if (abs(($this->Strings[count($this->Strings) - 1]->HPOS + $this->Strings[count($this->Strings) - 1]->WIDTH) - $grid->pageRight) < 100) return true;
         
         return false;
     }

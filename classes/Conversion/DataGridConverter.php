@@ -6,6 +6,7 @@ use DataArray\KeyValue;
 use DataArray\TableDataCell;
 use DataArray\Key;
 use DataArray\Value;
+use DataArray\FreeText;
 
 class DataGridConverter extends Converter {
 	function convertToDataArray(DataGrid $grid) {
@@ -151,27 +152,57 @@ class DataGridConverter extends Converter {
                                 }
                                 
                             }
-	                    } else if ($line_item->Classification->name === "partOfFreeText") {
+	                    } else if ($line_item->Classification->name === "FREETEXT") {
 	                        if ($key > 0) {
-	                            if ($cell_lines[$key-1]->Classification->name !== "partOfFreeText") {
-	                                $freetext = "";
-	                                for($i = $key; $i < (count($cell_lines) -1); $i++) {
-	                                    $ft_stringsByColumns = $cell_lines[$i]->getConcatenatedStringByColumns();
+	                            if (isset($cell_lines[$key-1])) {
+	                                if ($cell_lines[$key-1]->Classification->name !== "FREETEXT") {
+	                                    $freetext = new FreeText();
+	                                    $freetext->Strings = $stringsByColumns[0];
+	                                    /*for($i = $key; $i < (count($cell_lines) -1); $i++) {
+	                                     $ft_stringsByColumns = $cell_lines[$i]->getConcatenatedStringByColumns();
+	                                     
+	                                     if ($i>$key) {
+	                                     $freetext .= " " . $ft_stringsByColumns[0];
+	                                     } else {
+	                                     $freetext .= $ft_stringsByColumns[0];
+	                                     }
+	                                     
+	                                     if($cell_lines[$i+1]->Classification->name !== "FREETEXT") {
+	                                     array_push($array, $freetext);
+	                                     break 1;
+	                                     }
+	                                     }*/
 	                                    
-	                                    if ($i>$key) {
-	                                        $freetext .= " " . $ft_stringsByColumns[0];
-	                                    } else {
-	                                        $freetext .= $ft_stringsByColumns[0];
+	                                    if($cell_lines[$key+1]->Classification->name !== "FREETEXT") {
+	                                        $array->addFreeText($freetext);
+	                                    }
+	                                } else {
+	                                    $freetext->Strings = array_merge($freetext->Strings, $stringsByColumns[0]);
+	                                    
+	                                    if (isset($cell_lines[$key+1])) {
+	                                        if($cell_lines[$key+1]->Classification->name !== "FREETEXT") {
+	                                            $array->addFreeText($freetext);
+	                                        }
 	                                    }
 	                                    
-	                                    if($cell_lines[$i+1]->Classification->name !== "partOfFreeText") {
-	                                        array_push($array, $freetext);
-	                                        break 1;
-	                                    }
+	                                }
+	                            } else {
+	                                $freetext = new FreeText();
+	                                $freetext->Strings = $stringsByColumns[0];
+	                                
+	                                if($cell_lines[$key+1]->Classification->name !== "FREETEXT") {
+	                                    $array->addFreeText($freetext);
 	                                }
 	                            }
+	                            
 	                        } else {
-	                            $freetext = "";
+	                            $freetext = new FreeText();
+	                            $freetext->Strings = $stringsByColumns[0];
+	                            
+	                            if($cell_lines[$key+1]->Classification->name !== "FREETEXT") {
+	                                $array->addFreeText($freetext);
+	                            }
+	                            /*$freetext = "";
 	                            for($i = $key; $i < (count($cell_lines) -1); $i++) {
 	                                $ft_stringsByColumns = $cell_lines[$i]->getConcatenatedStringByColumns();
 	                                
@@ -185,7 +216,7 @@ class DataGridConverter extends Converter {
 	                                    array_push($array, $freetext);
 	                                    break 1;
 	                                }
-	                            }
+	                            }*/
 	                        }
 	                    } else if ($line_item->Classification->name === "ALLONE") {
 	                        if ($line_item->Classification->hasDelimitedStrings) {
