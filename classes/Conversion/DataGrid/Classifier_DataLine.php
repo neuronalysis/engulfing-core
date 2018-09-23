@@ -9,6 +9,7 @@ class Classifier_DataLine extends Classifier {
         $this->Context = $dataGrid;
     }
     function classify(DataLine $dataLine) {
+        $this->shouldBeHeader($dataLine);
         $this->shouldBePartOfFreeText($dataLine);
         $this->shouldBeKeyValue($dataLine);
         $this->shouldBeTable($dataLine);
@@ -17,7 +18,7 @@ class Classifier_DataLine extends Classifier {
         if ($dataLine->Classification->isStandAlone === 1) {
             //$dataLine->Classification->name = "ALLONE";
         } else if ($dataLine->Classification->isHeader === 1) {
-            //$dataLine->Classification->name = "HEADER";
+            $dataLine->Classification->name = "HEADER";
         } else if ($dataLine->Classification->isPartOfFreeText === 1) {
             $dataLine->Classification->name= "FREETEXT";
         } else if ($dataLine->Classification->isPartOfKeyValueList === 1) {
@@ -190,19 +191,28 @@ class Classifier_DataLine extends Classifier {
         return false;
     }
     function shouldBeHeader(DataLine $dataLine) {
-        /*$numberOfColumns = $dataLine->getNumberOfColumns();
+        // criteria
+        $hasExactlyOneColumns = $this->hasExactlyOneColumns($dataLine);
+        $hasAtLeastFiveWords = $this->hasAtLeastFiveWords($dataLine);
+        $isLeftAligned = $dataLine->isLeftAligned();
+        $belongsToPreviousLine = $this->belongsToPreviousLine($dataLine);
         
-        $followingDataLine = $dataLine->getFollowingDataLine();
+        // sufficient criteria
+        $conditions_sufficient = array();
+        array_push($conditions_sufficient,
+            $hasExactlyOneColumns && $isLeftAligned && !$hasAtLeastFiveWords && !$belongsToPreviousLine
+        );
         
-        if ($numberOfColumns === 1 && $dataLine->isLeftAligned() && !$dataLine->isRightAligned()) {
-            if ($dataLine->Strings[count($dataLine->Strings) - 1]->HPOS < 3500) {
-                return 1;
-            }
-        }*/
         
-        return 0;
+        // necessities
+        $conditions_necessary = array();
+        
+        $res = $this->verifyCriteria($conditions_necessary, $conditions_sufficient);
+        
+        $dataLine->Classification->isHeader= $res;
+        
+        return $res;
     }
-    
     function isInContextTableHeader() {
         if ($this->clusterContext) {
             if ($this->clusterContext->Classification) {

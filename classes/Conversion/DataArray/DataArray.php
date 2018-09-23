@@ -7,6 +7,7 @@ class DataArray {
     var $KeyValues = array();
     var $Tables = array();
     var $FreeTexts = array();
+    var $Headers = array();
     
     function toJSON() {
         $obj = new \stdClass();
@@ -14,6 +15,7 @@ class DataArray {
         $obj->KeyValues = array();
         $obj->Tables = array();
         $obj->FreeTexts = array();
+        $obj->Headers = array();
         
         $tbls = 1;
         
@@ -41,6 +43,11 @@ class DataArray {
             $obj->FreeTexts[$idx] = $freetext_string->CONTENT;
         }
         
+        foreach($this->Headers as $idx => $header_item) {
+            $header_string = $header_item->getString();
+            
+            $obj->Headers[$idx] = $header_string->CONTENT;
+        }
         
         return $obj;
     }
@@ -54,6 +61,11 @@ class DataArray {
             array_push($this->FreeTexts, $freetext);
         }
     }
+    function addHeader(Header $header) {
+        if (!in_array($header, $this->Headers)) {
+            array_push($this->Headers, $header);
+        }
+    }
     function mergeKeyValues(array $keyvalues) {
         $this->KeyValues = array_merge($this->KeyValues, $keyvalues);
     }
@@ -65,6 +77,12 @@ class DataArray {
     }
     function getFreeTexts() {
         return $this->FreeTexts;
+    }
+    function mergeHeaders(array $headers) {
+        $this->Headers = array_merge($this->Headers, $headers);
+    }
+    function getHeaders() {
+        return $this->Headers;
     }
     function addTable(Table $table) {
         if (!in_array($table, $this->Tables)) {
@@ -144,6 +162,31 @@ class Value {
     var $Strings;
 }
 class FreeText {
+    var $Strings;
+    
+    function getString() {
+        $string = new ALTOString();
+        
+        if (isset($this->Strings)) {
+            if(is_array($this->Strings)) {
+                foreach($this->Strings as $key => $string_item) {
+                    if ($key > 0) {
+                        $string->CONTENT .= " " . $string_item->CONTENT;
+                    } else {
+                        $string->CONTENT .= $string_item->CONTENT;
+                    }
+                }
+                
+                
+            }
+        } else {
+            $string->CONTENT = "";
+        }
+        
+        return $string;
+    }
+}
+class Header {
     var $Strings;
     
     function getString() {

@@ -7,6 +7,7 @@ use DataArray\TableDataCell;
 use DataArray\Key;
 use DataArray\Value;
 use DataArray\FreeText;
+use DataArray\Header;
 
 class DataGridConverter extends Converter {
 	function convertToDataArray(DataGrid $grid) {
@@ -228,15 +229,16 @@ class DataGridConverter extends Converter {
 	                                $array[$ft_stringsByColumns[0]] = $ft_stringsByColumns[1];
 	                            }
 	                        }
-	                    } else if ($line_item->Classification->name === "header") {
+	                    } else if ($line_item->Classification->name === "HEADER") {
 	                        if ($line_item->Classification->hasDelimitedStrings) {
 	                            foreach($line_item->getKeyValuesFromDelimitedStrings() as $key => $value) {
 	                                $array[$key] = $value;
 	                            }
 	                        } else {
-	                            if (isset($ft_stringsByColumns[1])) {
-	                                $array[$ft_stringsByColumns[0]] = $ft_stringsByColumns[1];
-	                            }
+	                            $header = new Header();
+	                            $header->Strings = $stringsByColumns[0];
+	                            
+	                            $array->addHeader($header);
 	                        }
 	                    }
 	                }

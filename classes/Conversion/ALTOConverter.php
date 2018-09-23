@@ -100,6 +100,7 @@ class ALTOConverter extends Converter {
                 $array->mergeKeyValues($pageArray->getKeyValues());
                 $array->mergeTables($pageArray->getTables());
                 $array->mergeFreeTexts($pageArray->getFreeTexts());
+                $array->mergeHeaders($pageArray->getHeaders());
             }
         }
          
