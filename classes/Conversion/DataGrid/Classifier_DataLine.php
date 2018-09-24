@@ -182,14 +182,16 @@ class Classifier_DataLine extends Classifier {
     function hasDelimitedStrings(DataLine $dataLine) {
         $stringsByColumns = $dataLine->getConcatenatedStringByColumns();
         
-        
-        if (stripos($stringsByColumns[0], " / ")) {
-            return true;
+        foreach($stringsByColumns as $column_item) {
+            if (stripos($column_item, " / ")) {
+                return true;
+            }
+            
+            if (stripos($column_item, ": ")) {
+                return true;
+            }
         }
         
-        if (stripos($stringsByColumns[0], ": ")) {
-            return true;
-        }
         
         return false;
     }
@@ -418,6 +420,9 @@ class Classifier_DataLine extends Classifier {
         $hasExactlyOneColumns = $this->hasExactlyOneColumns($dataLine);
         $hasAtLeastTwoColumns = $this->hasAtLeastTwoColumns($dataLine);
         
+        $hasDelimitedStrings = $this->hasDelimitedStrings($dataLine);
+        $dataLine->Classification->hasDelimitedStrings = $hasDelimitedStrings;
+        
         $doesStartWith_Name = !$this->doesNotStartWith_Name($dataLine);
         
         $isInTableContext = $this->isInContextTable($dataLine);
@@ -468,6 +473,8 @@ class Classifier_DataLine extends Classifier {
                 $dataLine->Classification->isMergeCandidate = 1;
             }
         }
+        
+        
         
         $dataLine->Classification->isPartOfTable = $res;
         
@@ -646,6 +653,9 @@ class Classifier_DataLine extends Classifier {
         $shouldBeTable = $this->shouldBeTable($dataLine);
         $isInSuperContextTable= $this->isInSuperContextTable($dataLine);
         $hasKeyAndValueInlineWithIndent = $this->hasKeyAndValueInlineWithIndent($dataLine);
+        
+        $hasDelimitedStrings = $this->hasDelimitedStrings($dataLine);
+        
 
         
         // necessities
@@ -663,7 +673,9 @@ class Classifier_DataLine extends Classifier {
         array_push($conditions_sufficient,
             ($doesNotStartWith_Name && $isInSuperContextTable) && $hasExactlyTwoColumns && $hasKeyAndValueInlineWithIndent && !$shouldBeTable
             );
-        
+        array_push($conditions_sufficient,
+            ($doesNotStartWith_Name && !$isInSuperContextTable) && $hasExactlyOneColumns && $hasDelimitedStrings
+            );
         
         $res = $this->verifyCriteria($conditions_necessary, $conditions_sufficient);
         

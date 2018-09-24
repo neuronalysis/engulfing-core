@@ -274,6 +274,23 @@ class DataLine {
                 
                 
             }
+        } else if (stripos($stringsByColumns_Concatenated[0], ": ") && count($stringsByColumns_Concatenated) === 1) {
+            $keyvalue_exp = explode(": ", $stringsByColumns_Concatenated[0]);
+            
+            $kv = new KeyValue();
+            $key_string = new ALTOString();
+            $key_string->CONTENT = $keyvalue_exp[0];
+            
+            $kv->Key = new Key();
+            $kv->Key->Strings = array($key_string);
+         
+            $value_string = new ALTOString();
+            $value_string->CONTENT = $keyvalue_exp[1];
+            
+            $kv->Value = new Value();
+            $kv->Value->Strings = array($value_string);
+            
+            array_push($keyvalues, $kv);
         }
         
         return $keyvalues;
