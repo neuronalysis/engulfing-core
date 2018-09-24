@@ -1,4 +1,10 @@
 <?php
+
+use DataArray\KeyValue;
+use DataArray\Key;
+use DataArray\Value;
+use ALTO\ALTOString;
+
 class DataLine {
     var $RowIndex;
     var $ColumnIndex;
@@ -240,26 +246,35 @@ class DataLine {
     function getKeyValuesFromDelimitedStrings() {
         $keyvalues = array();
         
-        $stringsByColumns = $this->getConcatenatedStringByColumns();
+        $stringsByColumns_Concatenated = $this->getConcatenatedStringByColumns();
         
-        if (stripos($stringsByColumns[0], " / ")) {
-            $key_exp = explode(" / ", $stringsByColumns[0]);
-            $value_exp = explode(" / ", $stringsByColumns[1]);
+         
+        if (stripos($stringsByColumns_Concatenated[0], " / ")) {
+            $key_exp = explode(" / ", $stringsByColumns_Concatenated[0]);
+            $value_exp = explode(" / ", $stringsByColumns_Concatenated[1]);
             
             if (count($key_exp) === count($value_exp)) {
                 foreach($key_exp as $key => $item) {
-                    $keyvalues[$item] = $value_exp[$key];
+                    $kv = new KeyValue();
+                    
+                    $key_string = new ALTOString();
+                    $key_string->CONTENT = $key_exp[$key];
+                    
+                    $kv->Key = new Key();
+                    $kv->Key->Strings = array($key_string);
+                    
+                    $value_string = new ALTOString();
+                    $value_string->CONTENT = $value_exp[$key];
+                    
+                    $kv->Value = new Value();
+                    $kv->Value->Strings = array($value_string);
+                    
+                    array_push($keyvalues, $kv);
                 }
+                
+                
             }
         }
-        
-        foreach($stringsByColumns as $col_item) {
-            if (stripos($col_item, ": ")) {
-                $keyvalue_exp = explode(": ", $col_item);
-                $keyvalues[$keyvalue_exp[0]] = $keyvalue_exp[1];
-            }
-        }
-        
         
         return $keyvalues;
     }
@@ -269,8 +284,6 @@ class DataLine {
         
         
         if (abs($string->TextLine->HEIGHT - $preceedingTextline->HEIGHT) < 5 && ($string->TextLine->VPOS - ($preceedingTextline->VPOS + $preceedingTextline->HEIGHT)) < 10) {
-            //echo $this->mergeStringContents($this->getStringsOnLine($string)) . " - " . $string->TextLine->HEIGHT . "; " . $preceedingTextline->HEIGHT . "\n";
-            //echo "same height \n";
             return true;
         } else {
             if (abs($followingTextline->HEIGHT - $string->TextLine->HEIGHT) < 5 && ($followingTextline->VPOS - ($string->TextLine->VPOS + $string->TextLine->VPOS)) < 10 && $this->getNumberOfColumns($this->getStringsOnLine($followingTextline->Strings[0])) === 1) {
@@ -290,7 +303,7 @@ class DataLine {
         $string .= "[" . sprintf('%02d', $this->RowIndex) . "." . sprintf('%01d', $this->ColumnIndex) . "]";
         $string .= "[POS: " . sprintf('%04d', $this->VPOS) . "/". sprintf('%04d', $this->HPOS). "; H: " . str_pad($this->HEIGHT, 4, " ", STR_PAD_RIGHT) . "; W: " . str_pad($this->WIDTH, 4, " ", STR_PAD_RIGHT) . "]";
         if ($this->Classification) {
-            $string .= " [FT: " . $this->Classification->isPartOfFreeText . "; SA: " . $this->Classification->isStandAlone . "; H: " . $this->Classification->isHeader . "; KV: " . $this->Classification->isPartOfKeyValueList . "; T: " . $this->Classification->isPartOfTable. "; MG: " . $this->Classification->isMergeCandidate . "]";
+            $string .= " [FT: " . $this->Classification->isPartOfFreeText . "; SA: " . $this->Classification->isStandAlone . "; H: " . $this->Classification->isHeader . "; KV: " . $this->Classification->isPartOfKeyValueList . "; T: " . $this->Classification->isPartOfTable . "; MG: " . $this->Classification->isMergeCandidate . "; DEL: " . $this->Classification->hasDelimitedStrings. "]";
             
             $string .= " [" . str_pad($this->Classification->name, 10, " ", STR_PAD_RIGHT) . "]";
         

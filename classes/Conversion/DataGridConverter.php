@@ -72,7 +72,7 @@ class DataGridConverter extends Converter {
 	                        } else {
 	                            if ($line_item->Classification->hasDelimitedStrings) {
 	                                foreach($line_item->getKeyValuesFromDelimitedStrings() as $key => $value) {
-	                                    $array[$key] = $value;
+	                                    $array->addKeyValue($value);
 	                                }
 	                            } else {
 	                                $ft_stringsByColumns[0] = str_ireplace(":", "", $ft_stringsByColumns[0]);

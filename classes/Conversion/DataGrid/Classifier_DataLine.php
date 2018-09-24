@@ -146,6 +146,9 @@ class Classifier_DataLine extends Classifier {
         // criteria
         $hasExactlyOneColumns = $this->hasExactlyOneColumns($dataLine);
         $hasDelimitedStrings = $this->hasDelimitedStrings($dataLine);
+        
+        $dataLine->Classification->hasDelimitedStrings = $hasDelimitedStrings;
+        
         $hasAtLeastFiveWords = $this->hasAtLeastFiveWords($dataLine);
         $isInlineWithValueIndent = $this->isInlineWithValueIndent($dataLine);
         $belongsToPreviousLine = $this->belongsToPreviousLine($dataLine);
