@@ -413,7 +413,7 @@ class DataLine {
         
         for($i=0; $i<count($strings); $i++) {
             if ($i > 0) {
-                if ($strings[$i]->HPOS - ($strings[$i-1]->HPOS + $strings[$i-1]->WIDTH) > 5) {
+                if ($strings[$i]->HPOS - ($strings[$i-1]->HPOS + $strings[$i-1]->WIDTH) > 0) {
                     if ($merged_pending) {
                         array_push($merged, $candidate);
                         $merged_pending = false;
@@ -645,8 +645,12 @@ class DataLine {
         $stringsByColumns= $this->getConcatenatedStringByColumns();
         
         $string = "";
-        foreach($stringsByColumns as $column_item) {
-            $string .= " " . $column_item;
+        foreach($stringsByColumns as $idx => $column_item) {
+            if ($idx > 0) {
+                $string .= " " . $column_item;
+            } else {
+                $string .= $column_item;
+            }
         }
         
         return $string;
