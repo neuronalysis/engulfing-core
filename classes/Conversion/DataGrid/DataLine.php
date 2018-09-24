@@ -557,10 +557,66 @@ class DataLine {
     function getStringsByColumns() {
         return $this->stringColumns;
     }
-    function getConcatenatedStringByColumns() {
+    function getConcatenatedStringByColumns(bool $checkForDelimiters = false, array $headerInfo = null, array $headerInfoDelimited = null) {
         $stringsByColumn = $this->getStringsByColumns();
         
         $columns = array();
+        
+        if ($checkForDelimiters) {
+            $columns_non_checked = $this->getConcatenatedStringByColumns();
+            
+            
+            foreach($columns_non_checked as $idx => $column_item) {
+                if (isset($headerInfoDelimited)) {
+                    if(count($headerInfoDelimited) !== count($columns_non_checked)) {
+                        if (stripos($column_item, "/")) {
+                            $col_exp = explode("/", $column_item);
+                            
+                            foreach($col_exp as $key => $item) {
+                                array_push($columns, trim($item));
+                            }
+                        } else if (stripos($headerInfo[$idx], "/")) {
+                            $col_exp = explode(" ", $column_item);
+                            
+                            foreach($col_exp as $key => $item) {
+                                array_push($columns, trim($item));
+                            }
+                        } else {
+                            array_push($columns, $column_item);
+                        }
+                    } else {
+                        if (stripos($column_item, "/")) {
+                            $col_exp = explode("/", $column_item);
+                            
+                            foreach($col_exp as $key => $item) {
+                                array_push($columns, trim($item));
+                            }
+                        } else {
+                            array_push($columns, $column_item);
+                        }
+                    }
+                } else {
+                    if (stripos($column_item, "/")) {
+                        $col_exp = explode("/", $column_item);
+                        
+                        foreach($col_exp as $key => $item) {
+                            array_push($columns, trim($item));
+                        }
+                    } else {
+                        array_push($columns, $column_item);
+                    }
+                }
+                
+                
+            }
+            
+            return $columns;
+            //$classifier = new Classifier_DataLine();
+            //$hasDelimitedStrings = $classifier->hasDelimitedStrings($this);
+        } else {
+            $hasDelimitedStrings = false;
+        }
+        
         
         foreach($stringsByColumn as $column_item) {
             $string = "";

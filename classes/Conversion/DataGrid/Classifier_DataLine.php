@@ -183,7 +183,7 @@ class Classifier_DataLine extends Classifier {
         $stringsByColumns = $dataLine->getConcatenatedStringByColumns();
         
         foreach($stringsByColumns as $column_item) {
-            if (stripos($column_item, " / ")) {
+            if (stripos($column_item, "/")) {
                 return true;
             }
             
@@ -421,6 +421,7 @@ class Classifier_DataLine extends Classifier {
         $hasAtLeastTwoColumns = $this->hasAtLeastTwoColumns($dataLine);
         
         $hasDelimitedStrings = $this->hasDelimitedStrings($dataLine);
+        
         $dataLine->Classification->hasDelimitedStrings = $hasDelimitedStrings;
         
         $doesStartWith_Name = !$this->doesNotStartWith_Name($dataLine);

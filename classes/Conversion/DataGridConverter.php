@@ -26,10 +26,12 @@ class DataGridConverter extends Converter {
 	                        if ($line_item->Classification->Classification) {
 	                            if ($line_item->Classification->Classification->name=== "TABLE") {
 	                                if ($line_item->Classification->Classification->Classification->name === "T-HEADER") {
-	                                    //$table = array();
 	                                    $table = new Table();
-	                                    
 	                                    $headerInfo = $ft_stringsByColumns;
+	                                    
+	                                    
+	                                    
+	                                    
 	                                } else if ($line_item->Classification->Classification->Classification->name === "T-DATAROW") {
 	                                    //$row = array();
 	                                    $row= new TableDataRow();
@@ -102,36 +104,72 @@ class DataGridConverter extends Converter {
 	                            //$table = array();
 	                            $table= new Table();
 	                            
-                                $headerInfo = $ft_stringsByColumns;
+	                            if ($line_item->Classification->hasDelimitedStrings) {
+	                                $headerInfo = $ft_stringsByColumns;
+	                                $headerInfo_delimited = $line_item->getConcatenatedStringByColumns(true);
+	                            } else {
+	                                $headerInfo = $ft_stringsByColumns;
+	                            }
+	                            
+                                
                             } else if ($line_item->Classification->Classification->name === "T-DATAROW") {
                                 //$row = array();
                                 $row = new TableDataRow();
-                                
-                                if (strtolower($ft_stringsByColumns[0]) === "name") {
-                                    foreach($ft_stringsByColumns as $key => $col_item) {
-                                        if (isset($headerInfo[$key+1])) {
-                                            //$row[$headerInfo[$key+1]] = $col_item;
-                                            $cell = new TableDataCell();
-                                            $cell->Key = $headerInfo[$key+1];
-                                            $cell->Value = $col_item;
-                                            
-                                            array_push($row->TableDataCells, $cell);
+                                if (isset($headerInfo_delimited)) {
+                                    $ft_stringsByColumns_delimited = $line_item->getConcatenatedStringByColumns(true, $headerInfo, $headerInfo_delimited);
+                                    
+                                    if (strtolower($ft_stringsByColumns_delimited[0]) === "name") {
+                                        
+                                        foreach($ft_stringsByColumns_delimited as $key => $col_item) {
+                                            if (isset($headerInfo_delimited[$key+1])) {
+                                                //$row[$headerInfo[$key+1]] = $col_item;
+                                                $cell = new TableDataCell();
+                                                $cell->Key = $headerInfo_delimited[$key+1];
+                                                $cell->Value = $col_item;
+                                                
+                                                array_push($row->TableDataCells, $cell);
+                                            }
+                                        }
+                                    } else {
+                                        foreach($ft_stringsByColumns_delimited as $key => $col_item) {
+                                            if (isset($headerInfo_delimited[$key])) {
+                                                //$row[$headerInfo[$key]] = $col_item;
+                                                $cell = new TableDataCell();
+                                                $cell->Key = $headerInfo_delimited[$key];
+                                                $cell->Value = $col_item;
+                                                
+                                                array_push($row->TableDataCells, $cell);
+                                            }
                                         }
                                     }
                                 } else {
-                                    foreach($ft_stringsByColumns as $key => $col_item) {
-                                        if (isset($headerInfo[$key])) {
-                                            //$row[$headerInfo[$key]] = $col_item;
-                                            $cell = new TableDataCell();
-                                            $cell->Key = $headerInfo[$key];
-                                            $cell->Value = $col_item;
-                                            
-                                            array_push($row->TableDataCells, $cell);
+                                    if (strtolower($ft_stringsByColumns[0]) === "name") {
+                                        
+                                        foreach($ft_stringsByColumns as $key => $col_item) {
+                                            if (isset($headerInfo[$key+1])) {
+                                                //$row[$headerInfo[$key+1]] = $col_item;
+                                                $cell = new TableDataCell();
+                                                $cell->Key = $headerInfo[$key+1];
+                                                $cell->Value = $col_item;
+                                                
+                                                array_push($row->TableDataCells, $cell);
+                                            }
+                                        }
+                                    } else {
+                                        foreach($ft_stringsByColumns as $key => $col_item) {
+                                            if (isset($headerInfo[$key])) {
+                                                //$row[$headerInfo[$key]] = $col_item;
+                                                $cell = new TableDataCell();
+                                                $cell->Key = $headerInfo[$key];
+                                                $cell->Value = $col_item;
+                                                
+                                                array_push($row->TableDataCells, $cell);
+                                            }
                                         }
                                     }
                                 }
                                 
-                                //array_push($table, $row);
+                                
                                 array_push($table->TableDataRows, $row);
                                 
                                 if (!isset($cell_lines[$key+1]->Classification)) {
