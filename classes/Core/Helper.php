@@ -52,7 +52,6 @@ trait Helper {
 	        $is_conn = false; //action in connection failure
 	    }
 	    return $is_conn;
-	    
 	}
 	function pluralize($singular) {
 		if ($singular === "corpus") return "corpora";

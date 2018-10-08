@@ -10,8 +10,16 @@ class Processing {
 	var $tasks = array();
 	var $metrics;
 	
+	public static $instance;
+	
 	function __construct() {
 		
+	}
+	public static function getInstance() {
+	    if (self::$instance === null) {
+	        self::$instance = new self();
+	    }
+	    return self::$instance;
 	}
 	function addTask($task, $outcome = null) {
 		$task->end();

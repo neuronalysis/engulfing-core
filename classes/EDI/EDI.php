@@ -39,8 +39,9 @@ class EDI extends Thing {
 	function getResource($url, $noDownload = false, $enforcedType = null, $save = false) {
 		try {
 			$resource = new Resource($url);
+			
 			if (!$this->is_connected() || $this->debugMode) {
-				$noDownload = true;
+			    $noDownload = true;
 				$resource->url = $this->config['frontend']['path'] . "../work/extraction/testresource.pdf";
 				//echo $resource->url . "\n";
 				
@@ -50,9 +51,13 @@ class EDI extends Thing {
 				$fio->saveStringToFile($resource->content, $this->config['frontend']['path'] . "../work/extraction/testresource.pdf");
 			} else {
 			    $resource->load($noDownload, $enforcedType);
+			    
+			    $resource->name = basename($url);
+			    
 			    $fio = new FileIO();
-			    $fio->saveStringToFile($resource->content, $this->config['frontend']['path'] . "../work/extraction/testresource.pdf");
+			    $fio->saveStringToFile($resource->content, $this->config['frontend']['work'] . "/extraction/download/" . basename($url));
 			}
+			
 			return $resource;
 		}
 		catch (Exception $e) {
