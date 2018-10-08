@@ -37,8 +37,8 @@ class EDI extends Thing {
 	}
 	//TODO
 	function getResource($url, $noDownload = false, $enforcedType = null, $save = false) {
-		try {
-			$resource = new Resource($url);
+	    try {
+	        $resource = new Resource($url);
 			
 			if (!$this->is_connected() || $this->debugMode) {
 			    $noDownload = true;
@@ -55,7 +55,7 @@ class EDI extends Thing {
 			    $resource->name = basename($url);
 			    
 			    $fio = new FileIO();
-			    $fio->saveStringToFile($resource->content, $this->config['frontend']['work'] . "/extraction/download/" . basename($url));
+			    $fio->saveStringToFile($resource->content, $this->config['frontend']['path'] . "../work/extraction/download/" . basename($url));
 			}
 			
 			return $resource;

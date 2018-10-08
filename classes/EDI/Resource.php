@@ -68,7 +68,7 @@ class Resource extends Thing {
 			}
 		} else {
 		    $this->content = $fio->loadFile($this->url);
-			
+		    
 			$this->Type = $finfo->buffer($this->content);
 			if ($this->Type === "text/plain; charset=us-ascii") {
 				if ($this->isJson($this->content)) {

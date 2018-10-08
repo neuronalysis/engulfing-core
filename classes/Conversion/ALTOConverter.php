@@ -67,6 +67,8 @@ class ALTOConverter extends Converter {
             }
         }
         
+        array_push($lines, $currentLine);
+        
         return $lines;
     }
     function trimWhitespaces($lines) {
