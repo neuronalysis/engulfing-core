@@ -126,8 +126,10 @@ class DataGrid {
                                 $mergeResult = $cell_lines[$mergeTarget]->mergeDataLine($line_item);
                             }
                             
-                            if (count($mergeResult) === 0) {
-                                unset($column_item->DataLines[$dlIdx]);
+                            if (isset($mergeResult)) {
+                                if (count($mergeResult) === 0) {
+                                    unset($column_item->DataLines[$dlIdx]);
+                                }
                             }
                         } else {
                             if (isset($mergeTarget)) {

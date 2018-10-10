@@ -33,12 +33,10 @@ class DataGridConverter extends Converter {
 	                                    
 	                                    
 	                                } else if ($line_item->Classification->Classification->Classification->name === "T-DATAROW") {
-	                                    //$row = array();
 	                                    $row= new TableDataRow();
 	                                    
 	                                    foreach($ft_stringsByColumns as $key => $col_item) {
 	                                        if (isset($headerInfo[$key+1])) {
-	                                            //$row[$headerInfo[$key+1]] = $col_item;
 	                                            $cell = new TableDataCell();
 	                                            $cell->Key = $headerInfo[$key+1];
 	                                            $cell->Value = $col_item;
@@ -48,11 +46,9 @@ class DataGridConverter extends Converter {
 	                                        
 	                                    }
 	                                    
-	                                    //array_push($table, $row);
 	                                    array_push($table->TableDataRows, $row);
 	                                    
 	                                    if (!isset($cell_lines[$key+1]->Classification->Classification)) {
-	                                        //$array[$headerInfo[0]] = $table;
 	                                        $kv = new KeyValue();
 	                                        $kv->Key = $headerInfo[0];
 	                                        $kv->Value = $table;
@@ -73,13 +69,12 @@ class DataGridConverter extends Converter {
 	                            }
 	                        } else {
 	                            if ($line_item->Classification->hasDelimitedStrings) {
-	                                foreach($line_item->getKeyValuesFromDelimitedStrings() as $key => $value) {
-	                                    $array->addKeyValue($value);
+	                                foreach($line_item->getKeyValuesFromDelimitedStrings() as $kv) {
+	                                    $array->addKeyValue($kv);
 	                                }
 	                            } else {
 	                                $ft_stringsByColumns[0] = str_ireplace(":", "", $ft_stringsByColumns[0]);
 	                                if (isset($ft_stringsByColumns[0]) && isset($ft_stringsByColumns[1])) {
-	                                    //$array[$ft_stringsByColumns[0]] = $ft_stringsByColumns[1];
 	                                    $kv = new KeyValue();
 	                                    $kv->Key = new Key();
 	                                    foreach($stringsByColumns[0] as $string_item) {
@@ -197,23 +192,11 @@ class DataGridConverter extends Converter {
 	                                if ($cell_lines[$key-1]->Classification->name !== "FREETEXT") {
 	                                    $freetext = new FreeText();
 	                                    $freetext->Strings = $stringsByColumns[0];
-	                                    /*for($i = $key; $i < (count($cell_lines) -1); $i++) {
-	                                     $ft_stringsByColumns = $cell_lines[$i]->getConcatenatedStringByColumns();
-	                                     
-	                                     if ($i>$key) {
-	                                     $freetext .= " " . $ft_stringsByColumns[0];
-	                                     } else {
-	                                     $freetext .= $ft_stringsByColumns[0];
-	                                     }
-	                                     
-	                                     if($cell_lines[$i+1]->Classification->name !== "FREETEXT") {
-	                                     array_push($array, $freetext);
-	                                     break 1;
-	                                     }
-	                                     }*/
 	                                    
-	                                    if($cell_lines[$key+1]->Classification->name !== "FREETEXT") {
-	                                        $array->addFreeText($freetext);
+	                                    if (isset($cell_lines[$key+1])) {
+	                                        if($cell_lines[$key+1]->Classification->name !== "FREETEXT") {
+	                                            $array->addFreeText($freetext);
+	                                        }
 	                                    }
 	                                } else {
 	                                    $freetext->Strings = array_merge($freetext->Strings, $stringsByColumns[0]);
@@ -229,8 +212,10 @@ class DataGridConverter extends Converter {
 	                                $freetext = new FreeText();
 	                                $freetext->Strings = $stringsByColumns[0];
 	                                
-	                                if($cell_lines[$key+1]->Classification->name !== "FREETEXT") {
-	                                    $array->addFreeText($freetext);
+	                                if (isset($cell_lines[$key+1])) {
+	                                    if($cell_lines[$key+1]->Classification->name !== "FREETEXT") {
+	                                        $array->addFreeText($freetext);
+	                                    }
 	                                }
 	                            }
 	                            
@@ -238,24 +223,11 @@ class DataGridConverter extends Converter {
 	                            $freetext = new FreeText();
 	                            $freetext->Strings = $stringsByColumns[0];
 	                            
-	                            if($cell_lines[$key+1]->Classification->name !== "FREETEXT") {
-	                                $array->addFreeText($freetext);
+	                            if (isset($cell_lines[$key+1])) {
+	                                if ($cell_lines[$key+1]->Classification->name !== "FREETEXT") {
+	                                    $array->addFreeText($freetext);
+	                                }
 	                            }
-	                            /*$freetext = "";
-	                            for($i = $key; $i < (count($cell_lines) -1); $i++) {
-	                                $ft_stringsByColumns = $cell_lines[$i]->getConcatenatedStringByColumns();
-	                                
-	                                if ($i>$key) {
-	                                    $freetext .= " " . $ft_stringsByColumns[0];
-	                                } else {
-	                                    $freetext .= $ft_stringsByColumns[0];
-	                                }
-	                                
-	                                if($cell_lines[$i+1]->Classification->name !== "partOfFreeText") {
-	                                    array_push($array, $freetext);
-	                                    break 1;
-	                                }
-	                            }*/
 	                        }
 	                    } else if ($line_item->Classification->name === "ALLONE") {
 	                        if ($line_item->Classification->hasDelimitedStrings) {
@@ -269,11 +241,7 @@ class DataGridConverter extends Converter {
 	                        }
 	                    } else if ($line_item->Classification->name === "HEADER") {
 	                        if ($line_item->Classification->hasDelimitedStrings) {
-	                            foreach($line_item->getKeyValuesFromDelimitedStrings() as $key => $value) {
-	                                $kv = new KeyValue();
-	                                $kv->Key = $key;
-	                                $kv->Value = $value;
-	                                
+	                            foreach($line_item->getKeyValuesFromDelimitedStrings() as $kv) {
 	                                $array->addKeyValue($kv);
 	                            }
 	                        } else {

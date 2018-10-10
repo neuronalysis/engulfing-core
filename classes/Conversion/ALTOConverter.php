@@ -97,7 +97,16 @@ class ALTOConverter extends Converter {
         
         foreach($this->ALTO->Layout->Pages as $key => $page_item) {
             if ($key <= 5) {
-                $pageArray = $this->convertPageToArray($key);
+                try {
+                    $pageArray = $this->convertPageToArray($key);
+                } catch ( Exception $e ) {
+                    $error = new Error ();
+                    $error->details = $e->getMessage () . "\n" . $e->getFile() . " - " . $e->getLine();
+                    
+                    echo json_encode ( $error, JSON_PRETTY_PRINT );
+                    exit ();
+                }
+                
                 
                 $array->mergeKeyValues($pageArray->getKeyValues());
                 $array->mergeTables($pageArray->getTables());

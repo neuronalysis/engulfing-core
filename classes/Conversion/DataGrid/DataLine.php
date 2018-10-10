@@ -247,33 +247,33 @@ class DataLine {
         $keyvalues = array();
         
         $stringsByColumns_Concatenated = $this->getConcatenatedStringByColumns();
-        
          
         if (stripos($stringsByColumns_Concatenated[0], " / ")) {
             $key_exp = explode(" / ", $stringsByColumns_Concatenated[0]);
-            $value_exp = explode(" / ", $stringsByColumns_Concatenated[1]);
-            
-            if (count($key_exp) === count($value_exp)) {
-                foreach($key_exp as $key => $item) {
-                    $kv = new KeyValue();
-                    
-                    $key_string = new ALTOString();
-                    $key_string->CONTENT = $key_exp[$key];
-                    
-                    $kv->Key = new Key();
-                    $kv->Key->Strings = array($key_string);
-                    
-                    $value_string = new ALTOString();
-                    $value_string->CONTENT = $value_exp[$key];
-                    
-                    $kv->Value = new Value();
-                    $kv->Value->Strings = array($value_string);
-                    
-                    array_push($keyvalues, $kv);
+            if (isset($stringsByColumns_Concatenated[1])) {
+                $value_exp = explode(" / ", $stringsByColumns_Concatenated[1]);
+                
+                if (count($key_exp) === count($value_exp)) {
+                    foreach($key_exp as $key => $item) {
+                        $kv = new KeyValue();
+                        
+                        $key_string = new ALTOString();
+                        $key_string->CONTENT = $key_exp[$key];
+                        
+                        $kv->Key = new Key();
+                        $kv->Key->Strings = array($key_string);
+                        
+                        $value_string = new ALTOString();
+                        $value_string->CONTENT = $value_exp[$key];
+                        
+                        $kv->Value = new Value();
+                        $kv->Value->Strings = array($value_string);
+                        
+                        array_push($keyvalues, $kv);
+                    }
                 }
-                
-                
             }
+            
         } else if (stripos($stringsByColumns_Concatenated[0], ": ") && count($stringsByColumns_Concatenated) === 1) {
             $keyvalue_exp = explode(": ", $stringsByColumns_Concatenated[0]);
             
