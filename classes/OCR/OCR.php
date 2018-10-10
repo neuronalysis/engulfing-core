@@ -5,11 +5,19 @@ class OCR  {
 	function __construct() {
 	}
 	
+	function getDocuments() {
+	    $rest = \REST::getInstance();
+	    
+	    $documents = $rest->orm->getAllByName(new \ORM_Request("\\OCR\\Document", null, array("informationJSON")));
+	    
+	    return $documents;
+	}
 }
 class Document extends \Thing {
 	var $name;
 	var $arrayJSON;
 	var $informationJSON;
+	var $ontologyName;
 	
 	var $Pages;
 	

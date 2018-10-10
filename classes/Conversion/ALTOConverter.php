@@ -112,8 +112,8 @@ class ALTOConverter extends Converter {
         $array = array();
         
         foreach($this->ALTO->Layout->Pages as $key => $page_item) {
-            if ($key <= 5) {
-                $pageDataGrid = $this->convertPageToDataGrid($key);
+            if ($key <= 2) {
+                 $pageDataGrid = $this->convertPageToDataGrid($key);
                 
                 array_push($array, $pageDataGrid);
             }
@@ -128,8 +128,16 @@ class ALTOConverter extends Converter {
         
         $lines = $this->trimWhitespaces($lines);
         
-        $grid = new DataGrid();
-        $grid->bringLinesToGrid($lines, $pageNumber);
+        try {
+            $grid = new DataGrid();
+            $grid->bringLinesToGrid($lines, $pageNumber);
+        } catch ( Exception $e ) {
+            $error = new Error ();
+            $error->details = $e->getMessage () . "\n" . $e->getFile() . " - " . $e->getLine();
+            
+            echo json_encode ( $error, JSON_PRETTY_PRINT );
+            exit ();
+        }
         
         return $grid;
     }

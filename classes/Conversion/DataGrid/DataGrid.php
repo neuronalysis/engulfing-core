@@ -784,8 +784,12 @@ class DataGrid {
         if (count($targetRow->DataGridColumns) === 1) {
             $targetColumn = $this->selectTargetColumn($dataLine);
             
-            $dataLine->RowIndex = count($targetColumn->DataLines);
-            array_push($targetColumn->DataLines, $dataLine);
+            if (!$targetColumn) {
+                return null;
+            } else {
+                $dataLine->RowIndex = count($targetColumn->DataLines);
+                array_push($targetColumn->DataLines, $dataLine);
+            }
         } else {
             $splitted_dls = $this->splitDataLineForGridRow($dataLine, $targetRow);
             
@@ -794,8 +798,12 @@ class DataGrid {
                 
                 $targetColumn = $this->selectTargetColumn($splitted_dl_item);
                 
-                $splitted_dl_item->RowIndex = count($targetColumn->DataLines);
-                array_push($targetColumn->DataLines, $splitted_dl_item);
+                if (!$targetColumn) {
+                    return null;
+                } else {
+                    $splitted_dl_item->RowIndex = count($targetColumn->DataLines);
+                    array_push($targetColumn->DataLines, $splitted_dl_item);
+                }
             }
         }
     }

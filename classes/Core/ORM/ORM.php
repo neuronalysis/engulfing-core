@@ -56,10 +56,12 @@ class ORM {
 	    
 	    $sql = "SELECT " . $sql_select_fields . " FROM " . $this->getTableNameByObjectName($request->objectName);
 	    
-	    $fields = array_keys($request->keyValues);
-	    $values = array_values($request->keyValues);
-	    
-	    $sql .= $this->buildWhereClause($request->keyValues, $request->noPaging, $request->order, $request->objectName, $request->limit, $request->like, $request->keyOperators);
+	    if ($request->keyValues) {
+	        $fields = array_keys($request->keyValues);
+	        $values = array_values($request->keyValues);
+	        
+	        $sql .= $this->buildWhereClause($request->keyValues, $request->noPaging, $request->order, $request->objectName, $request->limit, $request->like, $request->keyOperators);
+	    }
 	    
 	    if ($this->debug) echo "in db " . $request->dbScope . " execute getbynamedfield-sql: " . $sql . "\n";
 	    
@@ -67,15 +69,18 @@ class ORM {
 	        $db = $this->openConnection($request->dbScope);
 	        $stmt = $db->prepare($sql);
 	        
-	        for($i=0; $i<count($fields); $i++) {
-	            $field_name = $fields[$i];
-	            
-	            if ($request->like) {
-	                $stmt->bindValue(":" . $field_name, "%" . $values[$i] . "%");
-	            } else {
-	                $stmt->bindParam ( $field_name, $values[$i] );
+	        if (isset($fields)) {
+	            for($i=0; $i<count($fields); $i++) {
+	                $field_name = $fields[$i];
+	                
+	                if ($request->like) {
+	                    $stmt->bindValue(":" . $field_name, "%" . $values[$i] . "%");
+	                } else {
+	                    $stmt->bindParam ( $field_name, $values[$i] );
+	                }
 	            }
 	        }
+	        
 	        
 	        $stmt->execute();
 	        

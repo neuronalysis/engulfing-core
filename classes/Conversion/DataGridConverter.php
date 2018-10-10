@@ -270,7 +270,11 @@ class DataGridConverter extends Converter {
 	                    } else if ($line_item->Classification->name === "HEADER") {
 	                        if ($line_item->Classification->hasDelimitedStrings) {
 	                            foreach($line_item->getKeyValuesFromDelimitedStrings() as $key => $value) {
-	                                $array[$key] = $value;
+	                                $kv = new KeyValue();
+	                                $kv->Key = $key;
+	                                $kv->Value = $value;
+	                                
+	                                $array->addKeyValue($kv);
 	                            }
 	                        } else {
 	                            $header = new Header();
