@@ -80,7 +80,11 @@ class DataGridConverter extends Converter {
 	                                    foreach($stringsByColumns[0] as $string_item) {
 	                                        unset($string_item->TextLine);
 	                                    }
+	                                    
+	                                    $stringsByColumns[0][count($stringsByColumns[0])-1]->CONTENT = rtrim($stringsByColumns[0][count($stringsByColumns[0])-1]->CONTENT, ":");
+	                                    
 	                                    $kv->Key->Strings = $stringsByColumns[0];
+	                                    
 	                                    
 	                                    $kv->Value = new Value();
 	                                    foreach($stringsByColumns[1] as $string_item) {
