@@ -421,6 +421,8 @@ class DataLine {
                     
                     $candidate = $strings[$i];
                     
+                    $candidate->CONTENT = trim($candidate->CONTENT, ":");
+                    
                     array_push($merged, $candidate);
                 } else {
                     if (isset($candidate)) {
@@ -431,6 +433,8 @@ class DataLine {
                     }
                 }
             } else {
+                $strings[$i]->CONTENT = trim($strings[$i]->CONTENT, ":");
+                
                 array_push($merged, $strings[$i]);
             }
         }
