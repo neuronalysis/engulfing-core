@@ -17,7 +17,6 @@ class Document extends \Thing {
 	var $name;
 	var $arrayJSON;
 	var $informationJSON;
-	var $ontologyName;
 	
 	var $Pages;
 	
