@@ -401,48 +401,6 @@ class Website {
   		
   		$html .= $this->renderHTMLScripts();
   		
-
-   		$html .= '
-  		<script type="text/javascript">
-  				$("#quicksearch").select2(select2QSConfig.get(odBase + "api/search/query", "Search...")).on("change", function (e) {
-    			if (typeof window[e.added.ontologyClassName] !== "undefined") {
-	  				model_object = window[e.added.ontologyClassName].findOrCreate({
-						id: e.added.id,
-						name: e.added.text
-					});
-  					
-   					if (e.added.ontologyClassName === "OntologyClass") {
-   						window.location.href = odBase + "km/ontologyclasses/#" + model_object.id;
-   					} else if (e.added.ontologyClassName === "Ontology") {
-   						window.location.href = odBase + "km/ontologies/#" + model_object.id;
-   					}
-   				
-  					
-    			} else {
-  					model_object = window["Article"].findOrCreate({
-						id: e.added.id,
-						name: e.added.text
-					});
-  			
-  					window.location.href = odBase + "wiki/articles/#" + model_object.get("name").replaceAll("/", "_");
-  				}
-  			
-  			
-  			
-  			
-}).on("select", function (e) {
-    console.log("select");
-  			
-});;
-  				</script>';
-  		
-  		
-  		
-  		$html .= '
-  		<script type="text/javascript">$( document ).ready(function() {
-				$(\'.arrow, [class^=arrow-]\').bootstrapArrows();
-			});</script>
-    			';
 	    
   		$html .= '
 	</body>

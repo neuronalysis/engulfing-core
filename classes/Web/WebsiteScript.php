@@ -190,7 +190,7 @@ trait WebsiteScript {
 				null)
 		;
 		
-		if (!in_array($scope, array("kokos", "extraction")) && !in_array($topdomain, array("extraction"))) {
+		if (!in_array($scope, array("kokos", "extraction", "knifecatcher", "neuronalysis")) && !in_array($topdomain, array("extraction", "knifecatcher", "neuronalysis"))) {
 			foreach (array('km', 'nlp', 'codegeneration', 'edi', 'wiki', 'admin') as $scopeItem) {
 				$html .= $this->renderHTMLScriptByDirectory(
 						$scopeItem,
@@ -229,7 +229,6 @@ trait WebsiteScript {
 		if (!$targetDirectory) $targetDirectory = $directory;
 		
 		$path = $this->getPathForRecursiveDirectoryIterator($scope, $targetDirectory);
-		
 		if ($this->enforceRecompile || !file_exists($path . "/" . $target)) {
 			$js = $this->combineJSFromDirectory($path, $ordering, $exclusions);
 			

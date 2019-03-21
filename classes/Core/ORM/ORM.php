@@ -44,8 +44,6 @@ class ORM {
 		}
 	}
 	function getByNamedFieldValues(ORM_Request $request) {
-	    //if ($objects = $this->isLoadedObjectsArray($request->objectName, $request->keyValues)) return $objects;
-	    
 	    if (!$request->dbScope) $request->dbScope = $this->getOntologyScope($request->objectName);
 	    
 	    if ($request->explicitFields) {
@@ -515,7 +513,7 @@ class ORM {
 	
 			$sql = "INSERT IGNORE INTO " . $this->pluralize($table) . " (" . implode(",", $fields ) . ") VALUES " . implode(',', $question_marks);
 	
-			echo $sql . "\n";
+			//echo $sql . "\n";
 			
 			$stmt = $db->prepare ($sql);
 	

@@ -73,7 +73,15 @@ class Authentication {
 		}
 	}
 	function login($username, $password) {
-		$objects = $this->orm->getByNamedFieldValues("User", array("name"), array($username), false, null, true);
+	    $rest = \REST::getInstance();
+	    
+	    echo get_class($rest);
+	    echo "\n";
+	    
+	    echo $this->getScopeName();
+	    
+	    $orm_req = new ORM_Request("User", array("name" => $username), array("roleID", "languageID"));
+	    $objects = $rest->orm->getByNamedFieldValues($orm_req);
 		
 		if (isset($objects[0])) {
 			$objects[0]->setPassword($this->crypto($username, $password));
@@ -86,7 +94,7 @@ class Authentication {
 		}
 	}
 	function logout() {
-		$rest = new REST();
+		$rest = \REST::getInstance();
 		
 		$response = $rest->request("api/authentication/users?UserName=" . $username, "GET");
 		

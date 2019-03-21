@@ -34,7 +34,7 @@ trait ConnectionManager {
 		
 		if (isset($config['databases'])) {
 		    foreach($config['databases'] as $db_item) {
-		        if (strpos($db_item['name'], $ontologyName) !== false) {
+		    	if (strpos($db_item['name'], $ontologyName) !== false) {
 		            $databaseName = $db_item['name'];
 		        }
 		    }
@@ -61,7 +61,7 @@ trait ConnectionManager {
 		$dbh = new PDO("mysql:host=$this->connectionHost;dbname=$databaseName", $this->connectionUsername, $this->connectionPassword);	
 		$dbh->exec("set names utf8");
 		$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		//$dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+		
 		
 		$this->databaseConnections[$ontologyName] = $dbh;
 		

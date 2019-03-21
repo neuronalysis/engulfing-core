@@ -39,7 +39,6 @@ class REST {
 		
 		$ontologyClassName = $this->orm->getOntologyClassName();
 		
-		echo $ontologyClassName;
 		if ($app) {
 			if (isset($_GET['page'])) {
 				
@@ -396,11 +395,10 @@ class REST {
 			$ontology = $km->getOntologyByName($scopeName);
 			
 			if ($ontology) {
-					
+				
 				$scope = strtolower($ontology->name);
-
+				
 				if ($scope !== "news") {
-			
 					$classes = $km->getOntologyClassesByOntologyId($ontology->id);
 						
 					foreach ($classes as $class) {
@@ -408,8 +406,9 @@ class REST {
 			
 						$app->get('/' . $scope . '/' . $resourceName . '/:id',	'get');
 						//$app->get('/' . $scope . '/' . $resourceName . '/:id/detailed',	'getDetailed');
-						//$app->get('/' . $scope . '/' . $resourceName . '/:id/observations',	'getObservations');
-			
+						
+						$app->get('/' . $scope . '/' . $resourceName . '/:id/observations',	'getObservations');
+						
 						$app->post('/' . $scope . '/' . $resourceName . '', 'add');
 						$app->put('/' . $scope . '/' . $resourceName . '/:id', 'update');
 						$app->delete('/' . $scope . '/' . $resourceName . '/:id',	'delete');

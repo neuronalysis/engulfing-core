@@ -1,6 +1,8 @@
 <?php
 class ImportProcess extends Thing {
 	
+	var $id;
+	
 	var $name;
 	
 	var $DataService;
@@ -45,7 +47,7 @@ class ImportProcess extends Thing {
 		}
 	}
 	function getUrls() {
-		$rest = new REST();
+		$rest = \REST::getInstance();
 		
 		$request_urls = array();
 		
@@ -87,7 +89,7 @@ class ImportProcess extends Thing {
 		$edi->importObjects($objects, $this->DataService->schemaDefinition, $internalKeys);
 	}
 	function getUrl($internalKey = null, $explicitParameterKeyValues = null) {
-		$rest = new REST();
+		$rest = \REST::getInstance();
 		
 		$parameters = "";
 		$apiKeyParameter = "";
@@ -99,8 +101,10 @@ class ImportProcess extends Thing {
 		 
 		if (isset($schemavars['parameters'][0]->ontologyClass)) {
 			$ontologyName = $rest->orm->getOntologyName($schemavars['parameters'][0]->ontologyClass);
-				
-			$ontologyClasses = $rest->orm->getByNamedFieldValues("OntologyClass", array("name"), array($schemavars['parameters'][0]->ontologyClass));
+			
+			$orm_req = new ORM_Request("OntologyClass", array("name" => $schemavars['parameters'][0]->ontologyClass));
+			
+			$ontologyClasses = $rest->orm->getByNamedFieldValues($orm_req);
 			
 			if ($internalKey) {
 				$dsEntity = $rest->orm->getById($schemavars['parameters'][0]->ontologyClass, $internalKey);
@@ -120,7 +124,11 @@ class ImportProcess extends Thing {
 			}
 			
 			if ($this->DataService->DataProvider->apiKey) {
-				$apiKeyParameter = "&" . "api_key=" . $this->DataService->DataProvider->apiKey;
+				if (isset($schemavars['api'][0]->keyName)) {
+					$apiKeyParameter = "&" . $schemavars['api'][0]->keyName . "=" . $this->DataService->DataProvider->apiKey;
+				} else {
+					$apiKeyParameter = "&" . "api_key=" . $this->DataService->DataProvider->apiKey;
+				}
 			}
 		} else {
 			if ($this->DataService->DataProvider->apiKey) {
@@ -157,7 +165,7 @@ class ImportProcess extends Thing {
 		return false;
 	}
 	function start() {
-		$rest = new REST();
+		$rest = \REST::getInstance();
 		$km = new KM();
 		$edi = new EDI();
 		

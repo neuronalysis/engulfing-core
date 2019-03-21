@@ -160,8 +160,6 @@ class Page extends \Thing {
 		return $versions;	
 	}
 }
-
-
 class User extends \Thing {
 	var $name;
 	

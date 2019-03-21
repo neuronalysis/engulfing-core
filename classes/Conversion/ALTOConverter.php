@@ -96,7 +96,7 @@ class ALTOConverter extends Converter {
         $array = new DataArray();
         
         foreach($this->ALTO->Layout->Pages as $key => $page_item) {
-            if ($key <= 5) {
+            if ($key <= 4) {
                 try {
                     $pageArray = $this->convertPageToArray($key);
                 } catch ( Exception $e ) {
@@ -121,7 +121,7 @@ class ALTOConverter extends Converter {
         $array = array();
         
         foreach($this->ALTO->Layout->Pages as $key => $page_item) {
-            if ($key <= 2) {
+            if ($key <= 4) {
                  $pageDataGrid = $this->convertPageToDataGrid($key);
                 
                 array_push($array, $pageDataGrid);

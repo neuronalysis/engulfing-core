@@ -16,7 +16,34 @@ class EDI extends Thing {
 		
 	}
 	function getImportProcessByID($importprocessID) {
-		$result = $this->orm->getById("ImportProcess", $importprocessID);
+		$rest = \REST::getInstance();
+		
+		$result = $rest->orm->getById("ImportProcess", $importprocessID);
+		
+		
+		$orm_req = new ORM_Request("DataService", array("id" => $result->DataService->id), array("dataProviderID"));
+		
+		$ds = $rest->orm->getByNamedFieldValues($orm_req);
+		
+		$ds[0]->DataProvider = $rest->orm->getById("DataProvider", $ds[0]->dataProviderID);
+		
+		
+		
+		$schema = json_decode($ds[0]->schemaDefinition);
+		
+		$schemavars = get_object_vars($schema);
+		
+		if (isset($schemavars['parameters'][0]->ontologyClass)) {
+			$orm_req = new ORM_Request("OntologyClass", array("name" => $schemavars['observations'][0]->ontologyClass), array("ontologyID"));
+			
+			$ontologyClasses = $rest->orm->getByNamedFieldValues($orm_req);
+			
+			$ontologyClasses[0]->Ontology = $rest->orm->getById("Ontology", $ontologyClasses[0]->ontologyID);
+			
+			$ds[0]->OntologyClass = $ontologyClasses[0];
+		}
+		
+		$result->DataService = $ds[0];
 		
 		return $result;
 	}
@@ -37,25 +64,30 @@ class EDI extends Thing {
 	}
 	//TODO
 	function getResource($url, $noDownload = false, $enforcedType = null, $save = false) {
+		$rest = REST::getInstance();
+		
+		$config = $rest->getConfig();
+		
 	    try {
 	        $resource = new Resource($url);
 			
-			if (!$this->is_connected() || $this->debugMode) {
+	        if (!$this->is_connected() || $this->debugMode) {
 			    $noDownload = true;
-				$resource->url = $this->config['frontend']['path'] . "../work/extraction/testresource.pdf";
-				//echo $resource->url . "\n";
+			    $resource->url = $config['frontend']['path'] . "../work/extraction/testresource.pdf";
 				
 				//$enforcedType = "application/pdf; charset=binary";
 				$resource->load($noDownload, $enforcedType);
 				$fio = new FileIO();
-				$fio->saveStringToFile($resource->content, $this->config['frontend']['path'] . "../work/extraction/testresource.pdf");
+				$fio->saveStringToFile($resource->content, $config['frontend']['path'] . "../work/extraction/testresource.pdf");
 			} else {
 			    $resource->load($noDownload, $enforcedType);
 			    
 			    $resource->name = basename($url);
 			    
+			    $exp_basename = explode("?", basename($url));
+			    
 			    $fio = new FileIO();
-			    $fio->saveStringToFile($resource->content, $this->config['frontend']['path'] . "../work/extraction/download/" . basename($url));
+			    $fio->saveStringToFile($resource->content, $config['frontend']['work'] . "download/" . str_ireplace("?", "", $exp_basename[0]));
 			}
 			
 			return $resource;

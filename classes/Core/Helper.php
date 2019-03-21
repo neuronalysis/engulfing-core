@@ -3,6 +3,56 @@ trait Helper {
 	
     function Helper() {
 	}
+	function sendMail($subject, $body, $from = array(), $tos = array(), $attachments = array(), $bccs = array()) {
+		$rest = \REST::getInstance();
+		
+		$cfg = $rest->getConfig();
+		
+		$mail= new PHPMailer();
+		$mail->isSMTP();
+		$mail->SMTPOptions = array(
+				'ssl' => array(
+						'verify_peer' => false,
+						'verify_peer_name' => false,
+						'allow_self_signed' => true
+				)
+		);
+		
+		$mail->Host = $cfg['mailing']['smtp'];
+		$mail->Port = 587;
+		// if need auth
+		$mail->SMTPAuth = true;
+		
+		$mail->setFrom($from[0], $from[1]);
+		foreach($tos as $to_item) {
+			$mail->addAddress($tos[0], $tos[1]);
+		}
+		
+		$mail->addReplyTo('newsletter@knife-catcher.com', 'knife-catcher.com');
+		$mail->AddBCC("fuerscht@gmail.com", "bcc from engulfing-mailer");
+		foreach($bccs as $bcc_item) {
+			$mail->AddBCC($bcc_item[0], $bcc_item[1]);
+			
+		}
+		
+		foreach($attachments as $attachment_item) {
+			$pdfpath = $cfg['frontend']['path'] . "data/" . $attachment_item;
+			
+			$mail->AddAttachment($pdfpath, $attachment_item,  $encoding = 'base64', $type = 'application/pdf');
+		}
+		
+		$mail->isHTML(true);
+		
+		$mail->Username = 'info@ontologydriven.com';
+		$mail->Password = 'orkpower78';
+		$mail->Subject = $subject;
+		$mail->Body = $body;
+		
+		$mail->send();
+		
+		
+		return $mail;
+	}
 	function getConfig() {
 	    return $this->config;
 	}
@@ -297,8 +347,10 @@ trait Helper {
 	        if ($this->scope) return $this->scope;
 	    }
 	    
+	    $rest = \REST::getInstance();
+	    $config = $rest->getConfig();
 	    
-		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
+	    $url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
 		
 		if ($path) {
 			$pathToUse = str_ireplace("http://", "", $path);
@@ -367,7 +419,7 @@ trait Helper {
 		return $scopename;
 	}
 	function getScopeDepth() {
-		$rest = new REST();
+		$rest = \REST::getInstance();
 	
 		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
 		$levels = explode ( "/", $url_parsed ['path'] );
@@ -412,18 +464,9 @@ trait Helper {
 				}
 			} else {
 			    if ($this->isLocalRequest()) {
-			        if (strtolower($this->title) == "extraction") {
-			            $topdomain = strtolower($this->title);
-			        } else {
-			            $topdomain = "generated/" . strtolower($this->title);
-			        }
-			        
+			    	$topdomain = strtolower($this->title);
 			    } else {
-			        if (strtolower($this->title) == "extraction") {
-			            $topdomain = strtolower($this->title);
-			        } else {
-			            $topdomain = "ontologydriven";
-			        }
+			    	$topdomain = strtolower($this->title);
 			    }
 				
 			}
