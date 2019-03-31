@@ -73,35 +73,37 @@ var AccordionGroupView = InputView.extend({
 		
 		var collectionAttributes = this.collection.getModelAttributes();
 		
-		for (var i = 0; i < collectionAttributes.length; i++) {
-			
-			if (collectionAttributes[i] !== "id" && collectionAttributes[i] !== this.baseModel.type && collectionAttributes[i].indexOf("Outgoing") == -1 && (this.collection.type.indexOf("Relation") !== -1 && this.collection.type.indexOf(collectionAttributes[i].replace("Entity", "")) !== -1)) {
-				this.$("#relation_headers").append('<th>' + collectionAttributes[i] + "</th>");
+		if (this.collection.models.length > 0) {
+			for (var i = 0; i < collectionAttributes.length; i++) {
 				
-				var collectionModelAttributes = this.collection.models[0].get(collectionAttributes[i]).attributes;
-				var keys = getKeysOfTypeObject(collectionModelAttributes);
-				if (keys.length == 1) {
-					for (var j = 0; j < keys.length; j++) {
-						if (typeof this.collection.models[0].get(collectionAttributes[i]).get(keys[j]) === "object" && keys[j].indexOf("Relation") == -1) {
-							this.$("#relation_headers").append('<th>' + keys[j] + "</th>");
+				if (collectionAttributes[i] !== "id" && collectionAttributes[i] !== this.baseModel.type && collectionAttributes[i].indexOf("Outgoing") == -1 && (this.collection.type.indexOf("Relation") !== -1 && this.collection.type.indexOf(collectionAttributes[i].replace("Entity", "")) !== -1)) {
+					this.$("#relation_headers").append('<th>' + collectionAttributes[i] + "</th>");
+					
+					var collectionModelAttributes = this.collection.models[0].get(collectionAttributes[i]).attributes;
+					var keys = getKeysOfTypeObject(collectionModelAttributes);
+					if (keys.length == 1) {
+						for (var j = 0; j < keys.length; j++) {
+							if (typeof this.collection.models[0].get(collectionAttributes[i]).get(keys[j]) === "object" && keys[j].indexOf("Relation") == -1) {
+								this.$("#relation_headers").append('<th>' + keys[j] + "</th>");
+							}
 						}
 					}
 				}
 			}
-		}
-		this.$("#relation_action").append('<div class="col-md-12" id="panelheader_buttons" style="text-align: right;"></div>');
+			this.$("#relation_action").append('<div class="col-md-12" id="panelheader_buttons" style="text-align: right;"></div>');
+			
+			
+			for (var i = 0; i < this.accordionItemViews.length; i++) {
+				this.$("#relations").append(this.accordionItemViews[i].render().el);
+				this.accordionItemViews[i].delegateEvents();
+			}
+	    	
+			if (accessMode == "edit") {
+				this.$("#panelheader_buttons").append(this.addnewbuttonView.render().el);
+				this.addnewbuttonView.delegateEvents();
+			}
 		
-		
-		for (var i = 0; i < this.accordionItemViews.length; i++) {
-			this.$("#relations").append(this.accordionItemViews[i].render().el);
-			this.accordionItemViews[i].delegateEvents();
 		}
-    	
-		if (accessMode == "edit") {
-			this.$("#panelheader_buttons").append(this.addnewbuttonView.render().el);
-			this.addnewbuttonView.delegateEvents();
-		}
-		
 		return this;
     }
 });

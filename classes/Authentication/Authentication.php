@@ -75,11 +75,6 @@ class Authentication {
 	function login($username, $password) {
 	    $rest = \REST::getInstance();
 	    
-	    echo get_class($rest);
-	    echo "\n";
-	    
-	    echo $this->getScopeName();
-	    
 	    $orm_req = new ORM_Request("User", array("name" => $username), array("roleID", "languageID"));
 	    $objects = $rest->orm->getByNamedFieldValues($orm_req);
 		
