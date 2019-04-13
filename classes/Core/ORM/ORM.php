@@ -332,6 +332,7 @@ class ORM {
 						array_push($object->RelationIndicatorImpactFunctions, $relImpFunction);
 					}
 					
+					unset($object->Release->Indicators);
 					
 				} else if ($object_name == "Underlying") {
 					$sector = $this->getById("Sector", $object->sectorID, false);
@@ -511,7 +512,7 @@ class ORM {
 	
 			$question_marks = array_fill(0, count($array) / count($fields), $qm);
 	
-			$sql = "INSERT IGNORE INTO " . $this->pluralize($table) . " (" . implode(",", $fields ) . ") VALUES " . implode(',', $question_marks);
+			$sql = "INSERT IGNORE INTO " . $this->pluralize(strtolower($table)) . " (" . implode(",", $fields ) . ") VALUES " . implode(',', $question_marks);
 	
 			//echo $sql . "\n";
 			

@@ -36,7 +36,7 @@ trait Helper {
 		}
 		
 		foreach($attachments as $attachment_item) {
-			$pdfpath = $cfg['frontend']['path'] . "data/" . $attachment_item;
+			$pdfpath = $cfg['frontend']['work'] . "attachments/newsletter/" . $attachment_item;
 			
 			$mail->AddAttachment($pdfpath, $attachment_item,  $encoding = 'base64', $type = 'application/pdf');
 		}
