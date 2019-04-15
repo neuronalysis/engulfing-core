@@ -368,7 +368,7 @@ class REST {
 	//TODO gebastel. mix aus generalisierung und spezialfällen...
 	function loadRoutes($app, $resourceRoot = null) {
 		$scopeName = $this->getScopeName();
-	
+		
 		if (strlen($scopeName) < 3) {
 			$classScopeName = strtoupper($scopeName);
 		} else {
@@ -389,6 +389,14 @@ class REST {
 			}
 		}
 		
+		//authentication routes
+		$app->post('/authentication/login', '\Authentication:login');
+		$app->get('/authentication/logout', '\Authentication:logout');
+		$app->get('/authentication/recovery', '\Authentication:recoverPassword');
+		$app->post('/authentication/recovery', '\Authentication:resetPassword');
+		
+		
+		//domain logic related routes
 		if (class_exists("KM")) {
 			$km = new KM();
 			
@@ -405,7 +413,6 @@ class REST {
 						$resourceName = strtolower($this->pluralize($class->name));
 			
 						$app->get('/' . $scope . '/' . $resourceName . '/:id',	'get');
-						//$app->get('/' . $scope . '/' . $resourceName . '/:id/detailed',	'getDetailed');
 						
 						$app->get('/' . $scope . '/' . $resourceName . '/:id/observations',	'getObservations');
 						

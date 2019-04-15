@@ -86,7 +86,7 @@ class ORM {
 	        
 	        
 	        if (class_exists($request->objectName)) {
-	            $objects = $this->convertStdClassesToObjects($stdObjects, $request->objectName);
+	            $objects = $this->convertStdClassesToObjects($stdObjects, $request->objectName, $request->explicitFields, $request->includeProtectedFields);
 	            
 	            if ($request->explicitFields) {
 	                foreach($request->explicitFields as $explicitField_item) {
@@ -566,6 +566,7 @@ class ORM_Request {
     var $like = null;
     var $keyOperators = null;
     var $dbScope = null;
+    var $includeProtectedFields = false;
     
     use QueryBuilder;
     

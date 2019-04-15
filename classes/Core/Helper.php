@@ -28,7 +28,7 @@ trait Helper {
 			$mail->addAddress($tos[0], $tos[1]);
 		}
 		
-		$mail->addReplyTo('newsletter@knife-catcher.com', 'knife-catcher.com');
+		$mail->addReplyTo($cfg['frontend']['siteAdmin'], 'knife-catcher.com');
 		$mail->AddBCC("fuerscht@gmail.com", "bcc from engulfing-mailer");
 		foreach($bccs as $bcc_item) {
 			$mail->AddBCC($bcc_item[0], $bcc_item[1]);
@@ -43,8 +43,8 @@ trait Helper {
 		
 		$mail->isHTML(true);
 		
-		$mail->Username = 'info@ontologydriven.com';
-		$mail->Password = 'orkpower78';
+		$mail->Username = $cfg['mailing']['username'];
+		$mail->Password = $cfg['mailing']['password'];
 		$mail->Subject = $subject;
 		$mail->Body = $body;
 		
