@@ -157,7 +157,7 @@ var BaseView = Backbone.View.extend({
 		if (value_type === "string" || value_type === "number") {
 			//TODO kick out domainspecific shit
 			if (field !== "id" && field.slice(-2) !== "ID" && field !== "DataServices" && field !== "CourseDocument") {
-				if (field.slice(-2) == "At" || field.slice(-4) == "Date") {
+				if (field.slice(-2) == "At" || field.slice(-4) == "Date" || field === "date") {
 					var fieldView = new DatePickerView({model: model, field: field});
 
 					return fieldView;

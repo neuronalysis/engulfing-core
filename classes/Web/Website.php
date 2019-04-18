@@ -240,7 +240,7 @@ class Website {
     	
     	$this->title = $this->getTitle();
     	
-    	$this->auth = new Authentication();
+    	$this->auth = \Authentication::getInstance();
     	
     	$web = new Web();
     	$loadedWebsite = $web->getWebsiteByName($this->title);

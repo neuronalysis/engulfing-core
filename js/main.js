@@ -302,20 +302,22 @@ var BaseRouter = Backbone.Router.extend({
 		}
 	},
 	newObject : function() {
-		var object = window[this.objectName].findOrCreate({
-			id : null
-		});
+		if (this.isAuthorized('single')) {
+			var object = window[this.objectName].findOrCreate({
+				id : null
+			});
 
-		accessMode = "edit";
+			accessMode = "edit";
 
-		object.type = this.objectName;
+			object.type = this.objectName;
 
-		var objectView = new SingleObjectView({
-			el : $('#content'),
-			model : object
-		});
+			var objectView = new SingleObjectView({
+				el : $('#content'),
+				model : object
+			});
 
-		this.setActiveView(objectView);
+			this.setActiveView(objectView);
+		}
 	},
 	newEntity : function(id) {
 		var entityBase = window[this.objectName].findOrCreate({

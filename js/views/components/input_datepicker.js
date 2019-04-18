@@ -1,27 +1,32 @@
 var DatePickerView = InputView.extend({
 	
 	initialize : function() {
+		DatePickerView.__super__.initialize.apply(this, arguments);
+
 		this.template = _.template(tpl.get('components/input_datepicker'));
 	},
 	events : {
-		//"click" : "showDatepicker",
-		"change" : "changeValue"
-	},
-	showDatepicker : function () {
-		//$("#" + this.field).daterangepicker();
+		"changeDate": "changeValue"
 	},
 	changeValue : function(item) {
-		this.model.set(item.target.parentNode.id, item.target.value);
+		var date = new Date(item.date);
 		
-		this.$("#" + this.field).datepicker('hide');
-		this.$("#" + this.field).datepicker('place');
+		var day = date.getDate();
+		var monthIndex = date.getMonth() +1 ;
+		var year = date.getFullYear();
+
+		this.model.set(item.target.id, year + '-' +  monthIndex + '-' + day);
 	},
 	render : function() {
 		var data = {"object_name": this.model.type.toLowerCase(), "field_name": this.field, "field_value": this.model.get(this.field)};
 
 		this.$el.html(this.template(data));
 		
-		this.$("#" + this.field).datepicker();
+		this.$("#" + this.field).datepicker({
+		    format: "yyyy-mm-dd",
+		    autoclose: true
+		});
+		//this.$("#" + this.field).datepicker('setUTCDate');
 		
 		return this;
 	}

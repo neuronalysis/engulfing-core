@@ -6,8 +6,19 @@ class Authentication {
 	var $showNewUser 	= true;
 	var $userclass		= "User";
 	
+	public static $instance;
+	
 	function __construct() {
 		$this->orm = new ORM(array("convert" => true));
+		
+		self::$instance = $this;
+	}
+	public static function getInstance() {
+		if (self::$instance === null) {
+			self::$instance = new self();
+		}
+		
+		return self::$instance;
 	}
 	function isLogged() {
 		if (isset($_COOKIE['logged'])) {
@@ -158,16 +169,23 @@ Questions? Suggestions? ' . $config['frontend']['siteAdmin'];
 			}
 		}
 	}
-	function signupUser($request) {
+	function signupUser() {
+		$rest = \REST::getInstance();
+		
+		$app = \Slim\Slim::getInstance ();
+		$request = $app->request ();
+		
 		$restTransformer = new REST_Transformer ();
 		$newUser = $restTransformer->deserialize_JSON ( $request->getBody (), "User" );
+		$newUser->Language->id = 0;
 		
 		$password = $newUser->getPassword();
 		
+		$newUser->setPassword($this->crypto($newUser->name, $password));
+		
 		if (isset($newUser->name) && isset($password) && isset($newUser->eMail)) {
-			$newUser = $newUser->save(null, array("password"));
+			$newUser->id = $rest->orm->save($newUser);
 			
-			$app = \Slim\Slim::getInstance();
 			if (isset($newUser)) {
 				session_start();
 					
@@ -179,9 +197,9 @@ Questions? Suggestions? ' . $config['frontend']['siteAdmin'];
 				setcookie("UserEMail", "" . $newUser->eMail, time()+3600, "/", null);
 					
 						
-				$app->redirect($_SERVER['HTTP_REFERER']);
+				return $newUser;
 			} else {
-				$app->redirect($_SERVER['HTTP_REFERER']);
+				//$app->redirect($_SERVER['HTTP_REFERER']);
 			}
 		}
 	}
@@ -212,7 +230,7 @@ Questions? Suggestions? ' . $config['frontend']['siteAdmin'];
 				setcookie("UserLanguageID", "" . $user->Language->id, time()+3600, "/", null);
 				setcookie("UserEMail", "" . $user->eMail, time()+3600, "/", null);
 				
-				//$app->redirect($_SERVER['HTTP_REFERER']);
+				$app->redirect($_SERVER['HTTP_REFERER']);
 				if (strpos($_POST['refererURL'], "login=failed") !== false) {
 					if (strpos($_POST['refererURL'], "?login=failed") !== false) {
 						$app->redirect(str_ireplace("?login=failed", "", $_POST['refererURL']));

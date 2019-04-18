@@ -7,118 +7,49 @@ class REST_Transformer {
 	
 	function __construct() {
 	}
-	function deserialize_JSON($json, $class_name = null, $sticktoclass = false, $namespace = null, $enforceList = false, $enforceAttributes = false) {
-		$this->baseClass = $class_name;
-		$this->namespace = $namespace;
+	function deserialize_JSON($json, $class_name = null) {
+		$data = json_decode($json, FALSE);
 		
-		$data = json_decode($json, TRUE);
-		
-		if (isset($data[0])) {
-		    
-			if ($enforceList) {
-				$objects = array();
-				
-				foreach($data as $item) {
-				    array_push($objects, $this->mapDataToObject($item, $class_name, $enforceAttributes));
-				}
-				
-				return $objects;
-			} else {
-			    $object = $this->mapDataToObject($data[0], $class_name, $enforceAttributes);
-			}
-			
-		} else {
-		    $object = $this->mapDataToObject($data, $class_name, $enforceAttributes);
-		}
+		$object = $this->mapDataToObject($data, $class_name);
 		
 		return $object;
 	}
-	function mapDataToObject($data, $class_name, $enforceAttributes = false) {
-		//echo "\\" . $this->namespace . "\\" . $this->baseClass . $class_name . "\n";
-		if (class_exists("\\" . $this->namespace . "\\" . $this->baseClass . $class_name)) {
-			$object_based = "\\" . $this->namespace . "\\" . $this->baseClass . $class_name;
-			$object = new $object_based;
-		} else {
-			if (class_exists("\\" . $this->namespace . "\\" . $this->namespace . $class_name)) {
-				$object_based = "\\" . $this->namespace . "\\" . $this->namespace . $class_name;
-				$object = new $object_based;
-			} else {
-				if (class_exists("\\" . $this->namespace . "\\" . $class_name)) {
-					$object_based = "\\" . $this->namespace . "\\" . $class_name;
-					$object = new $object_based;
-				} else {
-					if (class_exists($this->baseClass . $class_name)) {
-						$object_based = $this->baseClass . $class_name;
-						$object = new $object_based;
-					} else {
-						if (class_exists($class_name)) {
-							$object = new $class_name;
-						} else {
-							$object = new stdClass();
-						}
-					}
-				}
-			}
-		}
-		
+	function mapDataToObject($data, $class_name) {
 		if (is_array($data)) {
-		    
-			foreach($data as $key => $value) {
-			    $singularizedKey = $this->singularize($key);
-			    
-			    if (!(class_exists($singularizedKey) || !(class_exists("\\" . $this->namespace . "\\" . $singularizedKey))) && ((class_exists($key)) || (class_exists("\\" . $this->namespace . "\\" . $key)))) {
-				    $object->$key =  $this->mapDataToObject($value, $key, $enforceAttributes);
-				} else {
-				    if ($key == "Strings") $nsKey = $this->namespace. "Strings";
-					if (is_array($value)) {
-						if ($this->isAssoc($value)) {
-							foreach($value as $itemKey => $itemValue) {
-							    $object->$itemKey = $this->mapDataToObject($itemValue, $this->singularize($itemKey), $enforceAttributes);
-							}
-						} else {
-							$array = array();
-							
-							if (count($value) > 0) {
-								foreach($value as $item) {
-								    if (isset($nsKey)) {
-								        array_push($array, $this->mapDataToObject($item, $this->singularize($nsKey), $enforceAttributes));
-								    } else {
-								        array_push($array, $this->mapDataToObject($item, $this->singularize($key), $enforceAttributes));
-								    }
-								    
-								}
-								
-								$object->$key = $array;
-							}
-								
-							
-						}
+			if ($this->isAssoc($data)) {
+				$mapped = $this->mapAssocData(new $class_name, $data);
+			} else {
+				$mapped = array();
+				
+				foreach($data as $data_item) {
+					array_push($mapped, $this->mapDataToObject($data_item, $class_name));
+				}
+			}
+		} else {
+			$mapped = $this->mapAssocData(new $class_name, $data);
+		}
+		
+		return $mapped;
+	}
+	function mapAssocData($mapped, $data) {
+		foreach($data as $key => $value) {
+			if ($value instanceof stdClass) {
+				$mapped->$key = $this->mapDataToObject($value, $key);
+			} else {
+				if (property_exists($mapped, $key)) {
+					$rp = new ReflectionProperty($mapped,$key);
+					if ($rp->isProtected()) {
+						$setterMethodName = "set" . ucfirst($key);
+						
+						if (method_exists($mapped, $setterMethodName)) $mapped->$setterMethodName($value);
 					} else {
-					    //echo "\\" . $this->namespace . "\\" . $class_name . "; " . $key . "\n";
-					    if (property_exists($class_name, $key) || property_exists("\\" . $this->namespace . "\\" . $class_name, $key)) {
-							$rp = new ReflectionProperty($object,$key);
-							if ($rp->isProtected()) {
-								$setterMethodName = "set" . ucfirst($key);
-								
-								if (method_exists($object, $setterMethodName) || property_exists($object, $setterMethodName)) $object->$setterMethodName($value);
-							} else {
-							    $object->$key = $value;
-							}
-						} else {
-						    if ($key === "id" || $enforceAttributes) {
-								$object->$key = $value;
-							}
-						}
+						$mapped->$key = $value;
 					}
 				}
 			}
-		} else if (is_object($data)) {
-		    $object->$key = $this->mapDataToObject($data, $key, $enforceAttributes);
-		} else if (is_string($data)) {
-			$object = $data;
 		}
 		
-		return $object;
+		return $mapped;
 	}
 	function isAssoc(array $arr) {
 		if (array() === $arr) return false;

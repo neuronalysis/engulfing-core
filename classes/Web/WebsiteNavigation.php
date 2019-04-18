@@ -440,7 +440,7 @@ trait WebsiteNavigation {
 		
 		if(!$this->auth->isLogged()) {
 			$html .= '
-						<li><a href="' . $home_url . 'usermanagement/register">Sign Up</a></li>';
+						<li><a href="' . $home_url . 'usermanagement/#register">Sign Up</a></li>';
 			$html .= '
 						<li class="divider-vertical"></li>
 						<li class="dropdown">

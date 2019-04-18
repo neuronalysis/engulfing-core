@@ -9,6 +9,15 @@ class REST {
 	function __construct() {
 		$this->orm = new ORM();
 		
+		$rc = new \ReflectionClass(get_class($this));
+		
+		$authname = '\\' . $rc->getNamespaceName() . '\\Authentication_' . $rc->getNamespaceName();
+		if (class_exists($authname)) {
+			$auth = new $authname;
+		} else {
+			$auth = new Authentication();
+		}
+		
 		$this->app = new \Slim\Slim(array(
 				'debug' => true
 		));
@@ -32,6 +41,9 @@ class REST {
 		$this->app->run();
 		
 		$this->logRequest($this->app, date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']));
+	}
+	function deleteById($object_name, $id) {
+		$this->orm->deleteById($object_name, $id);
 	}
 	//TODO
 	function get($id = null, $app = null) {
@@ -394,6 +406,8 @@ class REST {
 		$app->get('/authentication/logout', '\Authentication:logout');
 		$app->get('/authentication/recovery', '\Authentication:recoverPassword');
 		$app->post('/authentication/recovery', '\Authentication:resetPassword');
+		$app->post('/authentication/recovery', '\Authentication:resetPassword');
+		$app->post('/authentication/signup', '\Authentication:signupUser');
 		
 		
 		//domain logic related routes

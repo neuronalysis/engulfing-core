@@ -34,6 +34,9 @@ trait TransactionManager {
 						}
 					}
 				} else if ($queryType == "UPDATE") {
+					if($this->debug) {
+						print_r($bindings);
+					}
 					foreach($bindings as $key => $value) {
 						if(!in_array($key, array("createdAt", "createdBy"))) {
 							if ($this->debug) echo "update bound key: " . $key . " -> " . $value . "\n";

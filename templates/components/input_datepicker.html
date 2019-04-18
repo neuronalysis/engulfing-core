@@ -5,11 +5,9 @@
 <% if (accessMode === "read") { %>
 		<span style="position: relative; top: 7px; left: 13px;"><%= field_value %></span>
 <% } else if (accessMode === "edit") { %>
-		<div class="input-append date" id="<%= field_name %>" data-date="12-02-2012"
-			data-date-format="dd-mm-yyyy">
-			<input class="span2" size="16" type="text" value="12-02-2012"> <span class="add-on"><i
-				class="icon-calendar"></i></span>
-		</div>
+		<div class="input-group date" id="<%= field_name %>">
+  <input type="text" class="form-control"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+</div>
 <% } %>
 
 	</div>
