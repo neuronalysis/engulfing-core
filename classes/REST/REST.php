@@ -7,18 +7,11 @@ class REST {
 	public static $instance;
 	
 	function __construct() {
-		$this->orm = new ORM();
+		$this->orm = ORM::getInstance();
 		
 		$rc = new \ReflectionClass(get_class($this));
 		
-		$authname = '\\' . $rc->getNamespaceName() . '\\Authentication_' . $rc->getNamespaceName();
-		if (class_exists($authname)) {
-			$auth = new $authname;
-		} else {
-			$auth = new Authentication();
-		}
-		
-		$this->app = new \Slim\Slim(array(
+		$this->app = new Slim\Slim(array(
 				'debug' => true
 		));
 		
@@ -42,265 +35,20 @@ class REST {
 		
 		$this->logRequest($this->app, date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']));
 	}
-	function deleteById($object_name, $id) {
-		$this->orm->deleteById($object_name, $id);
-	}
-	//TODO
-	function get($id = null, $app = null) {
-	    $this->orm->db_scope = $this->getScopeName();
-		
-		$ontologyClassName = $this->orm->getOntologyClassName();
-		
-		if ($app) {
-			if (isset($_GET['page'])) {
-				
-				$namedfieldParameters = $_GET;
-				unset($namedfieldParameters['page']);
-				unset($namedfieldParameters['per_page']);
-				unset($namedfieldParameters['total_pages']);
-				unset($namedfieldParameters['total_entries']);
-					
-				$oclass = null;
-				//TODO
-				
-				if (class_exists("KM")) {
-					$km = new KM();
-					$km->orm = $this->orm;
-					
-					//TODO
-					
-					if (isset($namedfieldParameters['ontologyClassID'])) {
-						if ($namedfieldParameters['ontologyClassID']) {
-							$oclass = $km->getOntologyClassById($namedfieldParameters['ontologyClassID']);
-						} else {
-							$oclass = $km->getOntologyClassByName($ontologyClassName);
-						}
-					} else {
-						$oclass = $km->getOntologyClassByName($ontologyClassName);
-					}
-				}
-				
-				
-				if (!$oclass || !$oclass->getIsPersistedConcrete()) {
-				    $orm_req = new ORM_Request($ontologyClassName);
-				    $orm_req->setKeyValuesByFieldsAndValues(array_keys($namedfieldParameters), array_values($namedfieldParameters));
-				    
-				    $result_paged = $this->orm->getByNamedFieldValues($orm_req);
-				    //$result_paged = $this->orm->getByNamedFieldValues($ontologyClassName, array_keys($namedfieldParameters), array_values($namedfieldParameters));
-		
-					foreach($result_paged as $obj_item) {
-						$obj_item->id = intval($obj_item->id);
-		
-						if ($ontologyClassName === "ontologyclassentity") {
-							$relobjects = $this->orm->getByNamedFieldValues("RelationOntologyClassOntologyPropertyEntity", array("ontologyclassentityid"), array($obj_item->id), false);
-		
-							if (isset($relobjects[0])) {
-								$propertyentityobjects = $this->orm->getByNamedFieldValues("ontologypropertyentity", array("id"), array($relobjects[0]->ontologyPropertyEntityID), false);
-		
-								if (isset($propertyentityobjects[0])) $obj_item->name = $propertyentityobjects[0]->name;
-							}
-		
-						}
-					}
-				} else {
-					//TODO
-					if ($ontologyClassName === "ReleasePublication") {
-						$economics = new Economics();
-						$result_paged = $economics->getNextReleasePublications();
-					} else {
-						$result_paged = $this->orm->getAllByName($oclass->name);
-					}
-				}
-					
-				$result = new stdClass();
-				$result->items = $result_paged;
-				$result->total_count = $this->orm->getTotalAmount($ontologyClassName);
-			} else {
-				if (isset($_GET['name'])) {
-					$result = $this->orm->getByNamedFieldValues($ontologyClassName, array("name"), array($_GET['name']));
-					$result = $this->orm->getById($ontologyClassName, $result[0]->id);
-				} else {
-					//TODO
-					
-					if ($ontologyClassName === "releasepublication") {
-						$result_paged = $this->orm->getAllByName($ontologyClassName, false, null, null, array("releaseID"));
-						
-						foreach($result_paged as $result_item) {
-							$result_item->Release = $this->orm->getById("Release", $result_item->releaseID, false);
-							unset($result_item->releaseID);
-						}
-						
-						$result = new stdClass();
-						$result->items = $result_paged;
-						$result->total_count = $this->getTotalAmount($ontologyClassName);
-						
-					} else {
-					    $orm_req = new ORM_Request($ontologyClassName);
-					    
-					    $result = $this->orm->getAllByName($orm_req);
-					}
-					
-					
-				}
-			}
-		
-		} else {
-		    if ($id) {
-				$obj = new $ontologyClassName();
-				//TODO
-				
-				if ($ontologyClassName === "indicator") {
-					$result = $this->orm->getById($ontologyClassName, $id);
-					
-					unset($result->Release->Indicators);
-					unset($result->Release->ReleasePublications);
-				} else if ($ontologyClassName === "Instrument") {
-					$result = $this->orm->getById("Instrument", $id);
-					
-					$result->ImpactFunctions = $this->orm->getByNamedFieldValues("ImpactFunction", array("instrumentID"), array($result->id));
-					foreach($result->ImpactFunctions as $if_item) {
-						$if_item->name = $if_item->formula;
-						
-						$if_item->RelationIndicatorImpactFunctions = $this->orm->getByNamedFieldValues("RelationIndicatorImpactFunction", array("impactFunctionID"), array($if_item->id), false, null, false, false, array("Indicator"), null, null, null, array("indicatorID"));
-						
-						foreach($if_item->RelationIndicatorImpactFunctions as $rel_item) {
-							unset($rel_item->ImpactFunction);
-							
-							unset($rel_item->Indicator->Release);
-							unset($rel_item->Indicator->Frequency);
-							unset($rel_item->Indicator->IndicatorObservations);
-							unset($rel_item->Indicator->Country);
-							
-							unset($rel_item->Indicator->RelationIndicatorImpactFunctions);
-						}
-						
-						unset($if_item->Instrument);
-					}
-					
-				} else if ($ontologyClassName === "\\OCR\\Document") {
-					$result = $this->orm->getById("\\OCR\\Document", $id, true);
-					
-					$doc = new DOMDocument();
-					$doc->loadXML($result->Pages[0]->altoXML);
-					
-					
-					$xmlconv = new XMLConverter("alto");
-					$alto = $xmlconv->convertToObjectTree($doc);
-					$result->Pages[0]->alto= $alto;
-					
-					
-					unset($result->Pages[0]->altoXML);
-				} else {
-					$result = $this->orm->getById($ontologyClassName, $id);
-				}
-			} else if (count($_GET) > 0) {
-				$result = $this->orm->getByNamedFieldValues($ontologyClassName, array_keys($_GET), array_values($_GET));
-			} else {
-				$result = $this->orm->getAllByName($ontologyClassName);
-			}
-		}
-		
-		$this->cleanObjects($result);
-		return $result;
-	}
-	function getObservations($id = null, $app = null) {
-		$ontologyClassName = $this->getScopeObjectName();
-		
-		$limit = null;
-		
-		if ($ontologyClassName === "indicator") {
-			$orm_request = new ORM_Request($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID" => $id, "date" => "2014-01-01"));
-			$orm_request->keyOperators = array(lcfirst($ontologyClassName) . "ID" => "=", "date" => ">=");
-			$orm_request->order = "date ASC";
-			
-			$observations= $this->orm->getByNamedFieldValues($orm_request);
-		} else if ($ontologyClassName === "instrument") {
-		    $orm_request = new ORM_Request($ontologyClassName . "Observation", array(lcfirst($ontologyClassName) . "ID" => $id, "date" => "2015-01-01"));
-		    $orm_request->keyOperators = array(lcfirst($ontologyClassName) . "ID" => "=", "date" => ">=");
-		    $orm_request->order = "date ASC";
-		    
-		    $observations= $this->orm->getByNamedFieldValues($orm_request);
-		}
-		
-		foreach($observations as $item) {
-			unset($item->id);
-			unset($item->$ontologyClassName);
-		}
-		
-		$result = new stdClass();
-		$result->items = $observations;
-		
-		return $result;
-	}
-	function getDetailed($id = null, $app = null) {
-		$ontologyClassName = $this->orm->getOntologyClassName();
-		
-		if ($app) {
-			if (isset($_GET['page'])) {
-				$namedfieldParameters = $_GET;
-				unset($namedfieldParameters['page']);
-				unset($namedfieldParameters['per_page']);
-				unset($namedfieldParameters['total_pages']);
-				unset($namedfieldParameters['total_entries']);
-		
-				$result_paged = $this->orm->getByNamedFieldValues($ontologyClassName, array_keys($namedfieldParameters), array_values($namedfieldParameters));
-		
-				foreach($result_paged as $obj_item) {
-					$obj_item->id = intval($obj_item->id);
-		
-					if ($ontologyClassName === "ontology") {
-						$relobjects = $this->orm->getByNamedFieldValues("RelationOntologyClassOntologyPropertyEntity", array("ontologyclassentityid"), array($obj_item->id), false);
-		
-						if (isset($relobjects[0])) {
-							$propertyentityobjects = $this->orm->getByNamedFieldValues("ontologypropertyentity", array("id"), array($relobjects[0]->ontologyPropertyEntityID), false);
-								
-							if (isset($propertyentityobjects[0])) $obj_item->name = $propertyentityobjects[0]->name;
-						}
-					}
-				}
-				$result = new stdClass();
-				$result->items = $result_paged;
-				$result->total_count = $this->getTotalAmount($ontologyClassName);
-			} else {
-				
-					
-				if (isset($_GET['name'])) {
-					$result = $this->orm->getByNamedFieldValues($ontologyClassName, array("name"), array($_GET['name']));
-					$result = $this->orm->getById($ontologyClassName, $result[0]->id);
-				} else {
-					$result = $this->orm->getAllByName($ontologyClassName);
-				}
-			}
-		
-		} else {
-			if ($id) {
-				$result = $this->orm->getById($ontologyClassName, $id);
-					
-				if ($ontologyClassName === "ontology") {
-					$related = $this->orm->getByNamedFieldValues("OntologyClass", array("ontologyID"), array($id), false);
-		
-					$result->OntologyClasses = $related;
-				} else if ($ontologyClassName === "release") {
-					$related = $this->orm->getByNamedFieldValues("ReleasePublication", array("releaseID"), array($id), false);
-					
-					$result->ReleasePublications = $related;
-				}
-					
-			} else if (count($_GET) > 0) {
-				$result = $this->orm->getByNamedFieldValues($ontologyClassName, array_keys($_GET), array_values($_GET));
-			} else {
-				$result = $this->orm->getAllByName($ontologyClassName);
-			}
-		}
-		
-		$this->cleanObjects($result);
-		
-		return $result;
-	}
 	function addAPIClass($classname) {
 		$this->$classname = new $classname;
 		$this->$classname->db = $this->db;
 		
+	}
+	function isLogged() {
+		$auth = Authentication::getInstance();
+		if(!$auth->isLogged()) {
+			return false;
+		} else if (!isset($_COOKIE['UserID'])) {
+			return false;
+		} else {
+			return $_COOKIE['UserID'];
+		}
 	}
 	function request($uri, $method = "GET", $object = null, $fields = null) {
 		$objects = array();
@@ -378,7 +126,7 @@ class REST {
 		return $this->singularize($objectname);
 	}
 	//TODO gebastel. mix aus generalisierung und spezialfällen...
-	function loadRoutes($app, $resourceRoot = null) {
+	function loadRoutes($resourceRoot = null) {
 		$scopeName = $this->getScopeName();
 		
 		if (strlen($scopeName) < 3) {
@@ -396,18 +144,49 @@ class REST {
 				
 			foreach ($contents as $file_name) {
 				if (strpos($file_name, "task_") === false && strpos($file_name, ".json") === false) {
-					require_once $file_name;
+					//require_once $file_name;
 				}
 			}
 		}
 		
 		//authentication routes
-		$app->post('/authentication/login', '\Authentication:login');
-		$app->get('/authentication/logout', '\Authentication:logout');
-		$app->get('/authentication/recovery', '\Authentication:recoverPassword');
-		$app->post('/authentication/recovery', '\Authentication:resetPassword');
-		$app->post('/authentication/recovery', '\Authentication:resetPassword');
-		$app->post('/authentication/signup', '\Authentication:signupUser');
+		//TODO
+		$app = $this->app;
+		
+		$this->app->get('/authentication/roles/:id',	'REST_Controller:get');
+		$this->app->post('/authentication/roles', 'REST_Controller:add');
+		$this->app->put('/authentication/roles/:id', 'REST_Controller:update');
+		$this->app->delete('/authentication/roles/:id',	'REST_Controller:delete');
+		$this->app->get('/authentication/roles', function () use($app) {
+			$callback = $app->request()->get('callback');
+			
+			if (!$callback) {
+				get(null);
+			} else {
+				callback_getObjects($callback);
+			}
+		});
+		$this->app->get('/authentication/users/:id',	'REST_Controller:get');
+		$this->app->get('/authentication/users/:id/watchlists/',	'User:getWatchlists');
+		$this->app->post('/authentication/users', 'REST_Controller:add');
+		$this->app->put('/authentication/users/:id', 'REST_Controller:update');
+		$this->app->delete('/authentication/users/:id',	'REST_Controller:delete');
+		$this->app->get('/authentication/users', function () use($app) {
+			$callback = $app->request()->get('callback');
+			
+			if (!$callback) {
+				get(null);
+			} else {
+				callback_getObjects($callback);
+			}
+		});
+			
+		$this->app->post('/authentication/login', '\Authentication:login');
+		$this->app->get('/authentication/logout', '\Authentication:logout');
+		$this->app->get('/authentication/recovery', '\Authentication:recoverPassword');
+		$this->app->post('/authentication/recovery', '\Authentication:resetPassword');
+		$this->app->post('/authentication/recovery', '\Authentication:resetPassword');
+		$this->app->post('/authentication/signup', '\Authentication:signupUser');
 		
 		
 		//domain logic related routes
@@ -425,19 +204,22 @@ class REST {
 						
 					foreach ($classes as $class) {
 						$resourceName = strtolower($this->pluralize($class->name));
-			
-						$app->get('/' . $scope . '/' . $resourceName . '/:id',	'get');
 						
-						$app->get('/' . $scope . '/' . $resourceName . '/:id/observations',	'getObservations');
+						$this->app->get('/' . $scope . '/' . $resourceName . '/:id',	'REST_Controller:get');
 						
-						$app->post('/' . $scope . '/' . $resourceName . '', 'add');
-						$app->put('/' . $scope . '/' . $resourceName . '/:id', 'update');
-						$app->delete('/' . $scope . '/' . $resourceName . '/:id',	'delete');
-						$app->get('/' . $scope . '/' . $resourceName . '', function () use($app) {
+						$this->app->get('/' . $scope . '/' . $resourceName . '/:id/observations',	'REST_Controller:getObservations');
+						
+						$this->app->post('/' . $scope . '/' . $resourceName . '', 'REST_Controller:add');
+						$this->app->put('/' . $scope . '/' . $resourceName . '/:id', 'REST_Controller:update');
+						$this->app->delete('/' . $scope . '/' . $resourceName . '/:id',	'REST_Controller:delete');
+						$app = $this->app;
+						$this->app->get('/' . $scope . '/' . $resourceName . '', function () use($app) {
 							$callback = $app->request()->get('callback');
-			
+							
+							$rc = new REST_Controller();
+							
 							if (!$callback) {
-								get(null, $app);
+								$rc->get(null);
 							} else {
 								callback_getObjects($callback);
 							}
@@ -445,7 +227,7 @@ class REST {
 						
 						
 						if (method_exists($class->name, "getValuation")) {
-							$app->get('/' . $scope . '/' . $resourceName . '/:id/valuation',	'getValuation');
+							$this->app->get('/' . $scope . '/' . $resourceName . '/:id/valuation',	'REST_Controller:getValuation');
 						}
 					}
 				}
@@ -455,20 +237,11 @@ class REST {
 		
 		if (isset($scope)) {
 			if ($scope === "wiki") {
-				$app->get('/wiki/articles/:id',	'getWikiArticle');
+				$this->app->get('/wiki/articles/:id',	'getWikiArticle');
 			} else if ($scope === "news") {
-				$app->get('/news/:topic',	'getNewsByTopic');
+				$this->app->get('/news/:topic',	'getNewsByTopic');
 			}
 		}
-	}
-	function getValuation($id = null, $app = null) {
-		$ontologyClassName = $this->orm->getOntologyClassName();
-		
-		if ($id) {
-			$result = $this->orm->getById($ontologyClassName, $id);
-		}
-		
-		return $result->getValuation();
 	}
 	function logRequest($app, $request_date) {
 		if (stripos($app->request->getUri(), "monitoring") !== false) return null;

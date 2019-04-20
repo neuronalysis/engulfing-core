@@ -7,12 +7,13 @@ trait ConnectionManager {
 	protected $databaseConnections = array();
 	
 	function __construct() {
-		
 	}
 	function openConnection($ontologyName = null) {
+		$rest = REST::getInstance();
+		
 	    $databaseName = null;
 	    
-		$config = $this->getConfig();
+	    $config = $rest->getConfig();
 		
 		$this->connectionHost = $config['databases'][0]['host'];
 		$this->connectionUsername = $config['databases'][0]['username'];

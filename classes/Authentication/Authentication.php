@@ -9,8 +9,6 @@ class Authentication {
 	public static $instance;
 	
 	function __construct() {
-		$this->orm = new ORM(array("convert" => true));
-		
 		self::$instance = $this;
 	}
 	public static function getInstance() {
@@ -23,13 +21,13 @@ class Authentication {
 	function isLogged() {
 		if (isset($_COOKIE['logged'])) {
 			if (($_COOKIE['logged'] == 1 || gettype($_COOKIE['logged']) == "array")) {
-				return true;
-			} else {
-				return false;
+				if (isset($_COOKIE['UserID'])) {
+					return $_COOKIE['UserID'];
+				}
 			}
-		} else {
-			return false;
 		}
+		
+		return false;
 	}
 	function recoverPassword() {
 		$rest = \REST::getInstance();
@@ -231,15 +229,6 @@ Questions? Suggestions? ' . $config['frontend']['siteAdmin'];
 				setcookie("UserEMail", "" . $user->eMail, time()+3600, "/", null);
 				
 				$app->redirect($_SERVER['HTTP_REFERER']);
-				if (strpos($_POST['refererURL'], "login=failed") !== false) {
-					if (strpos($_POST['refererURL'], "?login=failed") !== false) {
-						$app->redirect(str_ireplace("?login=failed", "", $_POST['refererURL']));
-					} else {
-						$app->redirect(str_ireplace("&login=failed", "", $_POST['refererURL']));
-					}
-				} else {
-					$app->redirect($_POST['refererURL']);
-				}
 			} else {
 				session_start();
 				setcookie("logged", "0", time()+3600, "/", null);
@@ -249,7 +238,7 @@ Questions? Suggestions? ' . $config['frontend']['siteAdmin'];
 				if (strpos($_POST['refererURL'], "?") !== false) {
 					$app->redirect($_POST['refererURL'] . "&login=failed");
 				} else {
-					$app->redirect($_POST['refererURL'] . "?login=failed");
+					$app->redirect($home_url. "?login=failed");
 				}
 			}
 		}

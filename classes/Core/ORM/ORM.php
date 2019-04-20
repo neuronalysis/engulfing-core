@@ -7,10 +7,20 @@ class ORM {
 	protected $config;
 	protected $debug = false;
 	
+	public static $instance;
+	
 	function __construct($init = array()) {
 		foreach($init as $key => $value) {
 			$this->$key = $value;
 		}
+		
+		self::$instance = $this;
+	}
+	public static function getInstance() {
+		if (self::$instance === null) {
+			self::$instance = new self();
+		}
+		return self::$instance;
 	}
 	//function getAllByQuery($sql, $object_name, $explicitFields = null) {
 	function getAllByQuery($sql, $object_name, $explicitFields = null, $db_scope = null) {

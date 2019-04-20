@@ -105,7 +105,7 @@ class TestClass {
 	var $rest;
 	
 	function __construct() {
-		//$this->orm = new ORM();
+		//$this->orm = ORM::getInstance();
 		
 		//$classname = str_ireplace("_Test", "", get_class($this));
 		

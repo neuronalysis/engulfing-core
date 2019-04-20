@@ -10,10 +10,60 @@ class EDI extends Thing {
 	var $userID;
 	
 	function __construct() {
-		$this->orm = new ORM();
 	}
 	function getImportProcesses() {
 		
+	}
+	function importData() {
+		$rest = REST::getInstance();
+		$fio = new FileIO();
+		
+		$ext = new Extraction();
+		$ext->setConfig($rest->getConfig());
+		$ext->apiMode = true;
+		$this->debugMode = false;
+		$this->debugMode = false;
+		$this->setConfig($rest->getConfig());
+		
+		$processing = new Processing();
+		
+		try {
+			$config = $rest->getConfig();
+			
+			$task = new Task ( "uploading" );
+			
+			$ip = $this->getImportProcessById(8);
+			
+			$methodName = "import" . $this->pluralize($ip->DataService->OntologyClass->name);
+			
+			$ontologyName = $ip->DataService->OntologyClass->Ontology->name;
+			
+			$ontology = new $ontologyName;
+			
+			if ($methodName == "importInstrumentObservations") {
+				$objectName = "Instrument";
+				
+				$methodName = "importInstrumentObservationsByInstrument";
+			}
+			
+			
+			if (method_exists($ontology, $methodName)) {
+				if ($methodName == "importInstrumentObservationsByInstrument") {
+					$instrument = $ontology->getInstrumentByID(1);
+					
+					$resource = $ontology->$methodName($instrument, $ip);
+				} else {
+					$resource = $ontology->$methodName($ip);
+				}
+			}
+			
+		} catch ( Exception $e ) {
+			$error = new Error ();
+			$error->details = $e->getMessage () . "\n" . $e->getFile() . " - " . $e->getLine();
+			
+			echo json_encode ( $error, JSON_PRETTY_PRINT );
+			exit ();
+		}
 	}
 	function getImportProcessByID($importprocessID) {
 		$rest = \REST::getInstance();

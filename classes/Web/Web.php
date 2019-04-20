@@ -7,7 +7,7 @@ class Web {
 	var $entities = '{}';
 	
 	function __construct() {
-		$this->orm = new ORM();
+		$this->orm = ORM::getInstance();
 	}
 	function getWebsiteByName($name) {
 		if (!$name) return null;
