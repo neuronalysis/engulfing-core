@@ -74,9 +74,11 @@ trait ObjectHelper {
 		return null;
 	}
 	function setModificationInfo($object) {
+		$auth = Authentication::getInstance();
+		
 		if (!property_exists($object, 'createdBy')) return null;
 		
-		if (!$UserID = isLogged()) {
+		if (!$UserID = $auth->isLogged()) {
 			$UserID = 23;
 		}
 	
