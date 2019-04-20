@@ -276,12 +276,11 @@ trait ObjectHelper {
 					
 					$refObjectName = $this->singularize($key);
 					
-					//echo $refObjectName . "\n";
 					if (class_exists($refObjectName)) {
 						if ($refObjectsTotalAmount > 15) {
 							$refObject = new $refObjectName();
 							$ormRequest = new ORM_Request($refObjectName, array($idFieldname=> $stdClass->id));
-							//$ormRequest->limit = 10;
+							
 							$ormRequest->order = $refObject->getDefaultOrder();
 							
 							$refObjects = $this->getByNamedFieldValues($ormRequest);
@@ -295,11 +294,9 @@ trait ObjectHelper {
 						$refObject = new $refObjectName();
 						
 						$ormRequest = new ORM_Request($refObjectName, array($idFieldname=> $stdClass->id));
-						//$ormRequest->limit = 10;
 						$ormRequest->order = $refObject->getDefaultOrder();
 						
 						$refObjects = $this->getByNamedFieldValues($ormRequest);
-						//$refObjects = $this->getByNamedFieldValues($refObjectName, array($idFieldname), array($stdClass->id), false, null, false, true);
 					}
 					
 					$manyObjects = array();
