@@ -168,7 +168,9 @@ class EDI extends Thing {
 		$pendings = $economics->getPendings($type);
 	}
 	function importObjects($objects, $schema, $internalKeys) {
-		$UserID = isLogged();
+		$auth = Authentication::getInstance();
+		
+		$UserID = $auth->isLogged();
 		
 		$km = new KM();
 		$rest = REST::getInstance();
@@ -254,7 +256,9 @@ class EDI extends Thing {
 		$rest->orm->insertArrayBulk($bulkValues, $ontologyClass->name, $bulkFields);
 	}
 	function importDataServiceEntities($dataserviceentities) {
-		if (!$UserID = isLogged()) {
+		$auth = Authentication::getInstance();
+		
+		if (!$UserID = $auth->isLogged()) {
 			$UserID = 23;
 		}
 		

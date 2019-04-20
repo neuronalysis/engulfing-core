@@ -30,7 +30,7 @@ class REST_Controller {
 		$className = $rest->singularize($rest->orm->getOntologyClassName());
 		
 		if (stripos($className, "user") === false) {
-			if (!$UserID = isLogged()) return null;
+			if (!$UserID = $this->rest->isLogged()) return null;
 		}
 		
 		$request = $this->rest->app->request ();
@@ -85,7 +85,7 @@ class REST_Controller {
 		$className = $rest->singularize($rest->orm->getOntologyClassName());
 		
 		if (stripos($className, "user") === false) {
-			if (!$UserID = isLogged()) return null;
+			if (!$UserID = $this->rest->isLogged()) return null;
 		}
 		
 		$this->rest->deleteById($className, $id, true);

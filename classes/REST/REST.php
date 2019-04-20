@@ -339,7 +339,7 @@ class REST {
 			
 			$scopeName = $app->request->getResourceUri();
 			if ($mon->isEligibleScopeForProtection($scopeName)) {
-				$granted = $mon->getAccessPermissionByClientAndScope(isLogged(), $app->request->getIp(), $scopeName);
+				$granted = $mon->getAccessPermissionByClientAndScope($this->isLogged(), $app->request->getIp(), $scopeName);
 			
 				if (!$granted) {
 					$extract = new Extract ();
