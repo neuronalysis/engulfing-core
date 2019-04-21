@@ -20,6 +20,7 @@ var BaseRouter = Backbone.Router.extend({
 		this.route(":id/entities/#:entityID", "EntityDetails");
 		this.route(":id/entities/import", "entityImport");
 		this.route("housekeeping", "housekeeping");
+		this.route("usermanagement/users", "objectList");
 	},
 	setActiveView : function(newView) {
 		if (this.activeView) {
@@ -44,10 +45,11 @@ var BaseRouter = Backbone.Router.extend({
 
 		return false;
 	},
-	isAuthorized : function(routeType) {
+	isAuthorized : function(routeType, id = null) {
 		if (!this.objectName) return true;
 		
 		var roleID = Cookie.get("UserRoleID");
+		var userID = Cookie.get("UserID");
 
 		$('#alerts').html('');
 
@@ -55,7 +57,19 @@ var BaseRouter = Backbone.Router.extend({
 			if (objects[this.objectName][roleID] !== undefined) {
 				if(typeof(objects[this.objectName][roleID]) === "boolean"){
 					if (objects[this.objectName][roleID]) {
-						return true;
+						if (this.objectName === "User") {
+							if (id === userID) {
+								return true;
+							} else {
+								if (objects[this.objectName][roleID]) {
+									return true;
+								} else {
+									return false;
+								}
+							}
+						} else {
+							return true;
+						}
 					}
 				} else {
 					if (objects[this.objectName][roleID][routeType]  !== undefined) {
@@ -148,7 +162,7 @@ var BaseRouter = Backbone.Router.extend({
 		}
 	},
 	singleObject : function(id) {
-		if (this.isAuthorized('single')) {
+		if (this.isAuthorized('single', id)) {
 			var object = window[this.objectName].findOrCreate({
 				id : id
 			});

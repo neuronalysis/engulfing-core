@@ -4,10 +4,10 @@ class REST_Controller {
 		$this->rest = REST::getInstance();
 	}
 	function deleteById($object_name, $id) {
-		$this->orm->deleteById($object_name, $id);
+		$this->rest->orm->deleteById($object_name, $id);
 	}
 	function add() {
-		$className = $rest->singularize($rest->orm->getOntologyClassName());
+		$className = $this->rest->singularize($this->rest->orm->getOntologyClassName());
 		
 		if (strtolower($className) === "user") {
 			$request = $this->rest->app->request ();
@@ -27,7 +27,7 @@ class REST_Controller {
 		}
 	}
 	function save($id = null) {
-		$className = $rest->singularize($rest->orm->getOntologyClassName());
+		$className = $this->rest->singularize($this->rest->orm->getOntologyClassName());
 		
 		if (stripos($className, "user") === false) {
 			if (!$UserID = $this->rest->isLogged()) return null;
@@ -76,19 +76,19 @@ class REST_Controller {
 		}
 		
 		if ($object) {
-			$rest->cleanObjects($object);
+			$this->rest->cleanObjects($object);
 			
 			echo json_encode ( $object, JSON_PRETTY_PRINT );
 		}
 	}
 	function delete($id) {
-		$className = $rest->singularize($rest->orm->getOntologyClassName());
+		$className = $this->rest->singularize($this->rest->orm->getOntologyClassName());
 		
 		if (stripos($className, "user") === false) {
 			if (!$UserID = $this->rest->isLogged()) return null;
 		}
 		
-		$this->rest->deleteById($className, $id, true);
+		$this->deleteById($className, $id, true);
 	}
 	function update($id) {
 		$this->save($id);

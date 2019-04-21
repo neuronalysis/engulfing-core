@@ -160,8 +160,10 @@ class REST {
 		$this->app->get('/authentication/roles', function () use($app) {
 			$callback = $app->request()->get('callback');
 			
+			$rc = new REST_Controller();
+			
 			if (!$callback) {
-				get(null);
+				$rc->get(null);
 			} else {
 				callback_getObjects($callback);
 			}
@@ -174,8 +176,10 @@ class REST {
 		$this->app->get('/authentication/users', function () use($app) {
 			$callback = $app->request()->get('callback');
 			
+			$rc = new REST_Controller();
+			
 			if (!$callback) {
-				get(null);
+				$rc->get(null);
 			} else {
 				callback_getObjects($callback);
 			}
