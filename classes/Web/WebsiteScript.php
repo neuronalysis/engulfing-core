@@ -90,7 +90,7 @@ trait WebsiteScript {
 	    //echo $this->plottKeyValues(array("scope" => $scope, "scriptPath" => $scriptPath, "cwd" => $cwd, "relpath" => $relpath, "scriptSource" => $scriptSource));
 	    
 	    if ($scope === "engulfing") {
-	    	$scriptSource = str_ireplace("\\", "/", $this->config['framework']['url'] . $scriptPath);
+	    	$scriptSource = "/" . str_ireplace("\\", "/", $this->config['framework']['url'] . $scriptPath);
 	    } else {
 	    	$scriptSource = "/" . str_ireplace("\\", "/", $scriptPath);
 	    }
