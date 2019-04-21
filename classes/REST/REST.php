@@ -170,8 +170,8 @@ class REST {
 		});
 		$this->app->get('/authentication/users/:id',	'REST_Controller:get');
 		$this->app->get('/authentication/users/:id/watchlists/',	'User:getWatchlists');
-		$this->app->post('/authentication/users', 'REST_Controller:add');
-		$this->app->put('/authentication/users/:id', 'REST_Controller:update');
+		$this->app->post('/authentication/users', 'USER:add');
+		$this->app->put('/authentication/users/:id', 'USER:update');
 		$this->app->delete('/authentication/users/:id',	'REST_Controller:delete');
 		$this->app->get('/authentication/users', function () use($app) {
 			$callback = $app->request()->get('callback');

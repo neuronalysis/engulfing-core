@@ -15,6 +15,50 @@ class User extends Thing {
 	
 	function __construct() {
 	}
+	function add() {
+		$this->save();
+	}
+	function update($id) {
+		$this->save($id);
+	}
+	function save($id = null) {
+		$rest = REST::getInstance();
+		
+		if (!$UserID = $rest->isLogged()) return null;
+		
+		$request = $rest->app->request ();
+		
+		$restTransformer = new \REST_Transformer ();
+		$object = $restTransformer->deserialize_JSON ( $request->getBody (), 'User' );
+		
+		$object->setPassword($this->crypto($object->name, $object->password));
+		
+		try {
+			$saveResp = $rest->orm->save($object);
+			
+			if (intval($saveResp)) {
+				$object->id = $saveResp;
+			}
+		} catch ( Exception $e ) {
+			$extract = new stdClass();
+			$extract->error = new stdClass();
+			$extract->error->message = "Database Transaction Failure";
+			
+			$extract->error->details = $e->getMessage();
+			$extract->error->file = $e->getFile();
+			$extract->error->code = $e->getCode();
+			$extract->error->line = $e->getLine();
+			
+			echo json_encode ( $extract, JSON_PRETTY_PRINT );
+			exit ();
+		}
+		
+		if ($object) {
+			$rest->cleanObjects($object);
+			
+			echo json_encode ( $object, JSON_PRETTY_PRINT );
+		}
+	}
 	function getEncryptions() {
 		return $this->encryptions;
 	}
