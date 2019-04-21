@@ -225,7 +225,7 @@ class REST {
 							if (!$callback) {
 								$rc->get(null);
 							} else {
-								callback_getObjects($callback);
+								$rc->callback_getObjects($callback);
 							}
 						});
 						
