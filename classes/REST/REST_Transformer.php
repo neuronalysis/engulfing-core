@@ -7,7 +7,7 @@ class REST_Transformer {
 	
 	function __construct() {
 	}
-	function deserialize_JSON($json, $class_name = null) {
+	function deserialize_JSON($json, $class_name = 'stdClass') {
 		$data = json_decode($json, FALSE);
 		
 		$object = $this->mapDataToObject($data, $class_name);

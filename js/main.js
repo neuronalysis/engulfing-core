@@ -21,6 +21,11 @@ var BaseRouter = Backbone.Router.extend({
 		this.route(":id/entities/import", "entityImport");
 		this.route("housekeeping", "housekeeping");
 		this.route("usermanagement/users", "objectList");
+		
+		if (!this.objectName) {
+			this.objectName = getObjectNameByUrl();
+		}
+		
 	},
 	setActiveView : function(newView) {
 		if (this.activeView) {
@@ -80,8 +85,10 @@ var BaseRouter = Backbone.Router.extend({
 				} else if (objects[this.objectName][99] !== undefined) {
 					return true;
 				} else {
-					if (id === userID) {
-						return true;
+					if (userID) {
+						if (id === userID) {
+							return true;
+						}
 					}
 				}
 			} else {

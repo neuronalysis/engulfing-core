@@ -92,7 +92,12 @@ trait WebsiteScript {
 	    if ($scope === "engulfing") {
 	    	$scriptSource = str_ireplace("\\", "/", $this->config['framework']['base'] . $scriptPath);
 	    } else {
-	    	$scriptSource = "/" . str_ireplace("\\", "/", $scriptPath);
+	    	if ($this->config['frontend']['appBase']) {
+	    		$scriptSource = $this->config['frontend']['appBase'] . str_ireplace("\\", "/", $scriptPath);
+	    	} else {
+	    		$scriptSource = "/" . str_ireplace("\\", "/", $scriptPath);
+	    	}
+	    	
 	    }
 	    
 	    

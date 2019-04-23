@@ -1,5 +1,5 @@
 <?php
-class REST_Transformer {
+class REST_Transformer2 {
 	use Helper;
 	
 	var $baseClass;

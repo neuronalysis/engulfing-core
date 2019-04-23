@@ -390,7 +390,14 @@ trait ObjectHelper {
 		if (!class_exists($OntologyClassname, true)) {
 			$OntologyClassname = $this->singularize($OntologyClassname);
 			
-			if (class_exists($OntologyClassname, true)) $OntologyClassname = get_class(new $OntologyClassname());
+			if (class_exists($OntologyClassname, true)) {
+				$OntologyClassname = get_class(new $OntologyClassname());
+			} else {
+				if (class_exists(ucfirst($OntologyClassname), true)) {
+					$ocn = ucfirst($OntologyClassname);
+					$OntologyClassname = get_class(new $ocn());
+				}
+			}
 		}
 		
 		if (class_exists("\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname, true)) {

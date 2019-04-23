@@ -144,7 +144,7 @@ class REST {
 				
 			foreach ($contents as $file_name) {
 				if (strpos($file_name, "task_") === false && strpos($file_name, ".json") === false) {
-					//require_once $file_name;
+					require_once $file_name;
 				}
 			}
 		}

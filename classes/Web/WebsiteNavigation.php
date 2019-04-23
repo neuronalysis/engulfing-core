@@ -371,8 +371,8 @@ trait WebsiteNavigation {
 						';
 				if (isset($this->activescope_usermanagement)) {
 								$html .= '
-										<li><a href="' . $home_url . 'usermanagement/' . 'users' . '">' . 'Users' . '</a></li>
-										<li><a href="' . $home_url . 'usermanagement/' . 'roles' . '">' . 'Roles' . '</a></li>';
+										<li><a href="' . $home_url . 'usermanagement/' . 'users/' . '">' . 'Users' . '</a></li>
+										<li><a href="' . $home_url . 'usermanagement/' . 'roles/' . '">' . 'Roles' . '</a></li>';
 				}
 					
 				$html .= '

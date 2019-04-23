@@ -469,6 +469,33 @@ function getSubDomain() {
 	}
 	return subdomain;
 }
+function getUrl() {
+    var location = document.createElement("a");
+    
+    return new URL(location.baseURI);
+};
+function getLastSegment() {
+	var url = getUrl();
+	
+	var split = url.pathname.split("/");
+	
+	var lastsegment = "";
+	
+	if (split.slice(-1)[0] === '') {
+		lastsegment = split.slice(-2)[0];
+	} else {
+		lastsegment = split.slice(-1)[0];
+	}
+	
+	return lastsegment;
+}
+function getObjectNameByUrl() {
+	var lastsegment = getLastSegment();
+	
+	var singularized = getSingular(lastsegment);
+	
+	return singularized.charAt(0).toUpperCase() + singularized.slice(1);
+}
 function getBaseTemplatesRoot() {
 	var root = "";
 
