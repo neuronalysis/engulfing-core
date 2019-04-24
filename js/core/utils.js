@@ -494,7 +494,11 @@ function getObjectNameByUrl() {
 	
 	var singularized = getSingular(lastsegment);
 	
-	return singularized.charAt(0).toUpperCase() + singularized.slice(1);
+	if (singularized) {
+		return singularized.charAt(0).toUpperCase() + singularized.slice(1);
+	} else {
+		return null;
+	}
 }
 function getBaseTemplatesRoot() {
 	var root = "";
