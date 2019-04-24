@@ -65,6 +65,238 @@ class EDI extends Thing {
 			exit ();
 		}
 	}
+	function testXpath() {
+		$filename = __DIR__ . '/../../../data/ocr/altoxmls/bulletin_ocr_1968_1_alto_xml.xml';
+		
+		$doc = new DOMDocument();
+		$doc->load($filename);
+		
+		$xpathObj = new DOMXPath($doc);
+		$rootNamespace = $doc->lookupNamespaceUri($doc->namespaceURI);
+		echo $rootNamespace. "\n";
+		$xpathObj->registerNamespace("alto", $rootNamespace);
+		$xpath_pages = '//*';
+		
+		$page_nodes = $xpathObj->query($xpath_pages);
+		
+		echo "length: " . $page_nodes->length . "\n";
+		
+		$xquery = '//alto:Page';
+		$elements = $xpathObj->query($xquery);
+		
+		$i = 0;
+		if (!is_null($elements)) {
+			foreach ($elements as $element) {
+				if ($i < 10) {
+					echo $element->nodeName . ": " . $element->getNodePath() . "\n";
+					
+					$i++;
+				}
+			}
+		}
+	}
+	function uploadAltoXMLFile() {
+		$rest = REST::getInstance();
+		$config = $rest->getConfig();
+		
+		$edi = new EDI();
+		$fio = new FileIO();
+		$conv = new TIFFConverter();
+		
+		$scopename = $rest->getScopeName();
+		if (! isset ( $_FILES ['file_data'] )) {
+			return "No files uploaded!!";
+		} else {
+			$processing = new Processing();
+			
+			try {
+				$task = new Task ( "uploading" );
+				
+				$uploaded = array ();
+				
+				$files = $_FILES ['file_data'];
+				$cnt = count ( $files ['name'] );
+				
+				//remove existing files from target-upload-directory to avoid confusion
+				$fio_removed = $fio->rmdirr($config['frontend']['work'] . 'ocr/altoxmls', true);
+				
+				if ($cnt === 0) {
+					$error = new Error ();
+					$error->details = "no files in scope of upload";
+					
+					return $error;
+					exit ();
+				} else if ($cnt === 1) {
+					if ($files ['error'] === 0) {
+						if (move_uploaded_file ( $files ['tmp_name'], $config['frontend']['work'] . 'ocr/altoxmls/' . $files ['name'] ) === true) {
+							$uploaded [] = array (
+									'url' => $config['frontend']['work'] . 'ocr/altoxmls/',
+									'name' => $files ['name']
+							);
+						} else {
+							$error = new Error ();
+							$error->details = "file was not moved from " . $files ['tmp_name'] . " to " . $config['frontend']['work'] . 'ocr/altoxmls/' . $files ['name'];
+							
+							return $error;
+							exit ();
+						}
+					} else {
+						$error = new Error ();
+						$error->details = print_r($_FILES, true);
+						
+						return $error;
+						exit ();
+					}
+				} else {
+					for($i = 0; $i < $cnt; $i ++) {
+						if ($files ['error'] [$i] === 0) {
+							if (move_uploaded_file ( $files ['tmp_name'] [$i],  $config['frontend']['work'] . 'ocr/altoxmls/' . $files ['name'] [$i] ) === true) {
+								$uploaded [] = array (
+										'url' => '/uploads/' . $name,
+										'name' => $files ['name'] [$i]
+								);
+							} else {
+								$error = new Error ();
+								$error->details = "no files were transferred from uploaded to working-directory";
+								
+								return $error;
+								exit ();
+							}
+						} else {
+							$error = new Error ();
+							$error->details = $files ['error'] [$i];
+							
+							return $error;
+							exit ();
+						}
+					}
+				}
+				
+				$processing->addTask ( $task );
+				
+			} catch ( Exception $e ) {
+				$error = new Error ();
+				$error->details = $e->getMessage () . "\n" . $e->getFile() . " - " . $e->getLine();
+				
+				return $error;
+				exit ();
+			}
+			
+			
+			//TODO avoid importing all directories content. only process uploaded file.
+			//TODO don't do shits with specific filenames for filtering (whitelist instead of blacklist)
+			try {
+				$task = new Task ( "importing" );
+				
+				if (file_exists( $config['frontend']['work'] . 'ocr/altoxmls/')) {
+					$directory_iterator = new RecursiveIteratorIterator ( new RecursiveDirectoryIterator (  $config['frontend']['work'] . 'ocr/altoxmls/' ) );
+					foreach ( $directory_iterator as $filename => $path_object ) {
+						if ($path_object->getFilename() != '.' && $path_object->getFilename() != '..') {
+							if(is_file($filename)) {
+								$filetype = pathinfo($filename, PATHINFO_EXTENSION);
+								if ($filetype === "zip") {
+									$zip = new ZipArchive ();
+									$res = $zip->open ( $filename);
+									if ($res === TRUE) {
+										if ($extracted = $zip->extractTo ( $filename. '_unzipped/' )) {
+											$zip->close ();
+										} else {
+											$error = new Error ();
+											$error->details = print_r($extracted, true);
+											
+											return $error;
+											exit ();
+										}
+										
+										
+										$xmlFileName = $filename. '_unzipped/' . str_ireplace('.zip', '', basename($filename))  . '/' . str_ireplace('.zip', '', basename($filename)). '.xml.xml';
+										$imgDirectoryName = $filename. '_unzipped/' . str_ireplace('.zip', '', basename($filename))  . '/' . str_ireplace('.zip', '', basename($filename)). '_images';
+										
+										if(is_file($xmlFileName)) {
+											$xmlObject = $edi->importXMLFile($xmlFileName, "Document", "//Page", "OCR");
+										} else {
+											$error = new Error ();
+											$error->details = $xmlFileName . " is no valid xml file";
+											
+											return $error;
+											exit ();
+										}
+										
+										if (file_exists($imgDirectoryName)) {
+											
+											$fio->cpy($imgDirectoryName, $config['frontend']['work'] . 'ocr/images/');
+											
+											$directory_iterator = new RecursiveIteratorIterator ( new RecursiveDirectoryIterator ( $config['frontend']['work'] . 'ocr/images/') );
+											foreach ( $directory_iterator as $imgFileName=> $path_object ) {
+												if(is_file($imgFileName)) {
+													$pageNumber = substr(basename($imgFileName, ".tif"), -4, 4);
+													rename($imgFileName, str_ireplace(basename($imgFileName), $xmlObject->name . "_" . $pageNumber . ".tif", $imgFileName));
+												}
+											}
+										}
+									} else {
+										$error = new Error ();
+										$error->details = "zip file could not be processed";
+										
+										return $error;
+										exit ();
+									}
+								} else if ($filetype === "xml") {
+									if (basename($filename) != "README" && basename($filename) != "CONTENTS" && basename($filename) != "cats.txt") {
+										$xmlObject = $edi->importXMLFile($filename, "Document", "//Page", "OCR");
+									}
+								} else {
+									$error = new Error ();
+									$error->details = "no xml-files were in scope of upload";
+									
+									return $error;
+									exit ();
+								}
+							} else {
+								$error = new Error ();
+								$error->details = $filename . " is no valid file" . "\n" . print_r($path_object, true);
+								
+								return $error;
+								exit ();
+							}
+						}
+						
+					}
+				} else {
+					$error = new Error ();
+					$error->details = "files did not exist for import in " . $config['frontend']['work'] . 'ocr/altoxmls/';
+					
+					return $error;
+					exit ();
+				}
+				
+				$processing->addTask ( $task );
+				
+				
+				$savedDocumentID = $rest->orm->save($xmlObject);
+				
+				foreach($xmlObject->Pages as $pageItem) {
+					$pageItem->documentID = $savedDocumentID;
+					
+					$rest->orm->save($pageItem);
+				}
+				$extract = new stdClass();
+				$extract->processing = $processing;
+				$extract->uploaded = $uploaded;
+				
+				
+				return $extract;
+				
+			} catch ( Exception $e ) {
+				$extract = new stdClass();
+				$extract->error = new Error ();
+				$extract->error->details = $e->getMessage () . "\n" . $e->getFile() . " - " . $e->getLine();
+				
+				return $extract;
+				exit ();
+			}
+		}
+	}
 	function getImportProcessByID($importprocessID) {
 		$rest = \REST::getInstance();
 		

@@ -7,12 +7,41 @@ class REST_Transformer {
 	
 	function __construct() {
 	}
-	function deserialize_JSON($json, $class_name = 'stdClass') {
+	function deserialize_JSON($json, $class_name = 'stdClass', $sticktoclass = false, $namespace = null) {
+		$this->namespace = $namespace;
+		
 		$data = json_decode($json, FALSE);
 		
-		$object = $this->mapDataToObject($data, $class_name);
+		$object = $this->mapDataToObject($data, $this->getClassName($class_name));
 		
 		return $object;
+	}
+	function getClassName($class_name) {
+		$class_name = $this->singularize($class_name);
+		
+		if (class_exists($class_name)) {
+			$class_name = $class_name;
+		} else {
+			if (class_exists($this->baseClass . $class_name)) {
+				$class_name = $this->baseClass . $class_name;
+			} else {
+				if (class_exists("\\" . $this->namespace . "\\" . $class_name)) {
+					$class_name = "\\" . $this->namespace . "\\" . $class_name;
+				} else {
+					if (class_exists("\\" . $this->namespace . "\\" . $this->namespace . $class_name)) {
+						$class_name = "\\" . $this->namespace . "\\" . $this->namespace . $class_name;
+					} else {
+						if (class_exists("\\" . $this->namespace . "\\" . $this->baseClass . $class_name)) {
+							$class_name = "\\" . $this->namespace . "\\" . $this->baseClass . $class_name;
+						} else {
+							$class_name = '\stdClass';
+						}
+					}
+				}
+			}
+		}
+		
+		return $class_name;
 	}
 	function mapDataToObject($data, $class_name) {
 		if (is_array($data)) {
@@ -22,7 +51,7 @@ class REST_Transformer {
 				$mapped = array();
 				
 				foreach($data as $data_item) {
-					array_push($mapped, $this->mapDataToObject($data_item, $class_name));
+					array_push($mapped, $this->mapDataToObject($data_item, $this->getClassName($class_name)));
 				}
 			}
 		} else {
@@ -34,7 +63,7 @@ class REST_Transformer {
 	function mapAssocData($mapped, $data) {
 		foreach($data as $key => $value) {
 			if ($value instanceof stdClass) {
-				$mapped->$key = $this->mapDataToObject($value, $key);
+				$mapped->$key = $this->mapDataToObject($value, $this->getClassName($key));
 			} else {
 				if (property_exists($mapped, $key)) {
 					$rp = new ReflectionProperty($mapped,$key);

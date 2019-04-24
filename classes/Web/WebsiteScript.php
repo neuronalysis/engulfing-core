@@ -557,12 +557,12 @@ var referrer = document.referrer;
 //						$html .= '
 //		<script src="/js/main_' . $this->singularize(strtolower($page_item->name)) . '.js"></script>
 //			 ';
-				        if (file_exists($this->getScriptSource($scope, 'js/main_' . $this->singularize(strtolower(str_replace(' ', '', $page_item->name))) . '.js'))) {
+				    	if (file_exists(str_ireplace($this->config['frontend']['appBase'], "", $this->config['frontend']['path']) . "/" . $this->getScriptSource($scope, 'js/main_' . $this->singularize(strtolower(str_replace(' ', '', $page_item->name))) . '.js'))) {
 				            $html .= '
 		<script src="' . $this->getScriptSource($scope, 'js/main_' . $this->singularize(strtolower(str_replace(' ', '', $page_item->name))) . '.js') . '"></script>
 			 ';
 				        } else {
-				            $html .= '
+				        	$html .= '
 		<script src="' . $this->getScriptSource($scope, 'js/main_' . strtolower(str_replace(' ', '', $page_item->name)) . '.js') . '"></script>
 			 ';
 				        }

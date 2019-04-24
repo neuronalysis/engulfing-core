@@ -431,7 +431,10 @@ class REST_Controller {
 		
 		return $result;
 	}
-	
-	
+	function decodeJSON($cmd_string) {
+		$cmd_split = explode(":", $cmd_string);
+		
+		$obj = new $cmd_split[0];
+	}
 }
 ?>

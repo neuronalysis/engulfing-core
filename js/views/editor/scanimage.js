@@ -15,7 +15,7 @@ var ScanImageView = BaseView.extend({
 			'height'        	: imgHeight + 'px',
 			});
 
-		this.$el.html('<img src="' + "./../data/ocr/images/" + this.model.get('filePath') + '" width="' + imgWidth + 'px' + '" height="' + imgHeight + 'px' + '"></img>');
+		this.$el.html('<img src="' + "/kokos/data/ocr/images/" + this.model.get('filePath') + '" width="' + imgWidth + 'px' + '" height="' + imgHeight + 'px' + '"></img>');
 
 		return this;
 	}

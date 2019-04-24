@@ -214,28 +214,39 @@ var BaseRouter = Backbone.Router.extend({
 				});
 
 				if (!user.get('Watchlist')) {
-					var watchlist = new Watchlist();
+					/*var watchlist = new Watchlist();
 
 					watchlist.urlRoot = user.urlRoot + "/" + user.id + "/watchlists";
 
-					watchlistPromise = watchlist.fetch();
+					watchlistPromise = watchlist.fetch();*/
+					
+					$.when(objectPromise).then(function() {
+						var objectView = new SingleObjectView({
+							el : $('#content'),
+							model : object
+						});
+
+						self.setActiveView(objectView);
+					});
 				} else {
 					var watchlist = user.get('Watchlist');
+					
+					$.when(objectPromise, watchlistPromise).then(function() {
+						user.set('Watchlist', watchlist);
+
+						if (self.isWatchedObject(object, watchlist)) {
+							object.isWatched = true;
+						}
+						var objectView = new SingleObjectView({
+							el : $('#content'),
+							model : object
+						});
+
+						self.setActiveView(objectView);
+					});
 				}
 
-				$.when(objectPromise, watchlistPromise).then(function() {
-					user.set('Watchlist', watchlist);
-
-					if (self.isWatchedObject(object, watchlist)) {
-						object.isWatched = true;
-					}
-					var objectView = new SingleObjectView({
-						el : $('#content'),
-						model : object
-					});
-
-					self.setActiveView(objectView);
-				});
+				
 			} else {
 				$.when(objectPromise).then(function() {
 					var objectView = new SingleObjectView({
