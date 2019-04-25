@@ -19,8 +19,12 @@ class Authentication {
 		return self::$instance;
 	}
 	function isLogged() {
-		if (isset($_COOKIE['logged'])) {
-			if (($_COOKIE['logged'] == 1 || gettype($_COOKIE['logged']) == "array")) {
+	    if(!isset($_SESSION)) {
+	        session_start();
+	    }
+	    
+	    if (isset($_SESSION['logged'])) {
+	        if (($_SESSION['logged'] == 1 || gettype($_COOKIE['logged']) == "array")) {
 				if (isset($_COOKIE['UserID'])) {
 					return $_COOKIE['UserID'];
 				}
@@ -219,7 +223,11 @@ Questions? Suggestions? ' . $config['frontend']['siteAdmin'];
 			
 			$app = \Slim\Slim::getInstance();
 			if (isset($user)) {
-				session_start();
+			    if(!isset($_SESSION)) {
+			        session_start();
+			    }
+				
+				$_SESSION['logged'] = '1';
 				
 				setcookie("logged", "1", time()+3600, "/", null);
 				setcookie("UserName", "" . $_POST['LoginUserName'], time() + (3600 * 1), "/", null);
@@ -230,8 +238,11 @@ Questions? Suggestions? ' . $config['frontend']['siteAdmin'];
 				
 				$app->redirect($_SERVER['HTTP_REFERER']);
 			} else {
-				session_start();
-				setcookie("logged", "0", time()+3600, "/", null);
+			    if(!isset($_SESSION)) {
+			        session_start();
+			    }
+			    setcookie("logged", "0", time()+3600, "/", null);
+			    
 				
 				$home_url = $config['frontend']['url'];
 				
@@ -244,8 +255,21 @@ Questions? Suggestions? ' . $config['frontend']['siteAdmin'];
 		}
 	}
 	function logout() {
-		$app = \Slim\Slim::getInstance();
-		
+	    $app = \Slim\Slim::getInstance();
+
+	    if(!isset($_SESSION)) {
+	        session_start();
+	        
+	        $_SESSION['logged'] = '0';
+	        
+	        session_destroy();
+	    } else {
+	        $_SESSION['logged'] = '0';
+	        
+	        session_destroy();
+	    }
+	    
+	    
 		setcookie("logged", "" . "0", -1, "/", null);
 		setcookie("UserName", "", -1, "/", null);
 		setcookie("UserPassword", "", -1, "/", null);
@@ -254,7 +278,9 @@ Questions? Suggestions? ' . $config['frontend']['siteAdmin'];
 		setcookie("UserLanguageID", "", -1, "/", null);
 		setcookie("UserEMail", "", -1, "/", null);
 		
-		$app->redirect($_GET['refererURL']);
+		//$app->redirect(str_ireplace("?logout=true", "", $_SERVER['HTTP_REFERER']) . "?logout=true");
+		//$app->redirect(str_ireplace("?logout=true", "", $_SERVER['HTTP_REFERER']));
+		$app->redirect($_SERVER['HTTP_REFERER']);
 	}
 }
 class Recovery {
