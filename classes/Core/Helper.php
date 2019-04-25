@@ -403,7 +403,13 @@ trait Helper {
 		if (strpos($url_parsed ['path'], "localhost") !== false) {
 			$scopename = $levels[2];
 		} else if (strpos($url_parsed ['path'], "/api/") !== false) {
-			$scopename = $this->singularize($levels[4]);
+			if (isset($levels[3])) {
+				$scopename = $this->singularize($levels[3]);
+				
+				if (isset($levels[4])) {
+					$scopename = $this->singularize($levels[4]);
+				}
+			}
 		} else {
 			if (isset($levels[2])) {
 				$scopename = $levels[2];

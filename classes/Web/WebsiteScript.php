@@ -202,14 +202,15 @@ trait WebsiteScript {
 				null)
 		;
 		
-		if (!in_array($scope, array("kokos", "extraction", "knifecatcher", "neuronalysis")) && !in_array($topdomain, array("extraction", "knifecatcher", "neuronalysis"))) {
+		
+		if (!in_array($scope, array("kokos", "extraction", "knifecatcher", "neuronalysis")) && !in_array($topdomain, array("kokos", "extraction", "knifecatcher", "neuronalysis"))) {
 			foreach (array('km', 'nlp', 'codegeneration', 'edi', 'wiki', 'admin') as $scopeItem) {
 				$html .= $this->renderHTMLScriptByDirectory(
 						$scopeItem,
 						"js",
 						"ontologydriven." . $scopeItem . ".min.js",
 						null,
-						array("app.min.js", "ontologydriven." . $scopeItem . ".min.js","main", "config", "utils")
+						array("app.min.js","main", "config", "utils")
 						);
 			}
 		}
@@ -241,6 +242,7 @@ trait WebsiteScript {
 		if (!$targetDirectory) $targetDirectory = $directory;
 		
 		$path = $this->getPathForRecursiveDirectoryIterator($scope, $targetDirectory);
+		
 		if ($this->enforceRecompile || !file_exists($path . "/" . $target)) {
 			$js = $this->combineJSFromDirectory($path, $ordering, $exclusions);
 			
@@ -406,8 +408,6 @@ trait WebsiteScript {
 			} else {
 				echo "file not found - " . $filepath . "\n";
 			}
-			//$code = file_get_contents ( getcwd () . '/data/codegeneration/code/database/' . strtolower ( $this->Ontology->name ) . "/code_database_tables.sql" );
-				
 		}
 	
 		return $js;
