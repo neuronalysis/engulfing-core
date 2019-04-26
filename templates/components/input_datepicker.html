@@ -6,7 +6,7 @@
 		<span style="position: relative; top: 7px; left: 13px;"><%= field_value %></span>
 <% } else if (accessMode === "edit") { %>
 		<div class="input-group date" id="<%= field_name %>">
-  <input type="text" class="form-control"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+  <input type="text" class="form-control" value="<%= field_value %>"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
 </div>
 <% } %>
 
