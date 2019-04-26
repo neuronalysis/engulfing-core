@@ -102,6 +102,7 @@ trait WebsiteScript {
 	    
 	    
 	    //echo $scriptPath . "; " . $scriptSource . "\n";
+	 
 	    return $scriptSource;
 	}
 	function combineUnderscoreTemplates() {
@@ -551,12 +552,12 @@ var referrer = document.referrer;
 			}
 			
 			if ($this->siteMapDefinition) {
-			    $onPage = false;
+				$onPage = false;
 				
 				$sitemap = json_decode($this->siteMapDefinition);
 				
 				foreach($sitemap->Pages[0]->Pages as $page_item) {
-				    if (strpos($this->website_url, strtolower(str_replace(' ', '', $page_item->name))) !== false  ) {
+					if (strpos($this->website_url, strtolower(str_replace(' ', '', $page_item->name))) !== false  ) {
 				    	$html .= '
 		<script src="' . $this->getScriptSource($scope, 'js/main_' . $this->singularize(strtolower(str_replace(' ', '', $page_item->name))) . '.js') . '"></script>
 			 ';

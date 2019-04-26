@@ -125,27 +125,49 @@ class REST {
 	
 		return $this->singularize($objectname);
 	}
-	function registerEndpoint($endpoint, $methodType, $action) {
+	function registerEndpoint($methodType, $endpoint, $action, $numberOfArguments = 0) {
 		$action_exp = explode(":", $action);
 		$action_class = $action_exp[0];
 		$action_method = $action_exp[1];
 		
-		switch ($methodType) {
-			case 'get':
-				break;
-			case 'post':
-				$this->app->post($endpoint, function() {
-					$action_obj = new $action_class();
-					
-					$this->handleResult(
-						$action_obj->$action_method()
-					);
-				});
+		if ($numberOfArguments === 0) {
+			$this->app->$methodType($endpoint, function() use ($action_class, $action_method) {
 				
-				break;
-			default:
-				break;
-		}
+				$action_obj = new $action_class();
+				
+				$this->handleResult(
+						$action_obj->$action_method()
+						);
+			});
+		} else if ($numberOfArguments === 1) {
+			$this->app->$methodType($endpoint, function($arg1) use ($action_class, $action_method) {
+				
+				$action_obj = new $action_class();
+				
+				$this->handleResult(
+					$action_obj->$action_method($arg1)
+				);
+			});
+		} else if ($numberOfArguments === 2) {
+			$this->app->$methodType($endpoint, function($arg1, $arg2) use ($action_class, $action_method) {
+				
+				$action_obj = new $action_class();
+				
+				$this->handleResult(
+					$action_obj->$action_method($arg1, $arg2)
+				);
+			});
+		} else if ($numberOfArguments === 3) {
+			$this->app->$methodType($endpoint, function($arg1, $arg2, $arg3) use ($action_class, $action_method) {
+				
+				$action_obj = new $action_class();
+				
+				$this->handleResult(
+					$action_obj->$action_method($arg1, $arg2, $arg3)
+				);
+			});
+		} 
+		
 	}
 	//TODO gebastel. mix aus generalisierung und spezialfällen...
 	function loadRoutes($resourceRoot = null) {

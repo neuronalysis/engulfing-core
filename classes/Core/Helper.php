@@ -411,12 +411,16 @@ trait Helper {
 				}
 			}
 		} else {
-			if (isset($levels[2])) {
-				$scopename = $levels[2];
+			if (isset($levels[1])) {
+				$scopename = $levels[1];
 				
-				if (isset($levels[3])) {
-					if ($scopename == $reference) {
-						$scopename = $levels[3];
+				if (isset($levels[2])) {
+					$scopename = $levels[2];
+					
+					if (isset($levels[3])) {
+						if ($scopename == $reference) {
+							$scopename = $levels[3];
+						}
 					}
 				}
 			}
