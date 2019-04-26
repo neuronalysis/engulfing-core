@@ -26,7 +26,10 @@ var DatePickerView = InputView.extend({
 			format: "yyyy-mm-dd",
 		    autoclose: true
 		});
-		this.$("#" + this.field).datepicker('update', this.model.get(this.field));
+		
+		var dateval = this.model.get(this.field).substring(0,10);
+		
+		this.$("#" + this.field).datepicker('update', dateval);
 		
 		return this;
 	}
