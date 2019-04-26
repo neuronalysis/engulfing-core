@@ -125,6 +125,28 @@ class REST {
 	
 		return $this->singularize($objectname);
 	}
+	function registerEndpoint($endpoint, $methodType, $action) {
+		$action_exp = explode(":", $action);
+		$action_class = $action_exp[0];
+		$action_method = $action_exp[1];
+		
+		switch ($methodType) {
+			case 'get':
+				break;
+			case 'post':
+				$this->app->post($endpoint, function() {
+					$action_obj = new $action_class();
+					
+					$this->handleResult(
+						$action_obj->$action_method()
+					);
+				});
+				
+				break;
+			default:
+				break;
+		}
+	}
 	//TODO gebastel. mix aus generalisierung und spezialfällen...
 	function loadRoutes($resourceRoot = null) {
 		$scopeName = $this->getScopeName();

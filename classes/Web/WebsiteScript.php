@@ -342,11 +342,14 @@ trait WebsiteScript {
 		$directory_iterator = new RecursiveIteratorIterator ( new RecursiveDirectoryIterator ( $pathForIterator ) );
 		foreach ( $directory_iterator as $filename => $path_object ) {
 		    if(is_file($filename) && stripos($filename, ".json") === false && !$this->arrayContains($exclusions, $filename)) {
-		        $exploded = explode($scope . "/", $filename);
-				$filename = end($exploded);
-				
+		    	$pathinfo = pathinfo($filename);
+		    	
+		    	$subdirectory = str_ireplace("\\", "/", explode($directory, $pathinfo['dirname'])[1]);
+		    	
+		    	$filename = pathinfo($filename)['basename'];
+		    	
 				$html .= '
-		<script src="' . $this->getScriptSource($scope, $filename) . '"></script>';
+		<script src="' . $this->getScriptSource($scope, $directory . $subdirectory . "/" . $filename) . '"></script>';
 			}
 		}
 		
@@ -554,19 +557,10 @@ var referrer = document.referrer;
 				
 				foreach($sitemap->Pages[0]->Pages as $page_item) {
 				    if (strpos($this->website_url, strtolower(str_replace(' ', '', $page_item->name))) !== false  ) {
-//						$html .= '
-//		<script src="/js/main_' . $this->singularize(strtolower($page_item->name)) . '.js"></script>
-//			 ';
-				    	if (file_exists(str_ireplace($this->config['frontend']['appBase'], "", $this->config['frontend']['path']) . "/" . $this->getScriptSource($scope, 'js/main_' . $this->singularize(strtolower(str_replace(' ', '', $page_item->name))) . '.js'))) {
-				            $html .= '
+				    	$html .= '
 		<script src="' . $this->getScriptSource($scope, 'js/main_' . $this->singularize(strtolower(str_replace(' ', '', $page_item->name))) . '.js') . '"></script>
 			 ';
-				        } else {
-				        	$html .= '
-		<script src="' . $this->getScriptSource($scope, 'js/main_' . strtolower(str_replace(' ', '', $page_item->name)) . '.js') . '"></script>
-			 ';
-				        }
-				            
+				    	
 				        
 						$onPage = true;
 					}
@@ -677,7 +671,7 @@ var referrer = document.referrer;
 					
 		} else {
 			if ($this->siteMapDefinition) {
-			    $sitemap = json_decode($this->siteMapDefinition);
+				$sitemap = json_decode($this->siteMapDefinition);
 			
 				foreach($sitemap->Pages[0]->Pages as $page_item) {
 					if (file_exists($this->desc['ontology']['js'] . 'js/models/model_' . $this->singularize(strtolower($page_item->name)) . '.js')) {

@@ -42,7 +42,7 @@ class Website {
 	
 	var $isShop;
 	
-	var $debug = true;
+	var $debug = false;
 	
 	var $scope = null;
 	
