@@ -162,7 +162,7 @@ trait WebsiteScript {
 		array_push($files, new File (null, 'vendor/twbs/bootstrap/dist/js/bootstrap.min.js'));
 		array_push($files, new File (null, 'vendor/twbs/bootstrap/dist/js/ie10-viewport-bug-workaround.js'));
 		array_push($files, new File (null, 'vendor/bootstrap-arrows/js/bootstrap-arrows.min.js'));
-		array_push($files, new File (null, 'vendor/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js'));
+		array_push($files, new File (null, 'vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js'));
 		array_push($files, new File (null, 'vendor/bootstrap-typeahead/typeahead.bundle.min.js'));
 		array_push($files, new File (null, 'vendor/kartik-v/bootstrap-fileinput/js/fileinput.min.js'));
 		array_push($files, new File (null, 'vendor/underscore/underscore-1.8.3.min.js'));
