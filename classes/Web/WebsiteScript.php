@@ -157,7 +157,7 @@ trait WebsiteScript {
 		$files = array();
 		
 		
-		/*array_push($files, new File (null, 'vendor/jquery/jquery-2.1.3.min.js'));
+		array_push($files, new File (null, 'vendor/jquery/jquery-2.1.3.min.js'));
 		array_push($files, new File (null, 'vendor/moment/moment.min.js'));
 		array_push($files, new File (null, 'vendor/twbs/bootstrap/dist/js/bootstrap.min.js'));
 		array_push($files, new File (null, 'vendor/twbs/bootstrap/dist/js/ie10-viewport-bug-workaround.js'));
@@ -187,7 +187,7 @@ trait WebsiteScript {
 		if (file_exists("../engulfing/engulfing-core/vendor")) {
 			$fio = new FileIO();
 			$fio->saveStringToFile($js, "../engulfing/engulfing-core/vendor" . "/" . "engulfing.vendor.min.js" );
-		}*/
+		}
 		
 		
 		$html .= '
