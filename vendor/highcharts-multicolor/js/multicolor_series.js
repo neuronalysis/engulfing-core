@@ -1,5 +1,5 @@
 /**
-* Multicolor Series v2.2.1-0(2016-06-24)
+* Multicolor Series v2.2.4 (2018-03-27)
 *
 * (c) 2012-2016 Black Label
 *
@@ -71,8 +71,8 @@
 
 	/**
 	 * Return the graph path of a segment - compatibility with 4.2.3+
-	 * @param {object} segment of the path
-	 * @returns {array} Path (SVG)
+	 * @param {Object} segment of the path
+	 * @returns {Array} Path (SVG)
 	 */
 	H.Series.prototype.getSegmentPath = function (segment) {
 		var series = this,
@@ -327,12 +327,15 @@
 						lastColor = j;
 					}
 				});
-				// add the last segment (only single-point last segement is added)
-				if (lastColor !== pointsLength - 1) {
-					segments.push({
-						points: points.slice(lastColor, pointsLength),
-						color: points[pointsLength - 1].segmentColor
-					});
+
+				if (pointsLength) {
+					// add the last segment (only single-point last segement is added)
+					if (lastColor !== pointsLength - 1) {
+						segments.push({
+							points: points.slice(lastColor, pointsLength),
+							color: points[pointsLength - 1].segmentColor
+						});
+					}
 				}
 				
 				if (points.length && segments.length === 0) {
@@ -345,11 +348,6 @@
 				each(points, function (point, j) {
 					var colorChanged = j > 0 && (point.y === null || points[j - 1].y === null || (point.segmentColor !== points[j - 1].segmentColor && points[j].segmentColor !== previousColor)),
 						colorExists = points[j - 1] && points[j - 1].segmentColor && points[j - 1].y !== null ? true : false;
-					
-					// handle first point
-					if (!previousColor && point.segmetColor) {
-						previousColor = point.segmentColor;
-					}
 					
 					if (colorChanged) {
 						var p = points.slice(lastColor, j + 1);
@@ -441,6 +439,7 @@
 			var attribs = {
 					stroke: prop[1],
 					'stroke-width': lineWidth,
+					fill: 'none',
 					zIndex: 1 // #1069
 				},
 				item;
@@ -455,8 +454,12 @@
 			
 			item = series.chart.renderer.path(segment[0])
 			.attr(attribs)
-			.add(series.group)
-			.shadow(!i && options.shadow);
+			.add(series.group);
+
+
+			if (item.shadow) {
+				item.shadow(!i && options.shadow);
+			}
 			
 			return item;
 		}
@@ -479,7 +482,7 @@
 					}
 				});
 				
-			} else if (lineWidth && graphPath.length) { // #1487
+			} else if (graphPath.length) { // #1487
 				graph = [];
 				each(graphPath, function (segment, j) {
 					graph[j] = getSegment(segment, prop, i);
@@ -566,8 +569,8 @@
 	/**
 	* Extend the base Series getSegmentPath method by adding the path for the area.
 	* This path is pushed to the series.areaPath property.
-	* @param {object} segment of the path
-	* @returns {array} Path (SVG)
+	* @param {Object} segment of the path
+	* @returns {Array} Path (SVG)
 	**/
 	H.seriesTypes.coloredarea.prototype.getSegmentPath = function (segment) {
 		var segmentPath = H.Series.prototype.getSegmentPath.call(this, segment), // call base method
