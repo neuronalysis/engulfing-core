@@ -18,8 +18,7 @@
   },
   "files": [
     "js/multicolor_series.js",
-    "js/multicolor_series.min.js",
-    "js/multicolor_series.min.js.map"
+    "js/multicolor_series.min.js"
   ],
   "homepage": "https://github.com/blacklabel/multicolor_series#readme",
   "devDependencies": {
