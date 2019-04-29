@@ -85,7 +85,13 @@ class REST_Controller {
 		$className = $this->rest->singularize($this->rest->orm->getOntologyClassName());
 		
 		if (stripos($className, "user") === false) {
-			if (!$UserID = $this->rest->isLogged()) return null;
+			if (!$UserID = $this->rest->isLogged()) {
+				return null;
+			} else {
+				if ($_COOKIE['UserRoleID'] !== "1") {
+					return null;
+				}
+			}
 		}
 		
 		$this->deleteById($className, $id, true);

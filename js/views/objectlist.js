@@ -5,16 +5,22 @@ window.ObjectListView = BaseView.extend({
 		this.template = _.template(tpl.get('layouts/objectlist'));
 		
 		this.tableView		= new BackGridTableView({collection : this.collection});
-		this.tableView.columns.push({
-			name : "actions", // The key of the model attribute
-			label : "Actions", // The name to display in the header
-			sortable: false,
-			editable : false,
-			cell : ActionsCell.extend({
-				orderSeparator : '',
-				actions : ["delete"]
+		
+		var roleID = Cookie.get("UserRoleID");
+		
+		if (roleID === "1") {
+			this.tableView.columns.push({
+				name : "actions", // The key of the model attribute
+				label : "Actions", // The name to display in the header
+				sortable: false,
+				editable : false,
+				cell : ActionsCell.extend({
+					orderSeparator : '',
+					actions : ["delete"]
+				})
 			})
-		})
+		}
+
 		this.buttonView 	= new ButtonView({id: "btn_add"});
 	},
 	events : {
