@@ -97,44 +97,62 @@ class ImportProcess extends Thing {
 		
 		$schema = json_decode($this->DataService->schemaDefinition);
 		
-		$schemavars = get_object_vars($schema);
-		 
-		if (isset($schemavars['parameters'][0]->ontologyClass)) {
-			$ontologyName = $rest->orm->getOntologyName($schemavars['parameters'][0]->ontologyClass);
+		if ($schema) {
+			$schemavars = get_object_vars($schema);
 			
-			$orm_req = new ORM_Request("OntologyClass", array("name" => $schemavars['parameters'][0]->ontologyClass));
-			
-			$ontologyClasses = $rest->orm->getByNamedFieldValues($orm_req);
-			
-			if ($internalKey) {
-				$dsEntity = $rest->orm->getById($schemavars['parameters'][0]->ontologyClass, $internalKey);
+			if (isset($schemavars['parameters'][0]->ontologyClass)) {
+				$ontologyName = $rest->orm->getOntologyName($schemavars['parameters'][0]->ontologyClass);
 				
-				$parameterField = $schemavars['parameters'][0]->field;
+				$orm_req = new ORM_Request("OntologyClass", array("name" => $schemavars['parameters'][0]->ontologyClass));
 				
-				if (strpos($this->DataService->url, "{" . $parameterField . "}") !== false) {
-					$urlString = str_ireplace("{" . $parameterField . "}", $dsEntity->externalKey, $urlString);
-				} else {
-					if (isset($dsEntity)) {
-						$parameters .= "&" . $parameterField . "=" . $dsEntity->externalKey;
-					} else {
-						//print_r(array($ontologyClasses[0]->id, $internalKey));
-					}
+				$ontologyClasses = $rest->orm->getByNamedFieldValues($orm_req);
+				
+				if ($internalKey) {
+					$dsEntity = $rest->orm->getById($schemavars['parameters'][0]->ontologyClass, $internalKey);
 					
+					$parameterField = $schemavars['parameters'][0]->field;
+					
+					if (strpos($this->DataService->url, "{" . $parameterField . "}") !== false) {
+						$urlString = str_ireplace("{" . $parameterField . "}", $dsEntity->externalKey, $urlString);
+					} else {
+						if (isset($dsEntity)) {
+							$parameters .= "&" . $parameterField . "=" . $dsEntity->externalKey;
+						} else {
+							//print_r(array($ontologyClasses[0]->id, $internalKey));
+						}
+						
+					}
 				}
-			}
-			
-			if ($this->DataService->DataProvider->apiKey) {
-				if (isset($schemavars['api'][0]->keyName)) {
-					$apiKeyParameter = "&" . $schemavars['api'][0]->keyName . "=" . $this->DataService->DataProvider->apiKey;
-				} else {
+				
+				if ($this->DataService->DataProvider->apiKey) {
+					if (isset($schemavars['api'][0]->keyName)) {
+						$apiKeyParameter = "&" . $schemavars['api'][0]->keyName . "=" . $this->DataService->DataProvider->apiKey;
+					} else {
+						$apiKeyParameter = "&" . "api_key=" . $this->DataService->DataProvider->apiKey;
+					}
+				}
+			} else {
+				if ($this->DataService->DataProvider->apiKey) {
 					$apiKeyParameter = "&" . "api_key=" . $this->DataService->DataProvider->apiKey;
 				}
 			}
 		} else {
-			if ($this->DataService->DataProvider->apiKey) {
-				$apiKeyParameter = "&" . "api_key=" . $this->DataService->DataProvider->apiKey;
+			$dsEntity = $rest->orm->getById("Instrument", $internalKey);
+			
+			$parameterField = "Symbol";
+			
+			if (strpos($this->DataService->url, "{" . $parameterField . "}") !== false) {
+				$urlString = str_ireplace("{" . $parameterField . "}", $dsEntity->externalKey, $urlString);
+			} else {
+				if (isset($dsEntity)) {
+					$parameters .= "&" . $parameterField . "=" . $dsEntity->externalKey;
+				} else {
+					//print_r(array($ontologyClasses[0]->id, $internalKey));
+				}
+				
 			}
 		}
+		
 		
 		if ($explicitParameterKeyValues) {
 			foreach($explicitParameterKeyValues as $key => $value) {

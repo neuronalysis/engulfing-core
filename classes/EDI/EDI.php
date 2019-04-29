@@ -32,7 +32,7 @@ class EDI extends Thing {
 			
 			$task = new Task ( "uploading" );
 			
-			$ip = $this->getImportProcessById(8);
+			$ip = $this->getImportProcessById(10);
 			
 			$methodName = "import" . $this->pluralize($ip->DataService->OntologyClass->name);
 			
@@ -46,10 +46,20 @@ class EDI extends Thing {
 				$methodName = "importInstrumentObservationsByInstrument";
 			}
 			
-			
 			if (method_exists($ontology, $methodName)) {
 				if ($methodName == "importInstrumentObservationsByInstrument") {
 					$instrument = $ontology->getInstrumentByID(1);
+					
+					$resource = $ontology->$methodName($instrument, $ip);
+				} else {
+					$resource = $ontology->$methodName($ip);
+				}
+			}
+			
+			
+			if (method_exists($ontology, $methodName)) {
+				if ($methodName == "importInstrumentObservationsByInstrument") {
+					$instrument = $ontology->getInstrumentByID(2);
 					
 					$resource = $ontology->$methodName($instrument, $ip);
 				} else {
@@ -313,19 +323,22 @@ class EDI extends Thing {
 		
 		$schema = json_decode($ds[0]->schemaDefinition);
 		
-		$schemavars = get_object_vars($schema);
-		
-		if (isset($schemavars['parameters'][0]->ontologyClass)) {
-			$orm_req = new ORM_Request("OntologyClass", array("name" => $schemavars['observations'][0]->ontologyClass), array("ontologyID"));
+		if ($schema) {
+			$schemavars = get_object_vars($schema);
 			
-			$ontologyClasses = $rest->orm->getByNamedFieldValues($orm_req);
+			if (isset($schemavars['parameters'][0]->ontologyClass)) {
+				$orm_req = new ORM_Request("OntologyClass", array("name" => $schemavars['observations'][0]->ontologyClass), array("ontologyID"));
+				
+				$ontologyClasses = $rest->orm->getByNamedFieldValues($orm_req);
+				
+				$ontologyClasses[0]->Ontology = $rest->orm->getById("Ontology", $ontologyClasses[0]->ontologyID);
+				
+				$ds[0]->OntologyClass = $ontologyClasses[0];
+			}
 			
-			$ontologyClasses[0]->Ontology = $rest->orm->getById("Ontology", $ontologyClasses[0]->ontologyID);
-			
-			$ds[0]->OntologyClass = $ontologyClasses[0];
+			$result->DataService = $ds[0];
 		}
 		
-		$result->DataService = $ds[0];
 		
 		return $result;
 	}
@@ -345,9 +358,8 @@ class EDI extends Thing {
 	    return $resource;
 	}
 	//TODO
-	function getResource($url, $noDownload = false, $enforcedType = null, $save = false) {
+	function getResource($url, $noDownload = false, $enforcedType = null, $save = false, $headers = null) {
 		$rest = REST::getInstance();
-		
 		$config = $rest->getConfig();
 		
 	    try {
@@ -362,7 +374,7 @@ class EDI extends Thing {
 				$fio = new FileIO();
 				$fio->saveStringToFile($resource->content, $config['frontend']['path'] . "../work/extraction/testresource.pdf");
 			} else {
-			    $resource->load($noDownload, $enforcedType);
+				$resource->load($noDownload, $enforcedType, $headers);
 			    
 			    $resource->name = basename($url);
 			    

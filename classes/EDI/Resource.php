@@ -43,7 +43,7 @@ class Resource extends Thing {
 	        $this->modificationTime = date ("F d Y H:i:s.", $filetime);
 	    }
 	}
-	function load($noDownload = false, $enforcedType = null) {
+	function load($noDownload = false, $enforcedType = null, $headers = null) {
 		error_reporting(E_ALL & ~E_NOTICE);
 		
 		$finfo = new finfo(FILEINFO_MIME);
@@ -53,6 +53,7 @@ class Resource extends Thing {
 		    //$this->content = file_get_contents('data/temp/structure/processing/processed.html');
 		    $this->content = file_get_contents($this->url);
 			
+		    
 			if ($enforcedType) {
 				$this->Type = $enforcedType;
 			} else {
@@ -67,7 +68,7 @@ class Resource extends Thing {
 				$this->modificationTime = date ("F d Y H:i:s.", $filetime);
 			}
 		} else {
-		    $this->content = $fio->loadFile($this->url);
+		    $this->content = $fio->loadFile($this->url, $headers);
 		    
 			$this->Type = $finfo->buffer($this->content);
 			if ($this->Type === "text/plain; charset=us-ascii") {

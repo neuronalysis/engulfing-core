@@ -17,12 +17,17 @@ class FileIO {
 		}
 		return $stream;
 	}
-	function loadFile($path) {
+	function loadFile($path, $headers = null) {
 		$ch = curl_init();
 		curl_setopt ($ch, CURLOPT_URL, $path);
 		curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, 5);
 		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, true);
+		
+		if ($headers) {
+			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		}
+		
 		$contents = curl_exec($ch);
 		if (curl_errno($ch)) {
 			throw new Exception(curl_error($ch));
