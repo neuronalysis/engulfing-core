@@ -21,8 +21,14 @@ var InputTextView = InputView.extend({
 			this.model.type = 'ReleasePublication';
 		}
     		
+		var model_value = '';
+		
+		if (this.model.get(this.field) !== null) {
+			model_value = this.model.get(this.field);
+		}
+		
 		if (accessMode == "edit") {
-			field_value += this.model.get(this.field);
+			field_value += model_value;
 		} else {
 			if (this.model.type === "OntologyPropertyEntity") {
 				if (this.url) {
@@ -32,9 +38,9 @@ var InputTextView = InputView.extend({
 				}
 			} else {
 				if (this.url) {
-					field_value += '<a href="' + this.url + '">' + this.model.get(this.field) + '</a>';
+					field_value += '<a href="' + this.url + '">' + model_value + '</a>';
 				} else {
-					field_value += this.model.get(this.field);
+					field_value += model_value;
 				}
 			}
 		}
