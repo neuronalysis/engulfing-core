@@ -67,6 +67,26 @@ class EDI extends Thing {
 				}
 			}
 			
+			
+			if (method_exists($ontology, $methodName)) {
+				if ($methodName == "importInstrumentObservationsByInstrument") {
+					$instrument = $ontology->getInstrumentByID(3);
+					
+					$resource = $ontology->$methodName($instrument, $ip);
+				} else {
+					$resource = $ontology->$methodName($ip);
+				}
+			}
+			
+			if (method_exists($ontology, $methodName)) {
+				if ($methodName == "importInstrumentObservationsByInstrument") {
+					$instrument = $ontology->getInstrumentByID(4);
+					
+					$resource = $ontology->$methodName($instrument, $ip);
+				} else {
+					$resource = $ontology->$methodName($ip);
+				}
+			}
 		} catch ( Exception $e ) {
 			$error = new Error ();
 			$error->details = $e->getMessage () . "\n" . $e->getFile() . " - " . $e->getLine();
