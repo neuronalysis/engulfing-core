@@ -362,8 +362,6 @@ class Website {
   		$html .= '
 	<body>';
   		
-  		$html .= $this->renderHTMLScripts_Analytics();
-  		
   		$html .= $this->renderHTMLNavigation();
   			
   		if ($this->auth->isLogged()) {
