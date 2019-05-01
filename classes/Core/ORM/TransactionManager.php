@@ -16,7 +16,7 @@ trait TransactionManager {
 		
 		$queryType = $this->getQueryType($query);
 		if ($this->debug) {
-		    echo "db_scope: " . $this->db_scope . "\n";
+		    echo "executeQuery - db_scope: " . $this->db_scope . "\n";
 		    echo "sql: " . $query . "\n";
 		}
 	

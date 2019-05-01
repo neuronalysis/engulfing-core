@@ -24,6 +24,7 @@ class EDI extends Thing {
 		$this->debugMode = false;
 		$this->debugMode = false;
 		$this->setConfig($rest->getConfig());
+		$eco = new Economics();
 		
 		$processing = new Processing();
 		
@@ -46,77 +47,53 @@ class EDI extends Thing {
 				$methodName = "importInstrumentObservationsByInstrument";
 			}
 			
-			if (method_exists($ontology, $methodName)) {
-				if ($methodName == "importInstrumentObservationsByInstrument") {
-					$instrument = $ontology->getInstrumentByID(1);
-					
-					$resource = $ontology->$methodName($instrument, $ip);
-				} else {
-					$resource = $ontology->$methodName($ip);
+			$instruments = $eco->getInstruments();
+			
+			foreach($instruments as $item) {
+				if (method_exists($ontology, $methodName)) {
+					if ($methodName === "importInstrumentObservationsByInstrument") {
+						$resource = $ontology->$methodName($item, $ip);
+					}
 				}
 			}
 			
+			return $resource;
+		} catch ( Exception $e ) {
+			$error = new Error ();
+			$error->details = $e->getMessage () . "\n" . $e->getFile() . " - " . $e->getLine();
 			
-			if (method_exists($ontology, $methodName)) {
-				if ($methodName == "importInstrumentObservationsByInstrument") {
-					$instrument = $ontology->getInstrumentByID(2);
-					
-					$resource = $ontology->$methodName($instrument, $ip);
-				} else {
-					$resource = $ontology->$methodName($ip);
-				}
-			}
+			echo json_encode ( $error, JSON_PRETTY_PRINT );
+			exit ();
+		}
+	}
+	function importDataIntraday() {
+		$rest = REST::getInstance();
+		$fio = new FileIO();
+		
+		$ext = new Extraction();
+		$ext->setConfig($rest->getConfig());
+		$ext->apiMode = true;
+		$this->debugMode = false;
+		$this->debugMode = false;
+		$this->setConfig($rest->getConfig());
+		$eco = new Economics();
+		
+		$processing = new Processing();
+		
+		try {
+			$config = $rest->getConfig();
 			
+			$task = new Task ( "uploading" );
 			
-			if (method_exists($ontology, $methodName)) {
-				if ($methodName == "importInstrumentObservationsByInstrument") {
-					$instrument = $ontology->getInstrumentByID(3);
-					
-					$resource = $ontology->$methodName($instrument, $ip);
-				} else {
-					$resource = $ontology->$methodName($ip);
-				}
-			}
+			$ip = $this->getImportProcessById(10);
 			
-			if (method_exists($ontology, $methodName)) {
-				if ($methodName == "importInstrumentObservationsByInstrument") {
-					$instrument = $ontology->getInstrumentByID(4);
-					
-					$resource = $ontology->$methodName($instrument, $ip);
-				} else {
-					$resource = $ontology->$methodName($ip);
-				}
-			}
+			$methodName = "import" . $this->pluralize($ip->DataService->OntologyClass->name);
 			
-			if (method_exists($ontology, $methodName)) {
-				if ($methodName == "importInstrumentObservationsByInstrument") {
-					$instrument = $ontology->getInstrumentByID(5);
-					
-					$resource = $ontology->$methodName($instrument, $ip);
-				} else {
-					$resource = $ontology->$methodName($ip);
-				}
-			}
+			$ontologyName = $ip->DataService->OntologyClass->Ontology->name;
 			
-			if (method_exists($ontology, $methodName)) {
-				if ($methodName == "importInstrumentObservationsByInstrument") {
-					$instrument = $ontology->getInstrumentByID(6);
-					
-					$resource = $ontology->$methodName($instrument, $ip);
-				} else {
-					$resource = $ontology->$methodName($ip);
-				}
-			}
+			$ontology = new $ontologyName;
 			
-			if (method_exists($ontology, $methodName)) {
-				if ($methodName == "importInstrumentObservationsByInstrument") {
-					$instrument = $ontology->getInstrumentByID(7);
-					
-					$resource = $ontology->$methodName($instrument, $ip);
-				} else {
-					$resource = $ontology->$methodName($ip);
-				}
-			}
+			$resource = $ontology->importInstrumentIntradayObservationsByInstrument($ip);
 		} catch ( Exception $e ) {
 			$error = new Error ();
 			$error->details = $e->getMessage () . "\n" . $e->getFile() . " - " . $e->getLine();

@@ -110,7 +110,10 @@ trait ObjectHelper {
 			$db_scope = $this->getOntologyScope($object);
 				
 		}
-	
+		
+		if ($this->debug) {
+			echo "table-exists - db_scope: " . $db_scope . "\n";
+		}
 		$db = $this->openConnection ($db_scope);
 	
 		$stmt = $db->prepare ( "SHOW TABLES LIKE '$tableName'" );
@@ -358,56 +361,43 @@ trait ObjectHelper {
 		if ($object) {
 			$OntologyClassname = get_class($object);
 			
-			if (strtolower($OntologyClassname) !== "rest") return $OntologyClassname;
-		}
-		
-		$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
-		$levels = explode ( "/", $url_parsed ['path'] );
-	
-		if (strpos($url_parsed ['path'], "localhost") !== false) {
-			if (strpos($url_parsed ['path'], "/api/") !== false) {
-				$OntologyClassname = $levels[3];
-			} else {
-				$OntologyClassname = $levels[1];
-			}
-		} else if (strpos($url_parsed ['path'], "/api/") !== false) {
-			if (isset($levels[3])) {
-				if ($levels[2] === "api") {
-					$OntologyClassname = $levels[4];
-				} else {
-					$OntologyClassname = $levels[3];
-				}
-				
-			} else {
-				$OntologyClassname = $levels[2];
-			}
-			
+			return $OntologyClassname;
 		} else {
-			$OntologyClassname = $levels[1];
-		}
-		
-		
-		if (!class_exists($OntologyClassname, true)) {
-			$OntologyClassname = $this->singularize($OntologyClassname);
+			$declaredClasses = get_declared_classes();
 			
-			if (class_exists($OntologyClassname, true)) {
-				$OntologyClassname = get_class(new $OntologyClassname());
-			} else {
-				if (class_exists(ucfirst($OntologyClassname), true)) {
-					$ocn = ucfirst($OntologyClassname);
-					$OntologyClassname = get_class(new $ocn());
+			$url_parsed = parse_url ( $_SERVER ['REQUEST_URI'] );
+			
+			$levels = explode ( "/", $url_parsed ['path'] );
+			
+			$last = end($levels);
+			
+			if(is_numeric($last)) $last = $levels[count($levels)-2];
+			
+			//print_r($declaredClasses);
+			
+			foreach($declaredClasses as $item) {
+				if (strtolower($item) === $this->singularize(strtolower($last))) {
+					return $item;
+				}
+			}
+			
+			foreach($declaredClasses as $item) {
+				if (stripos($item, $this->singularize($last)) !== false) {
+					$pre_part = str_ireplace($this->singularize($last), "", $item);
+					
+					//echo $item . "\n";
+					
+					//echo $url_parsed ['path'] . " ; " . $pre_part . "\n";
+					
+					if (stripos($url_parsed ['path'], $pre_part) !== false) {
+						//echo "found\n";
+						return $item;
+					}
 				}
 			}
 		}
 		
-		if (class_exists("\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname, true)) {
-			$OntologyClassname = "\\" . strtoupper($this->db_scope) . "\\" . $OntologyClassname;
-		}
-		if (class_exists("\\" . strtoupper($this->db_scope) . "\\" . ucfirst($OntologyClassname), true)) {
-			$OntologyClassname = "\\" . strtoupper($this->db_scope) . "\\" . ucfirst($OntologyClassname);
-		}
-		
-		return $OntologyClassname;
+		return null;
 	}
 	function getOntologyName($object = null) {
 		if (is_object($object)) {

@@ -286,8 +286,6 @@ class REST {
 		if (isset($scope)) {
 			if ($scope === "wiki") {
 				$this->app->get('/wiki/articles/:id',	'getWikiArticle');
-			} else if ($scope === "news") {
-				$this->app->get('/news/:topic',	'getNewsByTopic');
 			}
 		}
 	}

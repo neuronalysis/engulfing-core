@@ -40,6 +40,10 @@ class ORM {
 			WHERE TABLE_NAME   = '" . $tableName . "' AND TABLE_SCHEMA = '" . $this->getDatabaseName($db_scope) . "'";
 		
 		try {
+			if ($this->debug) {
+				echo "getNextInsertId - db_scope: " . $db_scope . "\n";
+			}
+			
 			$db = $this->openConnection($db_scope);
 			$stmt = $db->prepare($sql);
 		
@@ -74,6 +78,10 @@ class ORM {
 	    if ($this->debug) echo "in db " . $request->dbScope . " execute getbynamedfield-sql: " . $sql . "\n";
 	    
 	    try {
+	    	if ($this->debug) {
+	    		echo "getByNamedFieldValues - db_scope: " . $request->dbScope . "\n";
+	    	}
+	    	
 	        $db = $this->openConnection($request->dbScope);
 	        $stmt = $db->prepare($sql);
 	        
@@ -460,6 +468,10 @@ class ORM {
 				$db_scope = strtolower($entities[0]->entityOntologyName);
 			}
 			
+			if ($this->debug) {
+				echo "insertImportEntitiesBulk - db_scope: " . $db_scope. "\n";
+			}
+			
 			$db = $this->openConnection($db_scope);
 			
 			$db->beginTransaction(); // also helps speed up your inserts.
@@ -513,6 +525,10 @@ class ORM {
 		try {
 			$db_scope = strtolower($this->getOntologyScope($this->singularize($table)));
 				
+			if ($this->debug) {
+				echo "insertArrayBulk - db_scope: " . $db_scope. "\n";
+			}
+			
 			$db = $this->openConnection($db_scope);
 	
 			$db->beginTransaction(); // also helps speed up your inserts.

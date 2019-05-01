@@ -207,7 +207,11 @@ trait Helper {
 							case 'ss':
 								$singular = $plural;
 								break;
+							case 'ws':
+								$singular = $plural;
+								break;
 							case 'us':
+								case 'us':
 								$singular = $plural;
 								break;
 							default:

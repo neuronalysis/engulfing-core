@@ -339,19 +339,11 @@ class REST_Controller {
 		
 		$limit = null;
 		
-		if ($className === "Indicator") {
-			$orm_request = new ORM_Request($className. "Observation", array(lcfirst($className) . "ID" => $id, "date" => "2014-01-01"));
-			$orm_request->keyOperators = array(lcfirst($className) . "ID" => "=", "date" => ">=");
-			$orm_request->order = "date ASC";
-			
-			$observations = $this->rest->orm->getByNamedFieldValues($orm_request);
-		} else if ($className === "Instrument") {
-			$orm_request = new ORM_Request($className. "Observation", array(lcfirst($className) . "ID" => $id, "date" => "2015-01-01"));
-			$orm_request->keyOperators = array(lcfirst($className) . "ID" => "=", "date" => ">=");
-			$orm_request->order = "date ASC";
-			
-			$observations = $this->rest->orm->getByNamedFieldValues($orm_request);
-		}
+		$orm_request = new ORM_Request($className, array(lcfirst(str_ireplace("Observation", "", $className)) . "ID" => $id, "date" => "2015-01-01"));
+		$orm_request->keyOperators = array(lcfirst(str_ireplace("Observation", "", $className)) . "ID" => "=", "date" => ">=");
+		$orm_request->order = "date ASC";
+		
+		$observations = $this->rest->orm->getByNamedFieldValues($orm_request);
 		
 		foreach($observations as $item) {
 			unset($item->id);
