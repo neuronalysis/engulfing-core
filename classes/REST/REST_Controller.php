@@ -159,8 +159,14 @@ class REST_Controller {
 	function get($id = null) {
 		$className = $this->rest->singularize($this->rest->orm->getOntologyClassName());
 		
+		$cfg = $this->rest->getConfig();
+		
 		if (stripos($className, "user") === false) {
-			if (!$UserID = $this->rest->isLogged()) return null;
+			if (!$UserID = $this->rest->isLogged()) {
+				if (isset($cfg['frontend']['accessRestrictions']['objects'][$className])) {
+					return null;
+				}
+			}
 		}
 		
 		if ($id) {
