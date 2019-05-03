@@ -85,6 +85,8 @@ trait Helper {
 				'::1'
 		);
 			
+		print_r(array($_SERVER['REMOTE_ADDR'], $whitelist));
+		
 		if (in_array($_SERVER['REMOTE_ADDR'], $whitelist)) {
 			return true;
 		}
