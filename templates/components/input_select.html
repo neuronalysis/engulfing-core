@@ -1,13 +1,13 @@
 <% if (withCell) { %><div class="col-md-12"><% } %>
 <div class="form-group">
 <% if (withLabel) { %>
-	<label class="col-md-3 control-label"><%= getWordLike(labelName) %></label>
+	<label class="col-md-3 control-label" style="height: 25px;"><%= getWordLike(labelName) %></label>
 <% } %>
 
 <% if (withCell) { %>
-	<div class="col-md-12">
+	<div class="col-md-12" style="height: 25px;">
 <% } else { %>
-	<div class="col-md-5">
+	<div class="col-md-5" style="height: 25px;">
 <% } %>
 
 <% if (accessMode === "read") { %>
