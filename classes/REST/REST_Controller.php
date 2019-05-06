@@ -358,8 +358,6 @@ class REST_Controller {
 		}
 		
 		
-		print_r($observations[0]);
-		
 		$result = new stdClass();
 		$result->items = $observations;
 		
