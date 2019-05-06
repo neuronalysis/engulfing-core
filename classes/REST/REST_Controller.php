@@ -357,6 +357,9 @@ class REST_Controller {
 			unset($item->$className);
 		}
 		
+		
+		print_r($observations[0]);
+		
 		$result = new stdClass();
 		$result->items = $observations;
 		
