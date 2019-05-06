@@ -28,7 +28,7 @@ window.OntologyTeaserView = Backbone.View.extend({
 		//this.$el.append(titleHTML).append(subtitleHTML).append(chartsView.render().$el);
 		$.when(teaserModelPromise).then(function() {
 			self.$("div.economics-spinner-div").replaceWith(
-					'<h4 class="media-heading">' + '<a href="' + teaserModel.getUrl() + '">' + teaserModel.get('name') + '</a>' + ' last updated on ' + new Date(teaserModel.get('lastIndicatorObservationDate')).format() + '</h4>'
+					'<h4 class="media-heading">' + '<a href="' + '">' + teaserModel.get('name') + '</a>' + ' last updated on ' + new Date(teaserModel.get('lastIndicatorObservationDate')).format() + '</h4>'
 					);
 			
 			var chartsView = new HighChartsView({model : teaserModel, observationsLimit : 60});
@@ -73,7 +73,7 @@ window.FinancialMarketsTeaserView = Backbone.View.extend({
 		//this.$el.append(titleHTML).append(subtitleHTML).append(chartsView.render().$el);
 		$.when(financialmarketsTeaserPromise).then(function() {
 			self.$("div.spinner-div").replaceWith(
-					'<h4 class="media-heading">' + '<a href="' + teaserModel.getUrl() + '">' + teaserModel.get('name') + '</a>' + ' last updated on ' + new Date(teaserModel.get('lastInstrumentObservationDate')).format() + '</h4>'
+					'<h4 class="media-heading">' + '<a href="/instruments/#' + teaserModel.get('id') + '">' + teaserModel.get('name') + '</a>' + ' last updated on ' + new Date(teaserModel.get('lastInstrumentObservationDate')).format() + '</h4>'
 					);
 			
 			var chartsView = new HighChartsView({model : teaserModel, observationsLimit : 250});

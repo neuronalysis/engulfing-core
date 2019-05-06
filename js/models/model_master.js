@@ -30,13 +30,13 @@ window.Master = Backbone.RelationalModel.extend({
 
     	return  Backbone.RelationalModel.prototype.fetch.call(this, options);
     },
-    getUrl: function () {
+    /*getUrl: function () {
     	var url = '';
     	
     	url += odBase + 'wiki/articles#' + this.get('name');
     	
     	return url;
-    },
+    }*/
     
     getRelatedObjects: function () {
     	if (this.isConcrete()) {
