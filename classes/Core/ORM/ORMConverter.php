@@ -29,7 +29,7 @@ trait ORMConverter {
 					if (!$rp->isProtected()) {
 						if (substr($corrected, 0, 2) == "is" && $this->starts_with_upper($corrected, 2)) $value = boolval($value);
 						if ($corrected == "id") $value = intval($value);
-						if (is_numeric($value)) $value = +$value;
+						if (is_numeric($value)) $value = 1 * $value;
 						$object->$corrected = $value;
 					} else {
 						if ($includingProtected) {
