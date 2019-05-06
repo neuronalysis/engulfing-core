@@ -495,11 +495,18 @@ class Website {
 		<link href="' . $this->getScriptSource('engulfing', 'engulfing-core/vendor/twbs/bootstrap/dist/css/ie10-viewport-bug-workaround.css') . '" rel="stylesheet">
 		<link href="' . $this->getScriptSource('engulfing', 'engulfing-core/css/styles.css') . '" rel="stylesheet">';
     	
-    	$html .= '
+    	$html .= "
 		<style>
 			body { padding-top: 45px; }
+			@font-face {
+			  	font-family: 'Glyphicons Halflings';
+				font-display: auto;
+  
+			  	src: url('" . $this->config['framework']['url'] . "engulfing-core/fonts/glyphicons-halflings-regular.eot');
+			  	src: url('" . $this->config['framework']['url'] . "engulfing-core/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('" . $this->config['framework']['url'] . "engulfing-core/fonts/glyphicons-halflings-regular.woff2') format('woff2'), url('" . $this->config['framework']['url'] . "engulfing-core/fonts/glyphicons-halflings-regular.woff') format('woff'), url('" . $this->config['framework']['url'] . "engulfing-core/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('" . $this->config['framework']['url'] . "engulfing-core/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+			}
 		</style>
-	</head>';
+	</head>";
     	
     	return $html;
     }
