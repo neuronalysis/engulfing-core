@@ -141,7 +141,9 @@ class ORM {
 	        $sql_select_fields = "*";
 	    }
 	    
-	    $sql = "SELECT " . $sql_select_fields . " FROM " . $tableName . " " . $sql_paging;
+	    $sql = "SELECT " . $sql_select_fields . " FROM " . $tableName;
+	    
+	    $sql .= $this->buildWhereClause($request->keyValues, $request->noPaging, $request->order, $request->objectName, $request->limit, $request->like, $request->keyOperators);
 	    
 	    //$objects = $this->executeQuery($sql, $object_name, null, true, $explicitFields, $includingProtected);
 	    $objects = $this->executeQuery($sql, $request->objectName, null, $request->dbScope);

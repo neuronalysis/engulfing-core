@@ -208,10 +208,6 @@ trait QueryBuilder {
 			}
 		}
 		
-		if (!$noPaging && !$order) {
-			$sql_paging = $this->getPaging($object_name);
-			$sql .= " " . $sql_paging;
-		}
 		
 		if ($order) {
 			$orderBy = " ORDER BY " . $order;
@@ -219,7 +215,12 @@ trait QueryBuilder {
 			$sql .= " " . $orderBy;
 		}
 		
-		if ($limit) {
+		if (!$noPaging) {
+			$sql_paging = $this->getPaging($object_name);
+			$sql .= " " . $sql_paging;
+		}
+		
+		if ($limit && $noPaging) {
 			$sql .= " LIMIT " . $limit;
 		}
 		
