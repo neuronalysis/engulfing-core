@@ -174,6 +174,7 @@ class REST_Controller {
 		} else {
 			if (isset($_GET['page'])) {
 				$orm_req = new ORM_Request($className);
+				$orm_req->noPaging = false;
 				
 				$result_paged = $this->rest->orm->getAllByName($orm_req);
 		
