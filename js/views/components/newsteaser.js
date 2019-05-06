@@ -7,7 +7,6 @@ window.NewsTeaserView = Backbone.View.extend({
     	
 		this.options = options;
 	},
-	
 	render : function() {
 		var titleHTML = '';
 		titleHTML += '<h2>News</h2>';
