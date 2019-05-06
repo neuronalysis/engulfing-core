@@ -423,7 +423,6 @@ class Website {
     	//if (!isset($this->activescope_OntologyClass) && !isset($this->activescope_Ontology)) {
     		$html .= '
 		<div class="container">
-			<br>
     		<div class="page-header" style="display: none;">
 	  			<h1 id="title"></h1>
 			</div>
@@ -443,7 +442,6 @@ class Website {
     	} else {
     		$html .= '
 		<div class="container">
-			<br>
     		<div class="page-header" style="display: none;">
 	  			<h1 id="title"></h1>
 			</div>
