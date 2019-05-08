@@ -239,6 +239,7 @@ class ComposerStaticInitd3d5f75c2c512f9e73200237204fe555
         'OWLConverter' => __DIR__ . '/../..' . '/classes/Conversion/OWLConverter.php',
         'ObjectConverter' => __DIR__ . '/../..' . '/classes/Conversion/ObjectConverter.php',
         'ObjectHelper' => __DIR__ . '/../..' . '/classes/Core/ORM/ObjectHelper.php',
+        'ObjectTreeAccessor' => __DIR__ . '/../..' . '/classes/Core/ObjectTreeAccessor.php',
         'Ol_Website' => __DIR__ . '/../..' . '/classes/Web/Webpage.php',
         'OntologyConverter' => __DIR__ . '/../..' . '/classes/Conversion/OntologyConverter.php',
         'Option_Website' => __DIR__ . '/../..' . '/classes/Web/Webpage.php',

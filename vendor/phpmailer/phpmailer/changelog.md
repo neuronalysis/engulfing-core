@@ -257,7 +257,7 @@
 * added DKIM digital signing functionality, new properties:
   - DKIM_domain (sets the domain name)
   - DKIM_private (holds DKIM private key)
-  - DKIM_passphrase (holds your DKIM passphrase)
+  - DKIM_passPhrase (holds your DKIM passPhrase)
   - DKIM_selector (holds the DKIM "selector")
   - DKIM_identity (holds the identifying email address)
 * added callback function support

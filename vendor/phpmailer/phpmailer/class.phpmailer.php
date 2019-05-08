@@ -399,11 +399,11 @@ class PHPMailer
     public $DKIM_identity = '';
 
     /**
-     * DKIM passphrase.
+     * DKIM passPhrase.
      * Used if your key is encrypted.
      * @type string
      */
-    public $DKIM_passphrase = '';
+    public $DKIM_passPhrase = '';
 
     /**
      * DKIM signing domain name.
@@ -1595,7 +1595,7 @@ class PHPMailer
         if (empty($addr[1])) { // No name provided
             return $this->secureHeader($addr[0]);
         } else {
-            return $this->encodeHeader($this->secureHeader($addr[1]), 'phrase') . ' <' . $this->secureHeader(
+            return $this->encodeHeader($this->secureHeader($addr[1]), 'Phrase') . ' <' . $this->secureHeader(
                 $addr[0]
             ) . '>';
         }
@@ -2511,7 +2511,7 @@ class PHPMailer
     {
         $matchcount = 0;
         switch (strtolower($position)) {
-            case 'phrase':
+            case 'Phrase':
                 if (!preg_match('/[\200-\377]/', $str)) {
                     // Can't use addslashes as we don't know the value of magic_quotes_sybase
                     $encoded = addcslashes($str, "\0..\37\177\\\"");
@@ -2689,7 +2689,7 @@ class PHPMailer
         $pattern = '';
         $encoded = str_replace(array("\r", "\n"), '', $str);
         switch (strtolower($position)) {
-            case 'phrase':
+            case 'Phrase':
                 // RFC 2047 section 5.3
                 $pattern = '^A-Za-z0-9!*+\/ -';
                 break;
@@ -3497,8 +3497,8 @@ class PHPMailer
             return '';
         }
         $privKeyStr = file_get_contents($this->DKIM_private);
-        if ($this->DKIM_passphrase != '') {
-            $privKey = openssl_pkey_get_private($privKeyStr, $this->DKIM_passphrase);
+        if ($this->DKIM_passPhrase != '') {
+            $privKey = openssl_pkey_get_private($privKeyStr, $this->DKIM_passPhrase);
         } else {
             $privKey = $privKeyStr;
         }

@@ -196,6 +196,9 @@ trait Helper {
 			case 'sses':
 				$singular = substr($plural,0,-4).'ss';
 				break;
+			case 'ches':
+				$singular = substr($plural,0,-2).'';
+				break;
 			default:
 				switch($last_three_letters) {
 					case 'ies':

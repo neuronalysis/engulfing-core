@@ -62,20 +62,27 @@ class REST_Transformer {
 	}
 	function mapAssocData($mapped, $data) {
 		foreach($data as $key => $value) {
-			if ($value instanceof stdClass) {
-				$mapped->$key = $this->mapDataToObject($value, $this->getClassName($key));
+			if (is_array($value)) {
+				foreach($value as $data_item) {
+					array_push($mapped->$key, $this->mapDataToObject($data_item, $this->getClassName($key)));
+				}
 			} else {
-				if (property_exists($mapped, $key)) {
-					$rp = new ReflectionProperty($mapped,$key);
-					if ($rp->isProtected()) {
-						$setterMethodName = "set" . ucfirst($key);
-						
-						if (method_exists($mapped, $setterMethodName)) $mapped->$setterMethodName($value);
-					} else {
-						$mapped->$key = $value;
+				if ($value instanceof stdClass) {
+					$mapped->$key = $this->mapDataToObject($value, $this->getClassName($key));
+				} else {
+					if (property_exists($mapped, $key)) {
+						$rp = new ReflectionProperty($mapped,$key);
+						if ($rp->isProtected()) {
+							$setterMethodName = "set" . ucfirst($key);
+							
+							if (method_exists($mapped, $setterMethodName)) $mapped->$setterMethodName($value);
+						} else {
+							$mapped->$key = $value;
+						}
 					}
 				}
 			}
+			
 		}
 		
 		return $mapped;

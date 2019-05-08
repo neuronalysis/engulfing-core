@@ -214,6 +214,7 @@ return array(
     'OWLConverter' => $baseDir . '/classes/Conversion/OWLConverter.php',
     'ObjectConverter' => $baseDir . '/classes/Conversion/ObjectConverter.php',
     'ObjectHelper' => $baseDir . '/classes/Core/ORM/ObjectHelper.php',
+    'ObjectTreeAccessor' => $baseDir . '/classes/Core/ObjectTreeAccessor.php',
     'Ol_Website' => $baseDir . '/classes/Web/Webpage.php',
     'OntologyConverter' => $baseDir . '/classes/Conversion/OntologyConverter.php',
     'Option_Website' => $baseDir . '/classes/Web/Webpage.php',
