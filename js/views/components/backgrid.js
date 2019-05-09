@@ -6,6 +6,12 @@ window.BackGridTableView = BaseView.extend({
 			this.template = _.template(tpl.get('components/backgrid'));
 		}
 		
+		if (options.showPaginator !== undefined) {
+			this.showPaginator = options.showPaginator;
+		} else {
+			this.showPaginator = true;
+		}
+		
 		this.OntologyClass = options.OntologyClass;
 		
 		this.actions = [];
@@ -91,13 +97,16 @@ window.BackGridTableView = BaseView.extend({
 		var $example2 = $("#backgrid-table");
 		$example2.append(pageableGrid.render().el)
 
-		// Initialize the paginator
-		var paginator = new Backgrid.Extension.Paginator({
-		  collection: this.collection
-		});
+		if (this.showPaginator) {
+			// Initialize the paginator
+			var paginator = new Backgrid.Extension.Paginator({
+			  collection: this.collection
+			});
 
-		// Render the paginator
-		$example2.after(paginator.render().el);
+			// Render the paginator
+			$example2.after(paginator.render().el);
+		}
+		
 
 		// Initialize a client-side filter to filter on the client
 		// mode pageable collection's cache.
