@@ -441,6 +441,11 @@ class REST {
 		    $this->app->response->setBody(json_encode ( $result, JSON_PRETTY_PRINT ));
 		}
 	}
+	function processTemplate($template, $data) {
+		$processed = preg_replace_callback('/{{((?:[^}]|}[^}])+)}}/', function($match) use ($data) { return ($data[$match[1]]); }, $template);
+		
+		return $processed;
+	}
 }
 class Response {
 	function __construct() {
