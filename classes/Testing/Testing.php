@@ -224,7 +224,7 @@ class TestClass {
 	    $assert = new TestAssert($expected, $actual);
 	    
 	    $assert->result = (object) array(
-				$method => (($expected == $actual) ? true : false)
+				$method => (($expected === $actual) ? true : false)
 		);
 	
 		return $assert;
@@ -258,41 +258,6 @@ class TestClass {
 		}
 		
 		return $assert;
-	}
-	/*function assertJson($method, $result, $classname, $id = null) {
-		$objectName = str_ireplace("_Test", "", get_class($this));
-		
-		if ($id) {
-			$assert = file_get_contents('../engulfing/engulfing-core/test/asserts/' . strtolower($objectName) . '_' . strtolower($method) . '_' . strtolower($classname) . '_' . strtolower($id) . '.json');
-		} else {
-			$assert = file_get_contents('../engulfing/engulfing-core/test/asserts/' . strtolower($objectName) . '_' . strtolower($method) . '_' . strtolower($classname) . '.json');
-		}
-			
-		$result =  json_encode ( $result, JSON_PRETTY_PRINT );
-		
-		$assert = (object) array(
-			$method => $this->compareTwoStrings($assert, $result)
-		);
-		
-		return $assert;
-	}*/
-	function assertJson($method, $expectedFile, $actual) {
-	    $expectedDecoded = json_decode(file_get_contents($expectedFile));
-	    $expected = json_encode($expectedDecoded, JSON_PRETTY_PRINT);
-	    
-	    $actualDecoded = json_decode($actual);
-	    $actual = json_encode($actualDecoded, JSON_PRETTY_PRINT);
-	    
-	    
-	    $assert = new TestAssert($expected, $actual);
-	    $assert->assertFile = $expectedFile;
-	    
-	    
-	    $assert->result = (object) array(
-	        $method => (($expected == $actual) ? true : false)
-	    );
-	    
-	    return $assert;
 	}
 	function getFunctionReferencesByProject($methodName, $projectNames = array("engulfing/engulfing-core")) {
 		$directory = getcwd() . "../../" . $projectNames[0];

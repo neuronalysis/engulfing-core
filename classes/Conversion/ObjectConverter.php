@@ -82,7 +82,7 @@ class ObjectConverter extends Converter {
 				}
 			} else {
 			    foreach($classvars as $key => $value) {
-				    if ($key == "Strings") {
+				    if ($key === "Strings") {
 						$readKey = "ALTOStrings";
 					} else {
 						$readKey = $key;

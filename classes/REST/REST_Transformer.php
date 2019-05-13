@@ -17,7 +17,35 @@ class REST_Transformer {
 		return $object;
 	}
 	function getClassName($class_name) {
-		$class_name = $this->singularize($class_name);
+		$class_name_singular = $this->singularize($class_name);
+		
+		if (class_exists("\\" . $this->namespace . "\\" . $this->namespace. $class_name)) {
+			$class_name = "\\" . $this->namespace . "\\" . $this->namespace. $class_name;
+		} else {
+			if (class_exists("\\" . $this->namespace . "\\" . $this->namespace. $class_name_singular)) {
+				$class_name = "\\" . $this->namespace . "\\" . $this->namespace. $class_name_singular;
+			} else {
+				if (class_exists("\\" . $this->namespace . "\\" . $class_name)) {
+					$class_name = "\\" . $this->namespace . "\\" . $class_name;
+				} else {
+					if (class_exists("\\" . $this->namespace . "\\" . $class_name_singular)) {
+						$class_name = "\\" . $this->namespace . "\\" . $class_name_singular;
+					} else {
+						if (class_exists("\\" . $class_name)) {
+							$class_name = "\\" . $class_name;
+						} else {
+							if (class_exists("\\" . $class_name_singular)) {
+								$class_name = "\\" . $class_name_singular;
+							} else {
+								$class_name = '\stdClass';
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		/*$class_name = $this->singularize($class_name);
 		
 		if (class_exists($class_name)) {
 			$class_name = $class_name;
@@ -39,7 +67,7 @@ class REST_Transformer {
 					}
 				}
 			}
-		}
+		}*/
 		
 		return $class_name;
 	}
@@ -62,22 +90,36 @@ class REST_Transformer {
 	}
 	function mapAssocData($mapped, $data) {
 		foreach($data as $key => $value) {
-			if (is_array($value)) {
-				foreach($value as $data_item) {
-					array_push($mapped->$key, $this->mapDataToObject($data_item, $this->getClassName($key)));
-				}
+			if ($key === "namespaceDefinitions") {
+				//don't change it
 			} else {
-				if ($value instanceof stdClass) {
-					$mapped->$key = $this->mapDataToObject($value, $this->getClassName($key));
-				} else {
-					if (property_exists($mapped, $key)) {
-						$rp = new ReflectionProperty($mapped,$key);
-						if ($rp->isProtected()) {
-							$setterMethodName = "set" . ucfirst($key);
+				if (is_array($value)) {
+					if ($key === "Strings") $nsKey = $this->namespace . "Strings";
+					foreach($value as $data_item) {
+						if (!isset($mapped->$key)) {
+							if (property_exists($mapped, $key)) {
+								$mapped->$key = array($this->mapDataToObject($data_item, $this->getClassName($key)));
+							} else {
+								echo $key . " does not exit\n";
+							}
 							
-							if (method_exists($mapped, $setterMethodName)) $mapped->$setterMethodName($value);
 						} else {
-							$mapped->$key = $value;
+							array_push($mapped->$key, $this->mapDataToObject($data_item, $this->getClassName($key)));
+						}
+					}
+				} else {
+					if ($value instanceof stdClass) {
+						$mapped->$key = $this->mapDataToObject($value, $this->getClassName($key));
+					} else {
+						if (property_exists($mapped, $key)) {
+							$rp = new ReflectionProperty($mapped,$key);
+							if ($rp->isProtected()) {
+								$setterMethodName = "set" . ucfirst($key);
+								
+								if (method_exists($mapped, $setterMethodName)) $mapped->$setterMethodName($value);
+							} else {
+								$mapped->$key = $value;
+							}
 						}
 					}
 				}

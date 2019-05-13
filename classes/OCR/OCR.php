@@ -152,7 +152,8 @@ class OCR  {
 			if (!$UserID = $auth->isLogged()) return null;
 		}
 		
-		$document = $rest->get($documentID);
+		$document = $rest->orm->getById("\OCR\Document", $documentID);
+		
 		
 		$page = $document->getPageByNumber($pageNumber);
 		
@@ -179,7 +180,7 @@ class OCR  {
 		}
 		
 		
-		$document = $rest->get($documentID);
+		$document = $rest->orm->getById("\OCR\Document", $documentID);
 		
 		$page = $document->getPageByNumberAndVersion($pageNumber, $versionNumber);
 		
@@ -200,7 +201,7 @@ class OCR  {
 		$auth = \Authentication::getInstance();
 		$config= $rest->getConfig();
 		
-		$document = $rest->get($documentID);
+		$document = $rest->orm->getById("\OCR\Document", $documentID);
 		
 		$scanImageFile = $config['frontend']['work'] . 'ocr/images/' . $document->name . "_" . sprintf('%04d', $pageNumber) . ".jpg";
 		
@@ -233,7 +234,7 @@ class OCR  {
 		$objconv = new \ObjectConverter();
 		$comparator = new \Comparator_KOKOS();
 		
-		$document = $rest->get($id);
+		$document = $rest->orm->getById("\OCR\Document", $id);
 		
 		$page = $document->getPageByNumber($pageNumber);
 		
@@ -285,7 +286,8 @@ class OCR  {
 			if (!$UserID = $auth->isLogged()) return null;
 		}
 		
-		$document = $rest->get($id);
+		$document = $rest->orm->getById("\OCR\Document", $id);
+		
 		$objconv = new \ObjectConverter();
 		
 		$page = $document->getPageByNumberAndVersion($pageNumber, $versionNumber);
@@ -350,7 +352,7 @@ class OCR  {
 			if (!$UserID = $auth->isLogged()) return null;
 		}
 		
-		$document = $rest->get($documentID);
+		$document = $rest->orm->getById("\OCR\Document", $documentID);
 		
 		$pages = $document->getPages();
 		
