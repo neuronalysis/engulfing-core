@@ -90,10 +90,10 @@ class REST_Transformer {
 	}
 	function mapAssocData($mapped, $data) {
 		foreach($data as $key => $value) {
-			if ($key === "namespaceDefinitions") {
-				//don't change it
-			} else {
-				if (is_array($value)) {
+			if (is_array($value)) {
+				if ($key === "namespaceDefinitions") {
+					//don't change it
+				} else {
 					if ($key === "Strings") $nsKey = $this->namespace . "Strings";
 					foreach($value as $data_item) {
 						if (!isset($mapped->$key)) {
@@ -107,19 +107,19 @@ class REST_Transformer {
 							array_push($mapped->$key, $this->mapDataToObject($data_item, $this->getClassName($key)));
 						}
 					}
+				}
+			} else {
+				if ($value instanceof stdClass) {
+					$mapped->$key = $this->mapDataToObject($value, $this->getClassName($key));
 				} else {
-					if ($value instanceof stdClass) {
-						$mapped->$key = $this->mapDataToObject($value, $this->getClassName($key));
-					} else {
-						if (property_exists($mapped, $key)) {
-							$rp = new ReflectionProperty($mapped,$key);
-							if ($rp->isProtected()) {
-								$setterMethodName = "set" . ucfirst($key);
-								
-								if (method_exists($mapped, $setterMethodName)) $mapped->$setterMethodName($value);
-							} else {
-								$mapped->$key = $value;
-							}
+					if (property_exists($mapped, $key)) {
+						$rp = new ReflectionProperty($mapped,$key);
+						if ($rp->isProtected()) {
+							$setterMethodName = "set" . ucfirst($key);
+							
+							if (method_exists($mapped, $setterMethodName)) $mapped->$setterMethodName($value);
+						} else {
+							$mapped->$key = $value;
 						}
 					}
 				}
