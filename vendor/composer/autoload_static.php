@@ -34,6 +34,7 @@ class ComposerStaticInitd3d5f75c2c512f9e73200237204fe555
         'ABBYYConverter' => __DIR__ . '/../..' . '/classes/Conversion/ABBYYConverter.php',
         'ALTOConverter' => __DIR__ . '/../..' . '/classes/Conversion/ALTOConverter.php',
         'ALTO\\ALTOString' => __DIR__ . '/../..' . '/classes/OCR/ALTO.php',
+        'ALTO\\AltoDOM' => __DIR__ . '/../..' . '/classes/OCR/ALTO.php',
         'ALTO\\BottomMargin' => __DIR__ . '/../..' . '/classes/OCR/ALTO.php',
         'ALTO\\ComposedBlock' => __DIR__ . '/../..' . '/classes/OCR/ALTO.php',
         'ALTO\\Description' => __DIR__ . '/../..' . '/classes/OCR/ALTO.php',

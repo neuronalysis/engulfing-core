@@ -9,6 +9,7 @@ return array(
     'ABBYYConverter' => $baseDir . '/classes/Conversion/ABBYYConverter.php',
     'ALTOConverter' => $baseDir . '/classes/Conversion/ALTOConverter.php',
     'ALTO\\ALTOString' => $baseDir . '/classes/OCR/ALTO.php',
+    'ALTO\\AltoDOM' => $baseDir . '/classes/OCR/ALTO.php',
     'ALTO\\BottomMargin' => $baseDir . '/classes/OCR/ALTO.php',
     'ALTO\\ComposedBlock' => $baseDir . '/classes/OCR/ALTO.php',
     'ALTO\\Description' => $baseDir . '/classes/OCR/ALTO.php',
