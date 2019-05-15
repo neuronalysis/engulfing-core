@@ -73,40 +73,46 @@ class REST_Transformer {
 		return $mapped;
 	}
 	function mapAssocData($mapped, $data) {
-		foreach($data as $key => $value) {
-			if ($key === "namespaceDefinitions") {
-				//don't change it
-			} else {
-				if (is_array($value)) {
-					foreach($value as $data_item) {
-						if (!isset($mapped->$key)) {
-							if (property_exists($mapped, $key)) {
-								$mapped->$key = array($this->mapDataToObject($data_item, $this->getClassName($key)));
-							}
-							
-						} else {
-							array_push($mapped->$key, $this->mapDataToObject($data_item, $this->getClassName($key)));
-						}
-					}
+		if (is_array($data) || is_object($data)) {
+			foreach($data as $key => $value) {
+				if ($key === "namespaceDefinitions") {
+					//don't change it
 				} else {
-					if ($value instanceof stdClass) {
-						$mapped->$key = $this->mapDataToObject($value, $this->getClassName($key));
-					} else {
-						if (property_exists($mapped, $key)) {
-							$rp = new ReflectionProperty($mapped,$key);
-							if ($rp->isProtected()) {
-								$setterMethodName = "set" . ucfirst($key);
+					if (is_array($value)) {
+						foreach($value as $data_item) {
+							if (!isset($mapped->$key)) {
+								if (property_exists($mapped, $key)) {
+									$mapped->$key = array($this->mapDataToObject($data_item, $this->getClassName($key)));
+								}
 								
-								if (method_exists($mapped, $setterMethodName)) $mapped->$setterMethodName($value);
 							} else {
-								$mapped->$key = $value;
+								array_push($mapped->$key, $this->mapDataToObject($data_item, $this->getClassName($key)));
+							}
+						}
+					} else {
+						if ($value instanceof stdClass) {
+							$mapped->$key = $this->mapDataToObject($value, $this->getClassName($key));
+						} else {
+							if (property_exists($mapped, $key)) {
+								$rp = new ReflectionProperty($mapped,$key);
+								if ($rp->isProtected()) {
+									$setterMethodName = "set" . ucfirst($key);
+									
+									if (method_exists($mapped, $setterMethodName)) $mapped->$setterMethodName($value);
+								} else {
+									$mapped->$key = $value;
+								}
 							}
 						}
 					}
 				}
+				
 			}
-			
+		} else {
+			//echo "no valid array-value\n";
+			//print_r($data);
 		}
+		
 		
 		return $mapped;
 	}
